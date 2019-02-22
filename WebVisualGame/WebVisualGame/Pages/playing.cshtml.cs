@@ -34,11 +34,6 @@ namespace WebVisualGame.Pages
 
 			var user = db.Users.FirstOrDefault(i => i.Login == Login && i.Password == Password);
 
-			if (user != null)
-			{
-				user.ActiveKey = "#keyTest";
-			}
-
 			db.SaveChanges();
 			return RedirectToPage("Index");
 		}

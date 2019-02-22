@@ -10,6 +10,9 @@ namespace WebVisualGame.Pages
 {
 	public class IndexModel : PageModel
 	{
+		[BindProperty]
+		public string UserName { get; set; }
+
 		private readonly Repository db;
 
 		public IndexModel(Repository db)
@@ -27,6 +30,8 @@ namespace WebVisualGame.Pages
 				if (sign == SignGenerator.GetSign(login + "bytepp"))
 				{
 					isAuthorization = true;
+					var user = db.Users.FirstOrDefault(i => i.Login == login);
+					UserName = user.FirstName + " " + user.LastName;
 				}
 			}
 		}
