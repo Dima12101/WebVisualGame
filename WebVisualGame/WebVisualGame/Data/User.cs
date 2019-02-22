@@ -9,7 +9,6 @@ namespace WebVisualGame.Data
 	public class User
 	{
 		public int Id { get; set; }
-		public string ActiveKey { get; set; }
 		[Required(ErrorMessage = "Укажите Ваше имя")]
 		public string Login { get; set; }
 		[Required(ErrorMessage = "Укажите Ваш логин")]

@@ -3,6 +3,25 @@
 @{
     ViewData["Title"] = "Home page";
 }
+<div class="container">
+    <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+            @if (Model.isAuthorization == true)
+            {
+                <li>
+                    <form method="POST">
+                        <button type="submit" class="btn btn-primary" asp-page-handler="Exit">Выход</button>
+                    </form>
+                </li>
+            }
+            else
+            {
+                <li><a asp-page="/Registration">Зарегистрироваться</a></li>
+                <li><a asp-page="/Authorization">Авторизироваться</a></li>
+            }
+        </ul>
+    </div>
+</div>
 
 <div id="ListGame">
     

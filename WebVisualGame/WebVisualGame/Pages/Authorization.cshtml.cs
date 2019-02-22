@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using System.Web;
 using WebVisualGame.Data;
 
 namespace WebVisualGame.Pages
@@ -42,8 +43,9 @@ namespace WebVisualGame.Pages
 			}
 			else
 			{
-				var key = "#key" + (new Random()).Next();
-				user.ActiveKey = key;
+				
+				Response.Cookies.Append("Login", Login);
+				Response.Cookies.Append("Sign", SignGenerator.GetSign(Login + "bytepp"));
 				db.SaveChanges();
 				return RedirectToPage("Index");
 			}

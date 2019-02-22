@@ -55,6 +55,9 @@ namespace WebVisualGame
 			app.UseStaticFiles();
 			app.UseCookiePolicy();
 
+			//app.UseRequestLocalization();
+			//app.UseResponseCompression();
+
 			app.UseMvc();
 		}
 	}
