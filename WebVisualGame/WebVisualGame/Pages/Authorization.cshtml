@@ -8,7 +8,8 @@
     <div class="panel-heading text-center"><h4>Авторизация</h4></div>
     <div class="panel-body">
         <form asp-action="Authorization" method="post">
-            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="text-danger">@Model.Error</div>
+            <br />
             <div class="form-group">
                 <label asp-for="Login">Ваш Логин:</label>
                 <input asp-for="Login" />
@@ -18,7 +19,7 @@
                 <input type="password" asp-for="Password" />
             </div>
             <div class="text-center">
-                <button class="btn bg-primary" type="submit">Зарегистрироваться!</button>
+                <button class="btn bg-primary" type="submit">Авторизироваться!</button>
             </div>
         </form>
     </div>

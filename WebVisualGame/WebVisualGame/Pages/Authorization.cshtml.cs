@@ -24,24 +24,29 @@ namespace WebVisualGame.Pages
 			this.db = db;
 		}
 
+		[BindProperty]
+		public string Error { get; set; }
+
 		public IActionResult OnPost()
 		{
 			if (!ModelState.IsValid)
 			{
 				return Page();
 			}
-			//db.Users.Add(user);
-			//await db.SaveChangesAsync();
 
 			var user = db.Users.FirstOrDefault(i => i.Login == Login && i.Password == Password);
-
-			if (user != null)
+			if (user == null)
 			{
-				user.ActiveKey = "#keyTest";
+				Error = "Такой пользователь не существует!";
+				return Page();
 			}
-			
-			db.SaveChanges();
-			return RedirectToPage("Index");
+			else
+			{
+				var key = "#key" + (new Random()).Next();
+				user.ActiveKey = key;
+				db.SaveChanges();
+				return RedirectToPage("Index");
+			}
 		}
 	}
 }
