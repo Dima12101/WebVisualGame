@@ -1,5 +1,5 @@
 ﻿@page
-@model WebVisualGame.Pages.RegisterModel
+@model WebVisualGame.Pages.RegistrationModel
 @{
     ViewData["Title"] = "Регистрация";
 }
@@ -9,6 +9,12 @@
     <div class="panel-body">
         <form asp-action="Register" method="post">
             <div asp-validation-summary="All" class="text-danger"></div>
+            <ul class="text-danger">
+                @foreach(var error in Model.ServerErrors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
             <div class="form-group">
                 <label asp-for="user.FirstName">Ваше Имя:</label>
                 <input asp-for="user.FirstName" />
