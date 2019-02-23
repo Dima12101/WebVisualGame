@@ -15,8 +15,12 @@ namespace WebVisualGame.Pages
 
 		private readonly Repository db;
 
+		[BindProperty]
+		public IList<Game> games { get; set; }
+
 		public IndexModel(Repository db)
 		{
+			games = db.Games.ToList();
 			isAuthorization = false;
 			this.db = db;
 		}
@@ -39,12 +43,17 @@ namespace WebVisualGame.Pages
 		[BindProperty]
 		public bool isAuthorization { get; set; }
 
+		public IActionResult OnPostStartGame(int gameId)
+		{
+			return Page();
+		}
+
 		public IActionResult OnPostExit()
 		{
 			Response.Cookies.Delete("Login");
 			Response.Cookies.Delete("Sign");
 			isAuthorization = false;
-			return Page();
+			return RedirectToPage("/Index");
 		}
 	}
 }

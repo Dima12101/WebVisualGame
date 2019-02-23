@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -19,5 +20,8 @@ namespace WebVisualGame.Data.GameData
 
 		[Required]
 		public int NumberInList { get; set; }
+
+		[Required]
+		public DbSet<GameData.Сondition> сonditions { get; set; }
 	}
 }
