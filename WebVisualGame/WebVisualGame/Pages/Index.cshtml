@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Home page";
 }
+<br />
 <div class="container">
     <div class="navbar-collapse collapse">
         @if (Model.isAuthorization == true)
@@ -20,8 +21,8 @@
             }
             else
             {
-                <li><a asp-page="/Registration">Зарегистрироваться</a></li>
-                <li><a asp-page="/Authorization">Авторизироваться</a></li>
+                <li><a class="btn btn-primary" asp-page="/Registration">Зарегистрироваться</a></li>
+                <li><a class="btn btn-primary" asp-page="/Authorization">Авторизироваться</a></li>
             }
         </ul>
     </div>

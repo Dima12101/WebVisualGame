@@ -9,8 +9,8 @@ using WebVisualGame.Data;
 namespace WebVisualGame.Migrations
 {
     [DbContext(typeof(Repository))]
-    [Migration("20190222220753_deleteActiveKey")]
-    partial class deleteActiveKey
+    [Migration("20190223145620_DeleteTestTable")]
+    partial class DeleteTestTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
