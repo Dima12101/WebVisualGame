@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,6 +13,7 @@ namespace WebVisualGame.Data
 		[Key]
 		public int Id { get; set; }
 
+		[ForeignKey("User")]
 		[Required]
 		public int UserId { get; set; }
 
@@ -22,6 +24,7 @@ namespace WebVisualGame.Data
 		[MaxLength(300)]
 		public string Description { get; set; }
 
+		[Url]
 		[MaxLength(100)]
 		[Required]
 		public string UrlIcon { get; set; }

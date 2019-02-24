@@ -10,7 +10,7 @@
         <form asp-action="Register" method="post">
             <div asp-validation-summary="All" class="text-danger"></div>
             <ul class="text-danger">
-                @foreach(var error in Model.ServerErrors)
+                @foreach (var error in Model.ServerErrors)
                 {
                     <li>@error</li>
                 }
@@ -30,6 +30,10 @@
             <div class="form-group">
                 <label asp-for="user.Password">Ваш Пароль:</label>
                 <input asp-for="user.Password" />
+            </div>
+            <div class="form-group">
+                <label asp-for="user.PasswordConfirm">Ваш Пароль (повторно):</label>
+                <input asp-for="user.PasswordConfirm" />
             </div>
             <div class="form-group">
                 <label asp-for="user.Email">Ваш Email:</label>
