@@ -2,15 +2,17 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebVisualGame.Data;
 
 namespace WebVisualGame.Migrations
 {
     [DbContext(typeof(Repository))]
-    partial class RepositoryModelSnapshot : ModelSnapshot
+    [Migration("20190224001632_TestMig1")]
+    partial class TestMig1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -72,7 +74,7 @@ namespace WebVisualGame.Migrations
 
                     b.HasIndex("GameId");
 
-                    b.ToTable("PointDialogues");
+                    b.ToTable("PointDialogue");
                 });
 
             modelBuilder.Entity("WebVisualGame.Data.GameData.Transition", b =>
@@ -93,7 +95,7 @@ namespace WebVisualGame.Migrations
 
                     b.HasIndex("GameId");
 
-                    b.ToTable("Transitions");
+                    b.ToTable("Transition");
                 });
 
             modelBuilder.Entity("WebVisualGame.Data.GameData.Сondition", b =>
@@ -112,7 +114,7 @@ namespace WebVisualGame.Migrations
 
                     b.HasIndex("TransitionId");
 
-                    b.ToTable("Сonditions");
+                    b.ToTable("Сondition");
                 });
 
             modelBuilder.Entity("WebVisualGame.Data.User", b =>
@@ -151,7 +153,7 @@ namespace WebVisualGame.Migrations
             modelBuilder.Entity("WebVisualGame.Data.Game", b =>
                 {
                     b.HasOne("WebVisualGame.Data.User")
-                        .WithMany("Games")
+                        .WithMany("UserGames")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
@@ -159,7 +161,7 @@ namespace WebVisualGame.Migrations
             modelBuilder.Entity("WebVisualGame.Data.GameData.PointDialogue", b =>
                 {
                     b.HasOne("WebVisualGame.Data.Game")
-                        .WithMany("PointDialogues")
+                        .WithMany("pointDialogues")
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
@@ -167,7 +169,7 @@ namespace WebVisualGame.Migrations
             modelBuilder.Entity("WebVisualGame.Data.GameData.Transition", b =>
                 {
                     b.HasOne("WebVisualGame.Data.Game")
-                        .WithMany("Transitions")
+                        .WithMany("transitions")
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
@@ -175,7 +177,7 @@ namespace WebVisualGame.Migrations
             modelBuilder.Entity("WebVisualGame.Data.GameData.Сondition", b =>
                 {
                     b.HasOne("WebVisualGame.Data.GameData.Transition")
-                        .WithMany("Conditions")
+                        .WithMany("сonditions")
                         .HasForeignKey("TransitionId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

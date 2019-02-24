@@ -27,6 +27,6 @@ namespace WebVisualGame.Data.GameData
 		public int NumberInList { get; set; }
 
 		[Required]
-		public DbSet<GameData.Сondition> сonditions { get; set; }
+		public IList<Сondition> Conditions { get; set; }
 	}
 }

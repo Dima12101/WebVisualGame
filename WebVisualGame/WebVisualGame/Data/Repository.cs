@@ -16,5 +16,11 @@ namespace WebVisualGame.Data
 		public DbSet<User> Users { get; set; }
 
 		public DbSet<Game> Games { get; set; }
+
+		public DbSet<GameData.PointDialogue> PointDialogues { get; set; }
+
+		public DbSet<GameData.Transition> Transitions { get; set; }
+
+		public DbSet<GameData.Сondition> Сonditions { get; set; }
 	}
 }

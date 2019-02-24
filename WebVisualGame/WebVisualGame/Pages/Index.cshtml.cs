@@ -45,7 +45,7 @@ namespace WebVisualGame.Pages
 
 		public IActionResult OnPostStartGame(int gameId)
 		{
-			return Page();
+			return RedirectToPage("/Index");
 		}
 
 		public IActionResult OnPostExit()

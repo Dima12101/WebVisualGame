@@ -37,9 +37,9 @@ namespace WebVisualGame.Data
 		public string SourceCode { get; set; }
 
 		[Required]
-		public DbSet<GameData.PointDialogue> pointDialogues { get; set; }
+		public IList<GameData.PointDialogue> PointDialogues { get; set; }
 
 		[Required]
-		public DbSet<GameData.Transition> transitions { get; set; }
+		public IList<GameData.Transition> Transitions { get; set; }
 	}
 }
