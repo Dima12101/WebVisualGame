@@ -69,7 +69,8 @@ namespace GameInterpreror
         {
             TokenizerState state = TokenizerState.ReadNothing;
 
-            using (var charEnumer = GetCharSequence(path)) {
+            using (var charEnumer = GetCharSequence(path))
+            {
 
                 string currentToken = "";
 
@@ -171,7 +172,8 @@ namespace GameInterpreror
             }
         }
 
-        private enum ReadGameStates {
+        private enum ReadGameStates
+        {
             ReadNothing, ReadPointNumber, ReadPointText,
             ReadPointActions, ReadLinkStart, ReadCondition,
             ReadLinkText, ReadLinkAction, ReadLinkTransition
@@ -214,7 +216,7 @@ namespace GameInterpreror
                 {
                     throw new SyntaxError($"Expected action: 'lose' or 'find', found: {tokens[0]}");
                 }
-                
+
                 if (Regex.IsMatch(tokens[1], keyRegExp))
                 {
                     MatchCollection collection = Regex.Matches(tokens[1], "[\\d]+");
@@ -228,7 +230,7 @@ namespace GameInterpreror
                 {
                     throw new SyntaxError($"Unacceptable key definition: {tokens[0]}");
                 }
-                
+
                 if (tokens.Length > 2)
                 {
                     throw new SyntaxError($"Incorrect action construction, staring from '{tokens[2]}'");
