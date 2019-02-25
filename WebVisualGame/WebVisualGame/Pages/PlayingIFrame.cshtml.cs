@@ -12,23 +12,39 @@ using System.Text.RegularExpressions;
 
 namespace WebVisualGame.Pages
 {
-    public class PlayingIFrameModel : PageModel
-    {
+	public class PlayingIFrameModel : PageModel
+	{
 
 		private readonly Repository db;
-		private readonly int gameId;
+		private int gameId;
 		private SortedSet<int> keys;
 
-        public void OnGet(int id_transition)
-        {
-			id_transition = matchingTransition[id_transition];
-			pointID = db.Transitions.FirstOrDefault(i => i.StartPoint == pointID &&
-			i.GameId == gameID &&
-			i.Id == id_transition).NextPoint;
+		public PointDialog Point { get; private set; }
+		[BindProperty]
+		public Transition[] Transitions { get; set; }
+		public int Size { get; private set; }
 
-			var matchingTransition = db.Transitions.Select(i => i.StartPoint == pointID &&
-			i.GameId == gameID).ToArray();
-			var l = db.�onditions.Select(i => i.TransitionId )
+
+		public PlayingIFrameModel(Repository _db)
+		{
+			db = _db;
+		}
+
+		public void OnGet()
+		{
+			keys = new SortedSet<int>();
+			gameId = Int32.Parse(Request.Cookies["GameID"]);
+			int pointNumber = Int32.Parse(Request.Cookies["StartPoint"]);
+			Point = db.PointDialogs.FirstOrDefault(i => i.GameId == gameId &&
+			i.StateNumber == pointNumber);
+			string stringKey = Request.Cookies["SetKeys"];
+
+			var numCollection = Regex.Matches(stringKey, "[0-9]+");
+			foreach (Match it in numCollection)
+			{
+				keys.Add(Int32.Parse(it.Value));
+			}
+			UpdateTransition();
 		}
 
 		public void OnPostAnswer(int index_transition)
@@ -37,10 +53,11 @@ namespace WebVisualGame.Pages
 			Point = db.PointDialogs.FirstOrDefault(i => i.StateNumber == Point.StateNumber &&
 			i.GameId == gameId);
 
-			var transiton_actions = db.TransitionActions.Include(i => 
+			var transiton_actions = db.TransitionActions.Include(i =>
 				i.TransitionId == transition.Id).ToArray();
-			var point_actions = db.PointDialogActions.Include(i => 
+			var point_actions = db.PointDialogActions.Include(i =>
 				i.PointDialogId == Point.Id).ToArray();
+			UpdateTransition();
 		}
 
 		private void UpdateTransition()
@@ -55,15 +72,15 @@ namespace WebVisualGame.Pages
 								{
 									Id = trans.Id,
 									Type = cond.Type,
-									Key�ondition = cond.Key�ondition
+									KeyÑondition = cond.KeyСondition
 								}).ToArray();
 			// deleting impossible transitions
 			for (int i = 0; i < mergedTables.Length; ++i)
 			{
-				// Type == 1 => keys canrains Key�ondition, else deleting Transition
+				// Type == 1 => keys canrains KeyÑondition, else deleting Transition
 				// table have to been sorted
 				if (mergedTables[i].Type !=
-					keys.Contains(mergedTables[i].Key�ondition))
+					keys.Contains(mergedTables[i].KeyÑondition))
 				{
 					int transitionId = mergedTables[i].Id;
 					FiltereTransition(newTransitons, transitionId);
@@ -122,25 +139,5 @@ namespace WebVisualGame.Pages
 				}
 			}
 		}
-    }
+	}
 }
-		public PointDialog Point { get; private set; }
-		public Transition[] Transitions { get; private set; }
-		public int Size { get; private set; }
-
-		public PlayingIFrameModel(Repository _db)
-		{
-			db = _db;
-			keys = new SortedSet<int>();
-			gameId = Int32.Parse(Request.Cookies["GameID"]);
-			int pointNumber = Int32.Parse(Request.Cookies["StartPoint"]);
-			Point = db.PointDialogs.FirstOrDefault(i => i.GameId == gameId &&
-			i.StateNumber == pointNumber);
-			string stringKey = Request.Cookies["SetKeys"];
-
-			var numCollection = Regex.Matches(stringKey, "([0-9]+");
-			foreach (Match it in numCollection)
-			{
-				keys.Add(Int32.Parse(it.Value));
-			}
-			UpdateTransition();
