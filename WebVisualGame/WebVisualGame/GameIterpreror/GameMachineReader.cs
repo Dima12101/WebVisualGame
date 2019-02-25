@@ -69,7 +69,8 @@ namespace GameInterpreror
         {
             TokenizerState state = TokenizerState.ReadNothing;
 
-            using (var charEnumer = GetCharSequence(path)) {
+            using (var charEnumer = GetCharSequence(path))
+            {
 
                 string currentToken = "";
 
@@ -122,7 +123,7 @@ namespace GameInterpreror
                             {
                                 if (c == ')')
                                 {
-                                    yield return new BaseToken(BaseTokenType.round_brackets_content, currentToken);
+                                    yield return new BaseToken(BaseTokenType.rndBrktContent, currentToken);
                                     currentToken = "";
                                     state = TokenizerState.ReadNothing;
                                 }
@@ -134,7 +135,7 @@ namespace GameInterpreror
                             {
                                 if (c == ']')
                                 {
-                                    yield return new BaseToken(BaseTokenType.square_brackets_content, currentToken);
+                                    yield return new BaseToken(BaseTokenType.sqrBrktContent, currentToken);
                                     currentToken = "";
                                     state = TokenizerState.ReadNothing;
                                 }
@@ -171,7 +172,8 @@ namespace GameInterpreror
             }
         }
 
-        private enum ReadGameStates {
+        private enum ReadGameStates
+        {
             ReadNothing, ReadPointNumber, ReadPointText,
             ReadPointActions, ReadLinkStart, ReadCondition,
             ReadLinkText, ReadLinkAction, ReadLinkTransition
@@ -204,31 +206,31 @@ namespace GameInterpreror
 
                 if (tokens[0].Equals(findLexem))
                 {
-                    gameActions[i].type = ActionType.FindKey;
+                    gameActions[i].Type = ActionType.FindKey;
                 }
                 else if (tokens[0].Equals(loseLexem))
                 {
-                    gameActions[i].type = ActionType.LoseKey;
+                    gameActions[i].Type = ActionType.LoseKey;
                 }
                 else
                 {
                     throw new SyntaxError($"Expected action: 'lose' or 'find', found: {tokens[0]}");
                 }
-                
+
                 if (Regex.IsMatch(tokens[1], keyRegExp))
                 {
                     MatchCollection collection = Regex.Matches(tokens[1], "[\\d]+");
 
                     foreach (Match num in collection)
                     {
-                        gameActions[i].keyNumber = int.Parse(num.Value);
+                        gameActions[i].KeyNumber = int.Parse(num.Value);
                     }
                 }
                 else
                 {
                     throw new SyntaxError($"Unacceptable key definition: {tokens[0]}");
                 }
-                
+
                 if (tokens.Length > 2)
                 {
                     throw new SyntaxError($"Incorrect action construction, staring from '{tokens[2]}'");
@@ -307,7 +309,7 @@ namespace GameInterpreror
 
                 foreach (Match num in collection)
                 {
-                    linkConditions[i].keyNumber = int.Parse(num.Value);
+                    linkConditions[i].KeyNumber = int.Parse(num.Value);
                 }
             }
 
@@ -346,7 +348,7 @@ namespace GameInterpreror
                                     linkList.Add(currLink);
                                     state = ReadGameStates.ReadLinkStart;
                                 }
-                                else if (token.Type == BaseTokenType.round_brackets_content)
+                                else if (token.Type == BaseTokenType.rndBrktContent)
                                 {
                                     if (state == ReadGameStates.ReadLinkTransition)
                                     {
@@ -395,7 +397,7 @@ namespace GameInterpreror
                         case ReadGameStates.ReadPointActions:
                         case ReadGameStates.ReadPointText:
                             {
-                                if (token.Type == BaseTokenType.square_brackets_content)
+                                if (token.Type == BaseTokenType.sqrBrktContent)
                                 {
                                     bool parseResult = int.TryParse(token.Content, out int result);
 
@@ -426,7 +428,7 @@ namespace GameInterpreror
 
                                     state = ReadGameStates.ReadNothing;
                                 }
-                                else if (token.Type == BaseTokenType.round_brackets_content && state == ReadGameStates.ReadPointText)
+                                else if (token.Type == BaseTokenType.rndBrktContent && state == ReadGameStates.ReadPointText)
                                 {
                                     GameAction[] actions = ParseActions(token.Content);
 
@@ -453,7 +455,7 @@ namespace GameInterpreror
                         case ReadGameStates.ReadCondition:
                         case ReadGameStates.ReadLinkStart:
                             {
-                                if (token.Type == BaseTokenType.round_brackets_content && state == ReadGameStates.ReadLinkStart)
+                                if (token.Type == BaseTokenType.rndBrktContent && state == ReadGameStates.ReadLinkStart)
                                 {
                                     LinkCondition[] conditions = ParseCondition(token.Content);
 
@@ -472,7 +474,7 @@ namespace GameInterpreror
                         case ReadGameStates.ReadLinkAction:
                         case ReadGameStates.ReadLinkText:
                             {
-                                if (token.Type == BaseTokenType.round_brackets_content && state == ReadGameStates.ReadLinkText)
+                                if (token.Type == BaseTokenType.rndBrktContent && state == ReadGameStates.ReadLinkText)
                                 {
                                     GameAction[] actions = ParseActions(token.Content);
 
@@ -480,7 +482,7 @@ namespace GameInterpreror
 
                                     state = ReadGameStates.ReadLinkAction;
                                 }
-                                else if (token.Type == BaseTokenType.square_brackets_content)
+                                else if (token.Type == BaseTokenType.sqrBrktContent)
                                 {
                                     bool parseResult = int.TryParse(token.Content, out int result);
 

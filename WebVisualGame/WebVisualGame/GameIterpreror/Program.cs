@@ -7,9 +7,22 @@ using System.Threading.Tasks;
 namespace GameInterpreror
 {
 
-    class Key
+    enum ActionType { FindKey, LoseKey }
+
+    struct GameAction
     {
-        public int ID { get; private set; }
+        public ActionType Type { get; set; }
+
+        public int KeyNumber { get; set; }
+    }
+
+    enum ConditionType { HaveNot, Have }
+
+    struct LinkCondition
+    {
+        public ConditionType Type { get; set; }
+
+        public int KeyNumber { get; set; }
     }
 
     class DialogLink
