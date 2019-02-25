@@ -36,12 +36,23 @@ namespace WebVisualGame.Pages
 					isAuthorization = true;
 					var user = db.Users.FirstOrDefault(i => i.Login == login);
 					UserName = user.FirstName + " " + user.LastName;
+					if (user.AccessLevel == 1)
+					{
+						isAdmin = true;
+					}
+					else
+					{
+						isAdmin = false;
+					}
 				}
 			}
 		}
 
 		[BindProperty]
 		public bool isAuthorization { get; set; }
+
+		[BindProperty]
+		public bool isAdmin { get; set; }
 
 		public IActionResult OnPostStartGame(int gameId)
 		{
@@ -50,6 +61,7 @@ namespace WebVisualGame.Pages
 
 		public IActionResult OnPostExit()
 		{
+			Response.Cookies.Delete("Id");
 			Response.Cookies.Delete("Login");
 			Response.Cookies.Delete("Sign");
 			isAuthorization = false;

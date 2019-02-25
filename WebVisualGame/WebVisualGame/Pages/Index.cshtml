@@ -27,6 +27,11 @@
         @if (Model.isAuthorization == true)
         {
             <p>Здравствуй @Model.UserName !</p>
+            @if (Model.isAdmin)
+            {
+                <a asp-page="/AdminPages/ListUsers">Список пользователей <span style="color:red;">(Admin)</span></a>
+            }
+
             <form method="POST">
                 <button class="UserButton" type="submit" asp-page-handler="Exit">Выход</button>
             </form>
