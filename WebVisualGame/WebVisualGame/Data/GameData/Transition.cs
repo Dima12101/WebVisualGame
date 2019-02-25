@@ -24,7 +24,7 @@ namespace WebVisualGame.Data.GameData
 		public int NextPoint { get; set; }
 
 		[Required]
-		public IList<Сondition> Conditions { get; set; }
+		public IList<Condition> Conditions { get; set; }
 
 		[Required]
 		public IList<TransitionAction> TransitionActions { get; set; }

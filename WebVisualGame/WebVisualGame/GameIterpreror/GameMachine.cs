@@ -6,6 +6,48 @@ using System.Threading.Tasks;
 
 namespace GameInterpreror
 {
+    enum ActionType { FindKey, LoseKey }
+
+    struct GameAction
+    {
+        public ActionType Type { get; set; }
+
+        public int KeyNumber { get; set; }
+    }
+
+    enum ConditionType { HaveNot, Have }
+
+    struct LinkCondition
+    {
+        public ConditionType Type { get; set; }
+
+        public int KeyNumber { get; set; }
+    }
+
+    class DialogLink
+    {
+        public DialogLink()
+        {
+            Actions = new GameAction[0];
+            Conditions = new LinkCondition[0];
+        }
+
+        public string Text { get; set; }
+        public int Number { get; set; }
+        public GameAction[] Actions { get; set; }
+        public DialogPoint NextPoint { get; set; }
+        public LinkCondition[] Conditions { get; set; }
+    }
+
+    class DialogPoint
+    {
+        public string Text { get; set; }
+        public int ID { get; set; }
+        public GameAction[] Actions { get; set; }
+        public DialogLink[] Links { get; set; }
+    }
+
+
     class GameMachine
     {
         private HashSet<int> KeyStorage { get; set; }
@@ -39,7 +81,7 @@ namespace GameInterpreror
             {
                 bool haveType = conditions[i].Type == ConditionType.Have;
 
-                bool reallyHave = KeyStorage.Contains(conditions[i].keyNumber);
+                bool reallyHave = KeyStorage.Contains(conditions[i].KeyNumber);
 
                 if (haveType != reallyHave) return false;
             }
@@ -87,13 +129,13 @@ namespace GameInterpreror
 
             for (int i = 0; i < actions.Length; ++i)
             {
-                if (actions[i].type == ActionType.FindKey)
+                if (actions[i].Type == ActionType.FindKey)
                 {
-                    KeyStorage.Add(actions[i].keyNumber);
+                    KeyStorage.Add(actions[i].KeyNumber);
                 }
-                else if (actions[i].type == ActionType.LoseKey)
+                else if (actions[i].Type == ActionType.LoseKey)
                 {
-                    KeyStorage.Remove(actions[i].keyNumber);
+                    KeyStorage.Remove(actions[i].KeyNumber);
                 }
             }
         }

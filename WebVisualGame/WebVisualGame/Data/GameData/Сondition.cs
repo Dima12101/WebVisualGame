@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WebVisualGame.Data.GameData
 {
-	public class Сondition
+	public class Condition
 	{
 		[Key]
 		public int Id { get; set; }
