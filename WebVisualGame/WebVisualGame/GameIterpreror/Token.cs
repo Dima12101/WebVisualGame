@@ -8,12 +8,12 @@ namespace GameInterpreror
 {
     enum BaseTokenType
     {
-        round_brackets_content, square_brackets_content, text, minus
+        rndBrktContent, sqrBrktContent, text, minus
     }
 
     enum FinalTokenTypes
     {
-        point_number, key_lexem, key_number, lock_type, lock_number, next_point_number, have_lexem, not_lexem, text, minus
+        pointNumber, keyLexem, keyNumber, lockType, lockNumber, nextPointNumber, haveLexem, notLexem, text, minus
     }
 
     class BaseToken
@@ -24,24 +24,8 @@ namespace GameInterpreror
             Type = type;
         }
 
-        public String Content { get; private set; }
+        public string Content { get; private set; }
 
         public BaseTokenType Type { get; private set; }
-    }
-
-    enum ActionType { FindKey, LoseKey }
-
-    struct GameAction
-    {
-        public ActionType type;
-        public int keyNumber;
-    }
-
-    enum ConditionType { HaveNot, Have }
-
-    struct LinkCondition
-    {
-        public ConditionType Type { get; set; }
-        public int keyNumber;
     }
 }

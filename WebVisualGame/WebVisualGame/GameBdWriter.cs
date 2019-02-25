@@ -46,40 +46,68 @@ namespace WebVisualGame
             {
                 DialogPoint currPoint = dpQueue.Dequeue();
 
-                var pointDialogNote = new Data.GameData.PointDialogue()
+                var pointDialogNote = new Data.GameData.PointDialog()
                 {
                     Background_imageURL = "",
                     StateNumber = currPoint.ID,
                     Text = currPoint.Text,
-                    // temp stupid code
-                    GameId = gameID
+                    GameId = gameID,
+                    PointDialogActions = new List<Data.GameData.PointDialogAction>()
                 };
 
                 for (int i = 0; i < currPoint.Actions.Length; ++i)
                 {
-                    // creating actions
+                    var actionNote = new Data.GameData.PointDialogAction()
+                    {
+                        Type = (currPoint.Actions[i].Type == ActionType.FindKey),
+                        KeyAction = currPoint.Actions[i].KeyNumber,
+                    };
 
-                    try
-                    {
-                        // adding actions
-                        dataBase.PointDialogues.Add(pointDialogNote);
-                    }
-                    catch (Exception e)
-                    {
-                        // handling db writing exception
-                    }
+                    pointDialogNote.PointDialogActions.Add(actionNote);
                 }
+
+                try
+                {
+                    dataBase.PointDialogs.Add(pointDialogNote);
+                }
+                catch (Exception e)
+                {
+                    // handling db writing exception
+                }
+
 
                 foreach (var currLink in currPoint.Links)
                 {
-                    var linkNote = new Data.GameData.Transition
+                    var linkNote = new Data.GameData.Transition()
                     {
                         StartPoint = currPoint.ID,
                         NextPoint = currLink.NextPoint.ID,
-                        // temp stupid code
                         GameId = gameID,
-                        NumberInList = 0
+                        Conditions = new List<Data.GameData.Сondition>(),
+                        TransitionActions = new List<Data.GameData.TransitionAction>()
                     };
+
+                    for (int i = 0; i < currLink.Conditions.Length; ++i)
+                    {
+                        var conditionNote = new Data.GameData.Сondition()
+                        {
+                            KeyСondition = currLink.Conditions[i].KeyNumber,
+                            Type = (currLink.Conditions[i].Type == ConditionType.Have)
+                        };
+
+                        linkNote.Conditions.Add(conditionNote);
+                    }
+
+                    for (int i = 0; i < currLink.Actions.Length; ++i)
+                    {
+                        var linkActionNote = new Data.GameData.TransitionAction()
+                        {
+                            Type = (currLink.Actions[i].Type == ActionType.FindKey),
+                            KeyAction = currLink.Actions[i].KeyNumber
+                        };
+
+                        linkNote.TransitionActions.Add(linkActionNote);
+                    }
 
                     try
                     {
@@ -87,41 +115,7 @@ namespace WebVisualGame
                     }
                     catch (Exception e)
                     {
-
-                    }
-
-                    for (int i = 0; i < currLink.Conditions.Length; ++i)
-                    {
-                        var conditionNote = new Data.GameData.Сondition
-                        {
-                            // whaaaa?
-                            //KeyСondition = currLink.Conditions[i].keyNumber,
-                            //TransitionId = 0,
-                        };
-
-                        try
-                        {
-                            dataBase.Add(conditionNote);
-                        }
-                        catch (Exception e)
-                        {
-                            // handling writting exception
-                        }
-
-                    }
-
-                    for (int i = 0; i < currLink.Actions.Length; ++i)
-                    {
-                        // creating action
-
-                        try
-                        {
-                            // writting the action
-                        }
-                        catch (Exception e)
-                        {
-                            // db writting exception
-                        }
+                        // 
                     }
 
                     if (!dpSet.Contains(currLink.NextPoint))
