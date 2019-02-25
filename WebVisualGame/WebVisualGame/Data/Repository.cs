@@ -25,6 +25,6 @@ namespace WebVisualGame.Data
 
 		public DbSet<GameData.TransitionAction> TransitionActions { get; set; }
 
-		public DbSet<GameData.Сondition> Сonditions { get; set; }
+		public DbSet<GameData.Condition> Conditions { get; set; }
 	}
 }

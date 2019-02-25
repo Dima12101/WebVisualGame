@@ -26,6 +26,7 @@ namespace WebVisualGame.Pages
 
 		public IActionResult OnPost()
 		{
+
 			if (!ModelState.IsValid)
 			{
 				return Page();
