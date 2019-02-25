@@ -72,7 +72,10 @@ namespace WebVisualGame.Pages
 
 		public IActionResult OnPostStartGame(int gameId)
 		{
-			return RedirectToPage("/Index");
+			Response.Cookies.Append("GameId", gameId.ToString());
+			Response.Cookies.Append("SetKeys", "");
+			Response.Cookies.Append("StartPoint", "0");
+			return RedirectToPage("/playing");
 		}
 
 		public IActionResult OnPostExit()
