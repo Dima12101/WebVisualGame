@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WebVisualGame.Data.GameData
 {
-	public class Transition
+	public class PointDialog
 	{
 		[Key]
 		public int Id { get; set; }
@@ -18,15 +17,18 @@ namespace WebVisualGame.Data.GameData
 		public int GameId { get; set; }
 
 		[Required]
-		public int StartPoint { get; set; }
+		public int StateNumber { get; set; }
+
+		[MaxLength(300)]
+		[Required]
+		public string Text { get; set; }
+
+		[Url]
+		[MaxLength(100)]
+		[Required]
+		public string Background_imageURL { get; set; }
 
 		[Required]
-		public int NextPoint { get; set; }
-
-		[Required]
-		public IList<Сondition> Conditions { get; set; }
-
-		[Required]
-		public IList<TransitionAction> TransitionActions { get; set; }
+		public IList<PointDialogAction> PointDialogActions { get; set; }
 	}
 }

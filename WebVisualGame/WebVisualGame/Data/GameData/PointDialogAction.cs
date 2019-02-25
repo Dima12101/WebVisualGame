@@ -7,19 +7,19 @@ using System.Threading.Tasks;
 
 namespace WebVisualGame.Data.GameData
 {
-	public class Сondition
+	public class PointDialogAction
 	{
 		[Key]
 		public int Id { get; set; }
-		
-		[ForeignKey("Transition")]
+
+		[ForeignKey("PointDialog")]
 		[Required]
-		public int TransitionId { get; set; }
+		public int PointDialogId { get; set; }
 
 		[Required]
 		public bool Type { get; set; }
 
 		[Required]
-		public int KeyСondition { get; set; }
+		public int KeyAction { get; set; }
 	}
 }
