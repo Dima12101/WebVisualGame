@@ -37,6 +37,10 @@ namespace WebVisualGame.Data
 		+ @"@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$", ErrorMessage = "Укажите корректный Email, псина,пожалуйста")]
 		public string Email { get; set; }
 
+		[Range(0, 1, ErrorMessage = "Введите либо 0, либо 1")]
+		[Required]
+		public int AccessLevel  { get; set; }
+
 		public IList<Game> Games { get; set; }
 	}
 }
