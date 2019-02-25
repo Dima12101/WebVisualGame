@@ -21,6 +21,10 @@ namespace WebVisualGame.Pages
 
 		public IndexModel(Repository db)
 		{
+			//var gameDbWriter = new GameDbWriter(db);
+
+			//gameDbWriter.SaveGameToDd("gamePet.txt", 12);
+			//db.SaveChanges();
 			games = db.Games.ToList();
 			isAuthorization = false;
 			this.db = db;
@@ -28,20 +32,6 @@ namespace WebVisualGame.Pages
 
 		public void OnGet()
 		{
-			var cond = new Data.GameData.Condition();
-				cond.KeyСondition = 5;
-				cond.Type = false;
-
-			var trans = new Data.GameData.Transition();
-				trans.StartPoint = 19;
-				trans.NextPoint = 51;
-				trans.GameId = 5;
-
-			trans.Conditions = new List<Data.GameData.Condition>();
-			trans.Conditions.Add(cond);
-			//db.Conditions.Add(cond);
-			db.Transitions.Add(trans);
-			db.SaveChanges();
 			//var trans3 = db.Transitions.Where(i => i.StartPoint > 3).ToList();
 			//var result = (from trans in trans3
 			//			  join cond in db.Сonditions on trans.Id equals cond.TransitionId

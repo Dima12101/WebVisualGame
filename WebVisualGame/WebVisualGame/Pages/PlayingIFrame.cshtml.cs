@@ -20,14 +20,14 @@ namespace WebVisualGame.Pages
 
         public void OnGet(int id_transition)
         {
-			id_transition = matchingTransition[id_transition];
+			//id_transition = matchingTransition[id_transition];
 			pointID = db.Transitions.FirstOrDefault(i => i.StartPoint == pointID &&
 			i.GameId == gameID &&
 			i.Id == id_transition).NextPoint;
 
 			var matchingTransition = db.Transitions.Select(i => i.StartPoint == pointID &&
 			i.GameId == gameID).ToArray();
-			var l = db.Ñonditions.Select(i => i.TransitionId )
+			var l = db.Conditions.Select(i => i.TransitionId);
 		}
     }
 }

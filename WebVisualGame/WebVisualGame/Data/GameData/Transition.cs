@@ -23,6 +23,10 @@ namespace WebVisualGame.Data.GameData
 		[Required]
 		public int NextPoint { get; set; }
 
+		[MaxLength(400)]
+		[Required]
+		public string Text { get; set; }
+
 		[Required]
 		public IList<Condition> Conditions { get; set; }
 

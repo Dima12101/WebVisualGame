@@ -55,17 +55,19 @@ namespace WebVisualGame
                     PointDialogActions = new List<Data.GameData.PointDialogAction>()
                 };
 
-                for (int i = 0; i < currPoint.Actions.Length; ++i)
-                {
-                    var actionNote = new Data.GameData.PointDialogAction()
-                    {
-                        Type = (currPoint.Actions[i].Type == ActionType.FindKey),
-                        KeyAction = currPoint.Actions[i].KeyNumber,
-                    };
+				if (currPoint.Actions != null)
+				{
+					for (int i = 0; i < currPoint.Actions.Length; ++i)
+					{
+						var actionNote = new Data.GameData.PointDialogAction()
+						{
+							Type = (currPoint.Actions[i].Type == ActionType.FindKey),
+							KeyAction = currPoint.Actions[i].KeyNumber,
+						};
 
-                    pointDialogNote.PointDialogActions.Add(actionNote);
-                }
-
+						pointDialogNote.PointDialogActions.Add(actionNote);
+					}
+				}
                 try
                 {
                     dataBase.PointDialogs.Add(pointDialogNote);
@@ -83,13 +85,14 @@ namespace WebVisualGame
                         StartPoint = currPoint.ID,
                         NextPoint = currLink.NextPoint.ID,
                         GameId = gameID,
-                        Conditions = new List<Data.GameData.Сondition>(),
-                        TransitionActions = new List<Data.GameData.TransitionAction>()
+                        Conditions = new List<Data.GameData.Condition>(),
+                        TransitionActions = new List<Data.GameData.TransitionAction>(),
+						Text = currLink.Text
                     };
 
                     for (int i = 0; i < currLink.Conditions.Length; ++i)
                     {
-                        var conditionNote = new Data.GameData.Сondition()
+                        var conditionNote = new Data.GameData.Condition()
                         {
                             KeyСondition = currLink.Conditions[i].KeyNumber,
                             Type = (currLink.Conditions[i].Type == ConditionType.Have)
