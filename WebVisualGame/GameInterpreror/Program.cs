@@ -35,11 +35,6 @@ namespace GameInterpreror
         public DialogLink[] Links { get; set; }
     }
 
-    class MachineReader
-    {
-
-    }
-
     class Program
     {
         static void Main(string[] args)
@@ -47,7 +42,7 @@ namespace GameInterpreror
             GameMachine game = null;
             try
             {
-                game = new GameMachine(@"C:\Users\I\Documents\DenisProjects\game.txt");
+                game = new GameMachine(@"C:\Users\I\Documents\DenisProjects\Game_Examples\game.txt");
             }
             catch (ApplicationException e)
             {

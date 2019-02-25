@@ -37,7 +37,7 @@ namespace GameInterpreror
         {
             for (int i = 0; i < conditions.Length; ++i)
             {
-                bool haveType = conditions[i].type == ConditionType.Have;
+                bool haveType = conditions[i].Type == ConditionType.Have;
 
                 bool reallyHave = KeyStorage.Contains(conditions[i].keyNumber);
 

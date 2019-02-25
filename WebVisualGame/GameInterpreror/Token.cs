@@ -29,16 +29,6 @@ namespace GameInterpreror
         public BaseTokenType Type { get; private set; }
     }
 
-    struct DialogPointNumber
-    {
-        int number;
-    }
-
-    struct GameText
-    {
-        string text;
-    }
-
     enum ActionType { FindKey, LoseKey }
 
     struct GameAction
@@ -51,12 +41,7 @@ namespace GameInterpreror
 
     struct LinkCondition
     {
-        public ConditionType type;
+        public ConditionType Type { get; set; }
         public int keyNumber;
-    }
-
-    struct Transition
-    {
-        int nextPointNumber;
     }
 }

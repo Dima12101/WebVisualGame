@@ -38,17 +38,20 @@ namespace GameInterpreror
                 throw new FileNotFoundException();
             }
 
-            const int bufSize = 1024;
+            const int bufSize = 1024 * 1024;
 
             byte[] buffer = new byte[bufSize];
 
             using (FileStream fs = new FileStream(path, FileMode.Open))
             {
-                int readSymbols = 1;
-
-                while (readSymbols > 0)
+                while (true)
                 {
-                    readSymbols = fs.Read(buffer, 0, bufSize);
+                    int readSymbols = fs.Read(buffer, 0, bufSize);
+
+                    if (readSymbols <= 0)
+                    {
+                        break;
+                    }
 
                     char[] charArray = encoder.GetChars(buffer);
 
@@ -62,7 +65,7 @@ namespace GameInterpreror
 
         private enum TokenizerState { ReadNothing, ReadRound, ReadSquare, ReadQuote, ReadSlashInText }
 
-        private IEnumerator<BaseToken> GetBaseTokens(string path)
+        public IEnumerator<BaseToken> GetBaseTokens(string path)
         {
             TokenizerState state = TokenizerState.ReadNothing;
 
@@ -112,7 +115,7 @@ namespace GameInterpreror
                         case TokenizerState.ReadSlashInText:
                             {
                                 currentToken += c;
-                                state = TokenizerState.ReadRound;
+                                state = TokenizerState.ReadQuote;
                                 break;
                             }
                         case TokenizerState.ReadRound:
@@ -277,7 +280,7 @@ namespace GameInterpreror
                 {
                     if (tokens[1].Equals(notLexem))
                     {
-                        linkConditions[i].type = ConditionType.HaveNot;
+                        linkConditions[i].Type = ConditionType.HaveNot;
                     }
                     else
                     {
@@ -286,7 +289,7 @@ namespace GameInterpreror
                 }
                 else if (tokens.Length == 2)
                 {
-                    linkConditions[i].type = ConditionType.Have;
+                    linkConditions[i].Type = ConditionType.Have;
                 }
                 else
                 {
