@@ -39,9 +39,10 @@ namespace WebVisualGame.Pages
 			{
 				keys.Add(Int32.Parse(it.Value));
 			}
+			UpdateTransition();
 		}
 
-		public void OnGetAnswer(int index_transition)
+		public void OnPostAnswer(int index_transition)
 		{
 			var transition = Transitions[index_transition];
 			Point = db.PointDialogs.FirstOrDefault(i => i.StateNumber == Point.StateNumber &&
@@ -51,19 +52,22 @@ namespace WebVisualGame.Pages
 				i.TransitionId == transition.Id).ToArray();
 			var point_actions = db.PointDialogActions.Include(i => 
 				i.PointDialogId == Point.Id).ToArray();
+		}
 
+		private void UpdateTransition()
+		{
 			var newTransitons = db.Transitions.Where(i => i.GameId == gameId &&
-			i.StartPoint == Point.StateNumber).ToList();
+				i.StartPoint == Point.StateNumber).ToList();
 
 			var mergedTables = (from trans in newTransitons
-								join cond in db.—onditions on trans.Id equals cond.TransitionId
+								join cond in db.Conditions on trans.Id equals cond.TransitionId
 								orderby (trans.Id)
-						  select new
-						  {
-							  Id = trans.Id,
-							  Type = cond.Type,
-							  Key—ondition = cond.Key—ondition
-						  }).ToArray();
+								select new
+								{
+									Id = trans.Id,
+									Type = cond.Type,
+									Key—ondition = cond.Key—ondition
+								}).ToArray();
 			// deleting impossible transitions
 			for (int i = 0; i < mergedTables.Length; ++i)
 			{
