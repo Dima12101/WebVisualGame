@@ -7,27 +7,19 @@ using System.Threading.Tasks;
 
 namespace WebVisualGame.Data.GameData
 {
-	public class PointDialogue
+	public class TransitionAction
 	{
 		[Key]
 		public int Id { get; set; }
 
-		[ForeignKey("Game")]
+		[ForeignKey("Transition")]
 		[Required]
-		public int GameId { get; set; }
+		public int TransitionId { get; set; }
 
 		[Required]
-		public int StateNumber { get; set; }
+		public bool Type { get; set; }
 
-		[MaxLength(300)]
 		[Required]
-		public string Text { get; set; }
-
-		[Url]
-		[MaxLength(100)]
-		[Required]
-		public string Background_imageURL { get; set; }
-
-
+		public int KeyAction { get; set; }
 	}
 }
