@@ -21,10 +21,13 @@ namespace WebVisualGame.Pages
 
 		public IndexModel(Repository db)
 		{
-			//var gameDbWriter = new GameDbWriter(db);
+			var gameDbWriter = new GameDbWriter(db);
+
+			gameDbWriter.UpdateGame(9, "Короли2", "the_king_39_s_story.txt", "Игра о королях стала лучше. Играйте сцуки!", "./images/kingImg.jpg");
+
+			//gameDbWriter.SaveNewGame("Новый год!", "NewYear.txt", "О новом годе!", "./images/newYear.jpg", 1);
 
 			//gameDbWriter.SaveGameToDd("gamePet.txt", 12);
-			//db.SaveChanges();
 			games = db.Games.ToList();
 			isAuthorization = false;
 			this.db = db;
@@ -42,6 +45,9 @@ namespace WebVisualGame.Pages
 			//				 Type = cond.Type,
 			//				 KeyСondition = cond.KeyСondition
 			//			 }).ToList();
+
+
+
 
 			if (Request.Cookies.ContainsKey("Login") && Request.Cookies.ContainsKey("Sign"))
 			{
@@ -75,7 +81,7 @@ namespace WebVisualGame.Pages
 			Response.Cookies.Append("GameId", gameId.ToString());
 			Response.Cookies.Append("SetKeys", "");
 			Response.Cookies.Append("StartPoint", "0");
-			return RedirectToPage("/PlayingIFrame");
+			return RedirectToPage("/Playing");
 		}
 
 		public IActionResult OnPostExit()

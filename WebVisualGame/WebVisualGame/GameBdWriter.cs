@@ -261,7 +261,9 @@ namespace WebVisualGame
         {
             dataBase.Transitions.RemoveRange(dataBase.Transitions.Where(c => c.GameId == gameID));
 
-            Data.Game gameNote = null;
+			dataBase.PointDialogs.RemoveRange(dataBase.PointDialogs.Where(c => c.GameId == gameID));
+
+			Data.Game gameNote = null;
 
             try
             {
@@ -281,10 +283,6 @@ namespace WebVisualGame
 
                 gameNote.UrlIcon = icon;
             }
-
-            gameNote.PointDialogues.Clear();
-
-            gameNote.Transitions.Clear();
 
             SaveGameComponents(path, gameNote);
 
