@@ -19,7 +19,6 @@ namespace WebVisualGame.Pages
 		public PointDialog Point { get; private set; }
 		[BindProperty]
 		public Transition[] Transitions { get; set; }
-		public int Size { get; private set; }
 
 		public PlayingModel(Repository _db)
 		{
@@ -41,6 +40,7 @@ namespace WebVisualGame.Pages
 			{
 				keys.Add(int.Parse(it.Value));
 			}
+			UpdateTransition();
 		}
 
 		public IActionResult OnPostAnswer(int id_transition)
@@ -106,8 +106,7 @@ namespace WebVisualGame.Pages
 					--i;
 				}
 			}
-			Size = newTransitons.Count;
-			Transitions = new Transition[Size];
+			Transitions = new Transition[newTransitons.Count];
 
 			int j = 0;
 			foreach (var newTransition in newTransitons)

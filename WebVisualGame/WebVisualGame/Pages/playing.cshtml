@@ -4,25 +4,63 @@
     ViewData["Title"] = "Игра";
 }
 
-<p>@Model.Point.Text</p>
-
-<div id="ListAnswers">
-    <table class="table table-striped table-bordered">
-        <tbody>
+<style rel="stylesheet">
+    #Game {
+        margin: 1% 25% 0 25%;
+        width: 500px;
+        border: groove;
+    }
+    #Question {
+        border-bottom: groove;
+        background-color: aliceblue;
+        color: brown;
+        text-align: center;
+        height: max-content;
+    }
+    #Image {
+        height: 400px;
+        /*
+        background-image: url(./images/kingImg.jpg);
+        background-repeat: round;*/
+    }
+    #Image img{
+        width:inherit;
+        height:inherit;
+    }
+    #ListAnswers {
+        border-top: groove;
+        background-color: aliceblue;
+        height: max-content;
+    }
+    #Answer {
+        background-color:transparent;
+        border:none;
+        margin:3px;
+    }
+    #Answer:hover {
+        text-shadow: 0 0 0.7em maroon;
+        color: green;
+    }
+</style>
+<div id="Game">
+    <div id="Question">
+        <p>@Model.Point.Text</p>
+    </div>
+    <div id="Image">
+        <img src="./images/kingImg.jpg" alt="Картинка" />
+    </div>
+    <div id="ListAnswers">
+        <ul>
             @for (int i = 0; i < Model.Transitions.Length; ++i)
             {
-                <tr>
-                    <td>
-                        @Model.Transitions[i].Text
-                    </td>
-                    <td>
-                        <form method="POST">
-                            <button type="submit" asp-page-handler="Answer" asp-route-id_transition="@Model.Transitions[i].Id">Answer</button>
-                        </form>
-                    </td>
-                </tr>
+                <li>
+                    <form method="POST">
+                        <button id="Answer" type="submit" asp-page-handler="Answer" asp-route-id_transition="@Model.Transitions[i].Id">@Model.Transitions[i].Text</button>
+                    </form>
+                </li>
             }
-        </tbody>
-    </table>
+        </ul>
+    </div>
 </div>
+
 
