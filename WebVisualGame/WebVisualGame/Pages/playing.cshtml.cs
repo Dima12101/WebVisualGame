@@ -16,9 +16,9 @@ namespace WebVisualGame.Pages
 		private SortedSet<int> keys;
 
 		[BindProperty]
-		public PointDialog Point { get; private set; }
+		public PointDialog Point { get; set; }
 		[BindProperty]
-		public Transition[] Transitions { get; set; }
+		public List<Transition> Transitions { get; set; }
 
 		public PlayingModel(Repository _db)
 		{
@@ -30,11 +30,11 @@ namespace WebVisualGame.Pages
 		{
 			gameId = int.Parse(Request.Cookies["GameID"]);
 
-			var pointNumber = int.Parse(Request.Cookies["StartPoint"]);
+			int pointNumber = int.Parse(Request.Cookies["StartPoint"]);
 			Point = db.PointDialogs.FirstOrDefault(i => i.GameId == gameId &&
 			i.StateNumber == pointNumber);
 
-			var stringKey = Request.Cookies["SetKeys"];
+			string stringKey = Request.Cookies["SetKeys"];
 			var numCollection = Regex.Matches(stringKey, "[0-9]+");
 			foreach (Match it in numCollection)
 			{
@@ -77,11 +77,11 @@ namespace WebVisualGame.Pages
 
 		private void UpdateTransition()
 		{
-			var newTransitons = db.Transitions.Where(i => i.GameId == gameId &&
+			var Transitions = db.Transitions.Where(i => i.GameId == gameId &&
 				i.StartPoint == Point.StateNumber).ToList();
 
-			var mergedTables = (from trans in newTransitons
-								join cond in db.Conditions on trans.Id equals cond.TransitionId
+			var ConditionTables = (from trans in Transitions
+								   join cond in db.Conditions on trans.Id equals cond.TransitionId
 								orderby (trans.Id)
 								select new
 								{
@@ -90,29 +90,21 @@ namespace WebVisualGame.Pages
 									KeyCondition = cond.KeyСondition
 								}).ToArray();
 			// deleting impossible transitions
-			for (int i = 0; i < mergedTables.Length; ++i)
+			for (int i = 0; i < ConditionTables.Length; ++i)
 			{
 				// Type == 1 => keys canrains KeyÑondition, else deleting Transition
 				// table have to been sorted
-				if (mergedTables[i].Type !=
-					keys.Contains(mergedTables[i].KeyCondition))
+				if (ConditionTables[i].Type !=
+					keys.Contains(ConditionTables[i].KeyCondition))
 				{
-					int transitionId = mergedTables[i].Id;
-					FilterTransition(newTransitons, transitionId);
-					while (i < mergedTables.Length && mergedTables[i].Id == transitionId)
+					int transitionId = ConditionTables[i].Id;
+					FilterTransition(Transitions, transitionId);
+					while (i < ConditionTables.Length && ConditionTables[i].Id == transitionId)
 					{
 						++i;
 					}
 					--i;
 				}
-			}
-			Transitions = new Transition[newTransitons.Count];
-
-			int j = 0;
-			foreach (var newTransition in newTransitons)
-			{
-				Transitions[j] = newTransition;
-				++j;
 			}
 		}
 
