@@ -297,5 +297,15 @@ namespace WebVisualGame
                 //...
             }
         }
-    }
+
+		public void DeleteGame(int gameId)
+		{
+			dataBase.Transitions.RemoveRange(dataBase.Transitions.Where(c => c.GameId == gameId));
+
+			dataBase.PointDialogs.RemoveRange(dataBase.PointDialogs.Where(c => c.GameId == gameId));
+
+			dataBase.Games.RemoveRange(dataBase.Games.FirstOrDefault(c => c.Id == gameId));
+		}
+	}
+}
 }
