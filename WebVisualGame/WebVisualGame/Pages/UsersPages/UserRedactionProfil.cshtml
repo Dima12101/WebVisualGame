@@ -4,43 +4,44 @@
 }
 
 <div class="panel panel-success">
-	<div class="panel-heading text-center"><h4>Регистрация</h4></div>
+	<div class="panel-heading text-center"><h4>Редактирование профиля</h4></div>
 	<div class="panel-body">
-		<form asp-action="Register" method="post">
-			<div asp-validation-summary="All" class="text-danger"></div>
-			<ul class="text-danger">
-				@foreach (var error in Model.ServerErrors)
-				{
-					<li>@error</li>
-				}
-			</ul>
-			<div class="form-group">
-				<label asp-for="User.FirstName">Ваше Имя:</label>
-				<input asp-for="User.FirstName" />
-			</div>
-			<div class="form-group">
-				<label asp-for="User.LastName">Ваша Фамилия:</label>
-				<input asp-for="User.LastName" />
-			</div>
-			<div class="form-group">
-				<label asp-for="User.Login">Ваш Логин:</label>
-				<input asp-for="User.Login" />
-			</div>
-			<div class="form-group">
-				<label asp-for="User.Password">Ваш Пароль:</label>
-				<input asp-for="User.Password" />
-			</div>
-			<div class="form-group">
-				<label asp-for="User.PasswordConfirm">Ваш Пароль (повторно):</label>
-				<input asp-for="User.PasswordConfirm" />
-			</div>
-			<div class="form-group">
-				<label asp-for="User.Email">Ваш Email:</label>
-				<input asp-for="User.Email" />
-			</div>
-			<div class="text-center">
-				<button class="btn bg-primary" type="submit">обновить!</button>
-			</div>
-		</form>
+        <form asp-action="Register" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input asp-for="user.Id" type="hidden" />
+            <ul class="text-danger">
+                @foreach (var error in Model.ServerErrors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+            <div class="form-group">
+                <label asp-for="user.FirstName">Ваше Имя:</label>
+                <input asp-for="user.FirstName" />
+            </div>
+            <div class="form-group">
+                <label asp-for="user.LastName">Ваша Фамилия:</label>
+                <input asp-for="user.LastName" />
+            </div>
+            <div class="form-group">
+                <label asp-for="user.Login">Ваш Логин:</label>
+                <input asp-for="user.Login" />
+            </div>
+            <div class="form-group">
+                <label asp-for="user.Password">Ваш Пароль:</label>
+                <input asp-for="user.Password" />
+            </div>
+            <div class="form-group">
+                <label asp-for="user.PasswordConfirm">Ваш Пароль (повторно):</label>
+                <input asp-for="user.PasswordConfirm" />
+            </div>
+            <div class="form-group">
+                <label asp-for="user.Email">Ваш Email:</label>
+                <input asp-for="user.Email" />
+            </div>
+            <div class="text-center">
+                <button class="btn bg-primary" type="submit">Обновить!</button>
+            </div>
+        </form>
 	</div>
 </div>

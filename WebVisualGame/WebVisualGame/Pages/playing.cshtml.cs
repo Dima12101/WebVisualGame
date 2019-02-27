@@ -77,7 +77,7 @@ namespace WebVisualGame.Pages
 
 		private void UpdateTransition()
 		{
-			var Transitions = db.Transitions.Where(i => i.GameId == gameId &&
+			Transitions = db.Transitions.Where(i => i.GameId == gameId &&
 				i.StartPoint == Point.StateNumber).ToList();
 
 			var ConditionTables = (from trans in Transitions
@@ -98,7 +98,7 @@ namespace WebVisualGame.Pages
 					keys.Contains(ConditionTables[i].KeyCondition))
 				{
 					int transitionId = ConditionTables[i].Id;
-					FilterTransition(Transitions, transitionId);
+					FilterTransition(transitionId);
 					while (i < ConditionTables.Length && ConditionTables[i].Id == transitionId)
 					{
 						++i;
@@ -108,13 +108,13 @@ namespace WebVisualGame.Pages
 			}
 		}
 
-		private void FilterTransition(List<Transition> transitions, int id)
+		private void FilterTransition(int id)
 		{
-			foreach (var transition in transitions)
+			foreach (var transition in Transitions)
 			{
 				if (transition.Id == id)
 				{
-					transitions.Remove(transition);
+					Transitions.Remove(transition);
 					return;
 				}
 			}

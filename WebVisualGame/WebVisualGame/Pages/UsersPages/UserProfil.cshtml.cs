@@ -27,19 +27,10 @@ namespace WebVisualGame.Pages.UsersPages
 		public IList<Game> games { get; set; }
 
 		[BindProperty]
-		public string Error { get; set; } = "пиши правильно!";
+		public Game _Game { get; set; }
 
 		[BindProperty]
-		public string GameName { get; set; }
-
-		[BindProperty]
-		public string GameDescription { get; set; }
-
-		[BindProperty]
-		public string GamePath { get; set; }
-
-		[BindProperty]
-		public string UrlPath { get; set; }
+		public string ActionForGame { get; set; }
 
 		private readonly Repository db;
 
@@ -54,13 +45,17 @@ namespace WebVisualGame.Pages.UsersPages
 			user = db.Users.FirstOrDefault(i => i.Id == userId);
 			UserName = user.FirstName + " " + user.LastName;
 
-			if (Request.Cookies.ContainsKey("InputField"))
+			ActionForGame = "Создать";
+			if (Request.Cookies.ContainsKey("GameId"))
 			{
-				InputField = true;
+				var gameId = int.Parse(Request.Cookies["GameId"]);
+				_Game = db.Games.Find(gameId);
+				ActionForGame = "Обновить";
 			}
-			else
+
+			InputField = Request.Cookies.ContainsKey("InputField");
+			if (!InputField)
 			{
-				InputField = true;
 				games = db.Games.Where(i => i.UserId == user.Id).ToList();
 			}
 		}
@@ -76,6 +71,7 @@ namespace WebVisualGame.Pages.UsersPages
 		{
 			Response.Cookies.Append("GameId", gameId.ToString());
 			Response.Cookies.Append("InputField", "");
+
 			return RedirectToPage();
 		}
 
@@ -92,12 +88,14 @@ namespace WebVisualGame.Pages.UsersPages
 			
 			if (Request.Cookies.ContainsKey("GameId"))
 			{
+				Response.Cookies.Delete("InputField");
 				int gameId = Int32.Parse(Request.Cookies["GameId"]);
-				gameDbWriter.UpdateGame(gameId, GameName, GamePath, GameDescription, UrlPath);
+				gameDbWriter.UpdateGame(gameId, _Game.Title, _Game.SourceCode, _Game.Description, _Game.UrlIcon);
 			}
 			else
 			{
-				gameDbWriter.SaveNewGame(GameName, GamePath, GameDescription, UrlPath,
+				Response.Cookies.Delete("InputField");
+				gameDbWriter.SaveNewGame(_Game.Title, _Game.SourceCode, _Game.Description, _Game.UrlIcon,
 					Int32.Parse(Request.Cookies["UserId"]));
 			}
 			return RedirectToPage();
@@ -131,7 +129,7 @@ namespace WebVisualGame.Pages.UsersPages
 
 		public IActionResult OnPostRedaction()
 		{
-			return RedirectToPage("/UserRedactionProfil");
+			return RedirectToPage("/UsersPages/UserRedactionProfil");
 		}
 	}
 }

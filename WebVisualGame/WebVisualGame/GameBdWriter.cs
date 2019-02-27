@@ -305,7 +305,9 @@ namespace WebVisualGame
 			dataBase.PointDialogs.RemoveRange(dataBase.PointDialogs.Where(c => c.GameId == gameId));
 
 			dataBase.Games.RemoveRange(dataBase.Games.FirstOrDefault(c => c.Id == gameId));
+
+			dataBase.SaveChanges();
 		}
 	}
 }
-}
+

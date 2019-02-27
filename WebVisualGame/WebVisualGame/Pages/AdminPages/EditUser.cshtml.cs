@@ -27,7 +27,6 @@ namespace WebVisualGame.Pages.AdminPages
 
 		public async Task<IActionResult> OnGetAsync(int id)
 		{
-		
 			user = await _db.Users.FindAsync(id);
 
 			if (user == null)

@@ -47,7 +47,7 @@ namespace WebVisualGame.Pages
 				Response.Cookies.Append("Login", Login);
 				Response.Cookies.Append("Sign", SignGenerator.GetSign(Login + "bytepp"));
 				db.SaveChanges();
-				return RedirectToPage("UserProfil");
+				return RedirectToPage("/Index");
 			}
 		}
 	}

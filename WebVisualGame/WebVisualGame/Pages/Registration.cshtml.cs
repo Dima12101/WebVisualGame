@@ -42,11 +42,12 @@ namespace WebVisualGame.Pages
 			}
 			else
 			{
-				Response.Cookies.Append("UserId", user.Id.ToString());
+				db.Users.Add(user);
+				db.SaveChanges();
+				var UserId = db.Users.FirstOrDefault(i => i.Login == user.Login);
+				Response.Cookies.Append("UserId", UserId.Id.ToString());
 				Response.Cookies.Append("Login", user.Login);
 				Response.Cookies.Append("Sign", SignGenerator.GetSign(user.Login + "bytepp"));
-				db.Users.Add(user);
-				db.SaveChangesAsync();
 				return RedirectToPage("Index");
 			}
 		}
