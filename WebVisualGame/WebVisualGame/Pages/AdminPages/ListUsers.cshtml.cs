@@ -23,9 +23,9 @@ namespace WebVisualGame.Pages
 
 		public async Task OnGetAsync()
 		{
-			if (Request.Cookies.ContainsKey("Id"))
+			if (Request.Cookies.ContainsKey("UserId"))
 			{
-				AdminId = System.Int32.Parse(Request.Cookies["Id"]);
+				AdminId = System.Int32.Parse(Request.Cookies["UserId"]);
 			}
 			Users = await _db.Users.AsNoTracking().ToListAsync();
 		}

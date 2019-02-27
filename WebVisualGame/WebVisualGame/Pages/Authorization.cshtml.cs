@@ -43,7 +43,7 @@ namespace WebVisualGame.Pages
 			}
 			else
 			{
-				Response.Cookies.Append("Id", user.Id.ToString());
+				Response.Cookies.Append("UserId", user.Id.ToString());
 				Response.Cookies.Append("Login", Login);
 				Response.Cookies.Append("Sign", SignGenerator.GetSign(Login + "bytepp"));
 				db.SaveChanges();

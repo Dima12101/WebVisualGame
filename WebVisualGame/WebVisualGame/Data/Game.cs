@@ -18,28 +18,25 @@ namespace WebVisualGame.Data
 		public int UserId { get; set; }
 
 		[MaxLength(100)]
-		[Required]
+		[Required(ErrorMessage = "Введите название игры")]
 		public string Title { get; set; }
 
 		[MaxLength(300)]
 		public string Description { get; set; }
 
-		[Url]
 		[MaxLength(100)]
-		[Required]
+		[Required(ErrorMessage = "Прикрепите иконку игры")]
 		public string UrlIcon { get; set; }
 
 		[Required]
 		public double Rating { get; set; }
 
 		[MaxLength(1000)]
-		[Required]
+		[Required(ErrorMessage = "Прикрепите код игры")]
 		public string SourceCode { get; set; }
 
-		[Required]
 		public IList<GameData.PointDialog> PointDialogues { get; set; }
 
-		[Required]
 		public IList<GameData.Transition> Transitions { get; set; }
 	}
 }

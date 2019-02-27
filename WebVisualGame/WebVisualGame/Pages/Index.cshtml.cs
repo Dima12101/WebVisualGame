@@ -23,7 +23,7 @@ namespace WebVisualGame.Pages
 		{
 			var gameDbWriter = new GameDbWriter(db);
 
-			gameDbWriter.UpdateGame(9, "Короли2", "the_king_39_s_story.txt", "Игра о королях стала лучше. Играйте сцуки!", "./images/kingImg.jpg");
+			//gameDbWriter.UpdateGame(9, "Короли2", "the_king_39_s_story.txt", "Игра о королях стала лучше. Играйте сцуки!", "./images/kingImg.jpg");
 
 			//gameDbWriter.SaveNewGame("Новый год!", "NewYear.txt", "О новом годе!", "./images/newYear.jpg", 1);
 
