@@ -38,5 +38,7 @@ namespace WebVisualGame.Data
 		public IList<GameData.PointDialog> PointDialogues { get; set; }
 
 		public IList<GameData.Transition> Transitions { get; set; }
+
+		public IList<GameData.SavedGame> SavedGames { get; set; }
 	}
 }

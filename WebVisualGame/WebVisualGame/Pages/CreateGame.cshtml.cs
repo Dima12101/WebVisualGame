@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using WebVisualGame.Data;
+using WebVisualGame.Utilities;
 
 namespace WebVisualGame.Pages
 {
@@ -24,32 +25,63 @@ namespace WebVisualGame.Pages
 		[BindProperty]
 		public string Description { get; set; }
 
-		[BindProperty] 
-		public IFormFile Icon { get; set; }
-
+		//[BindProperty] 
+		//public IFormFile Icon { get; set; }
+		
 		[BindProperty]
 		public IFormFile SourceCode { get; set; }
 
-
+		[BindProperty]
+		public string SourceCodeContent { get; set; }
+		
 		public void OnGet()
         {
+			SourceCodeContent = Request.Cookies["Content"];
+			Error = Request.Cookies["Error"];
+			Response.Cookies.Delete("Content");
+			Response.Cookies.Delete("Error");
 		}
 
+		[BindProperty]
+		public string Error { get; set; }
+
 		[HttpPost]
-		public IActionResult OnPostCreate()
+		public async Task<IActionResult> OnPostAsync()
 		{
-			if (!ModelState.IsValid)
-			{
+			// Perform an initial check to catch FileUpload class
+            // attribute violations.
+            if (!ModelState.IsValid)
+            {
+				Response.Cookies.Append("Error", "Ошибка на клиенте");
 				return Page();
-			}
-			int a = 5;
+            }
+
+            SourceCodeContent = 
+                await FileHelpers.ProcessFormFile(SourceCode, ModelState);
+
+			Response.Cookies.Append("Content", SourceCodeContent);
+
+			// Perform a second check to catch ProcessFormFile method
+			// violations.
+			if (!ModelState.IsValid)
+            {
+				Response.Cookies.Append("Error", "Ошибка чтения файла");
+				return Page();
+            }
+
 			if (Request.Cookies.ContainsKey("UserId"))
 			{
 				var UserId = int.Parse(Request.Cookies["UserId"]);
 				//var gameDbWriter = new GameDbWriter(db);
-				//gameDbWriter.SaveNewGame(Game.Title, Game.UrlIcon, Game.Description, Game.SourceCode, UserId);
+				//gameDbWriter.SaveNewGame(Title, "", Description, SourceCodeContent, UserId);
 			}
-			return RedirectToPage("/Index");
+
+			var file = new TestFile();
+			file.FileContent = SourceCodeContent;
+			db.testFiles.Add(file);
+			await db.SaveChangesAsync();
+
+			return RedirectToPage();
 		}
 	}
 }
