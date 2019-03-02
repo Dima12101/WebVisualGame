@@ -42,5 +42,7 @@ namespace WebVisualGame.Data
 		public int AccessLevel  { get; set; }
 
 		public IList<Game> Games { get; set; }
+
+		public IList<GameData.SavedGame> SavedGames { get; set; }
 	}
 }
