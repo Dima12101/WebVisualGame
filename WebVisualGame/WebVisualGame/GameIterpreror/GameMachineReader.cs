@@ -22,12 +22,21 @@ namespace GameInterpreror
         }
     }
 
-    class GameMachineReader
+    interface IGameMachineReader
+    {
+        DialogPoint ReadGame(string charStream);
+
+        IEnumerator<object> GetWarnings();
+    }
+
+    class GameMachineReader : IGameMachineReader
     {
         public GameMachineReader()
         {
 
         }
+
+        private List<string> warnings = new List<string>();
 
         private UTF8Encoding encoder = new UTF8Encoding();
 
@@ -65,87 +74,84 @@ namespace GameInterpreror
 
         private enum TokenizerState { ReadNothing, ReadRound, ReadSquare, ReadQuote, ReadSlashInText }
 
-        public IEnumerator<BaseToken> GetBaseTokens(string path)
+        public IEnumerator<BaseToken> GetBaseTokens(IEnumerator<char> charEnumer)
         {
             TokenizerState state = TokenizerState.ReadNothing;
 
-            using (var charEnumer = GetCharSequence(path))
+            string currentToken = "";
+
+            while (charEnumer.MoveNext())
             {
+                char c = charEnumer.Current;
 
-                string currentToken = "";
-
-                while (charEnumer.MoveNext())
+                switch (state)
                 {
-                    char c = charEnumer.Current;
-
-                    switch (state)
-                    {
-                        case TokenizerState.ReadNothing:
-                            {
-                                if (c == '-')
-                                    yield return new BaseToken(BaseTokenType.minus, "-");
-                                else if (c == '"')
-                                    state = TokenizerState.ReadQuote;
-                                else if (c == '(')
-                                    state = TokenizerState.ReadRound;
-                                else if (c == '[')
-                                    state = TokenizerState.ReadSquare;
-                                else if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
-                                    break;
-                                else
-                                {
-
-                                }
-                                break;
-                            }
-                        case TokenizerState.ReadQuote:
-                            {
-                                if (c == '\\')
-                                    state = TokenizerState.ReadSlashInText;
-                                else if (c == '"')
-                                {
-                                    yield return new BaseToken(BaseTokenType.text, currentToken);
-
-                                    currentToken = "";
-                                    state = TokenizerState.ReadNothing;
-                                }
-                                else
-                                    currentToken += c;
-                                break;
-                            }
-                        case TokenizerState.ReadSlashInText:
-                            {
-                                currentToken += c;
+                    case TokenizerState.ReadNothing:
+                        {
+                            if (c == '-')
+                                yield return new BaseToken(BaseTokenType.minus, "-");
+                            else if (c == '"')
                                 state = TokenizerState.ReadQuote;
+                            else if (c == '(')
+                                state = TokenizerState.ReadRound;
+                            else if (c == '[')
+                                state = TokenizerState.ReadSquare;
+                            else if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
                                 break;
-                            }
-                        case TokenizerState.ReadRound:
+                            else
                             {
-                                if (c == ')')
-                                {
-                                    yield return new BaseToken(BaseTokenType.rndBrktContent, currentToken);
-                                    currentToken = "";
-                                    state = TokenizerState.ReadNothing;
-                                }
-                                else
-                                    currentToken += c;
-                                break;
+
                             }
-                        case TokenizerState.ReadSquare:
+                            break;
+                        }
+                    case TokenizerState.ReadQuote:
+                        {
+                            if (c == '\\')
+                                state = TokenizerState.ReadSlashInText;
+                            else if (c == '"')
                             {
-                                if (c == ']')
-                                {
-                                    yield return new BaseToken(BaseTokenType.sqrBrktContent, currentToken);
-                                    currentToken = "";
-                                    state = TokenizerState.ReadNothing;
-                                }
-                                else
-                                    currentToken += c;
-                                break;
+                                yield return new BaseToken(BaseTokenType.text, currentToken);
+
+                                currentToken = "";
+                                state = TokenizerState.ReadNothing;
                             }
-                    }
+                            else
+                                currentToken += c;
+                            break;
+                        }
+                    case TokenizerState.ReadSlashInText:
+                        {
+                            currentToken += c;
+                            state = TokenizerState.ReadQuote;
+                            break;
+                        }
+                    case TokenizerState.ReadRound:
+                        {
+                            if (c == ')')
+                            {
+                                yield return new BaseToken(BaseTokenType.rndBrktContent, currentToken);
+                                currentToken = "";
+                                state = TokenizerState.ReadNothing;
+                            }
+                            else
+                                currentToken += c;
+                            break;
+                        }
+                    case TokenizerState.ReadSquare:
+                        {
+                            if (c == ']')
+                            {
+                                yield return new BaseToken(BaseTokenType.sqrBrktContent, currentToken);
+                                currentToken = "";
+                                state = TokenizerState.ReadNothing;
+                            }
+                            else
+                                currentToken += c;
+                            break;
+                        }
                 }
             }
+
 
             switch (state)
             {
@@ -171,6 +177,7 @@ namespace GameInterpreror
                     }
             }
         }
+
 
         private enum ReadGameStates
         {
@@ -316,7 +323,82 @@ namespace GameInterpreror
             return linkConditions;
         }
 
-        public DialogPoint ReadGame(string path)
+        private void AnalizeGameGraph(Dictionary<int, DialogPoint> pointDict)
+        {
+            // it should contain start-state (with number 0)
+            // (throws exception)
+            DialogPoint start = null;
+            {
+                bool containsStart = pointDict.TryGetValue(0, out start);
+
+                if (!containsStart || (start.Links == null || start.Links.Length == 0))
+                {
+                    throw new ApplicationException("Game doesn't contain the start-state (state with number 0)");
+                }
+            }
+
+            // looking for defined dialog points, which don't exist
+            // (adds warnings)
+            using (var dictEnumer = pointDict.GetEnumerator())
+            {
+                while (dictEnumer.MoveNext())
+                {
+                    var currPoint = dictEnumer.Current.Value;
+
+                    if (currPoint.Links == null) continue;
+
+                    for (int i = 0; i < currPoint.Links.Length; ++i)
+                    {
+                        var nextPoint = currPoint.Links[i].NextPoint;
+
+                        if (nextPoint.Links == null || nextPoint.Links.Length == 0)
+                        {
+                            var notDefinedNextPointWarning = $"in point({currPoint.ID}) in {i} position - " +
+                                $"transition to point({nextPoint.ID}), which hadn't been read (incorrect transition)";
+
+                            nextPoint = currPoint;
+
+                            nextPoint.Text += "(INVALID TRANSITION)";
+
+                            warnings.Add(notDefinedNextPointWarning);
+                        } 
+                    }
+                }
+            }
+
+            // find not-linked components
+            var notConnectedPoints = new Dictionary<int, DialogPoint>();
+
+            using (var dictEnumer = pointDict.GetEnumerator())
+            {
+                while (dictEnumer.MoveNext())
+                {
+                    notConnectedPoints.Add(dictEnumer.Current.Key, dictEnumer.Current.Value);
+                }
+            }
+
+            using (var dictEnumer = notConnectedPoints.GetEnumerator())
+            {
+                var pointQueue = new Queue<DialogPoint>();
+
+                var connectedPoints = new Dictionary<int, DialogPoint>();
+
+                pointQueue.Enqueue(start);
+
+                while(pointQueue.Count > 0)
+                {
+                    var currPoint = pointQueue.Dequeue();
+
+                    for (int i = 0; i < currPoint.Links.Length; ++i)
+                    {
+
+                    }
+                }
+            }
+            
+        }
+
+        private DialogPoint ReadGame(IEnumerator<char> charEnumer)
         {
             ReadGameStates state = ReadGameStates.ReadNothing;
 
@@ -328,7 +410,7 @@ namespace GameInterpreror
 
             DialogLink currLink = new DialogLink();
 
-            using (var baseTokenEnumer = GetBaseTokens(path))
+            using (var baseTokenEnumer = GetBaseTokens(charEnumer))
             {
                 while (baseTokenEnumer.MoveNext())
                 {
@@ -336,9 +418,11 @@ namespace GameInterpreror
 
                     switch (state)
                     {
+                        // reading transition equals to reading nothing
                         case ReadGameStates.ReadLinkTransition:
                         case ReadGameStates.ReadNothing:
                             {
+                                // if we have read link transition and met minus, it means - now we're reading new transition
                                 if (state == ReadGameStates.ReadLinkTransition && token.Type == BaseTokenType.minus)
                                 {
                                     currLink = new DialogLink()
@@ -348,8 +432,10 @@ namespace GameInterpreror
                                     linkList.Add(currLink);
                                     state = ReadGameStates.ReadLinkStart;
                                 }
+                                // it means - now we're reading point number
                                 else if (token.Type == BaseTokenType.rndBrktContent)
                                 {
+                                    // saving previous dialog-point's transitions
                                     if (state == ReadGameStates.ReadLinkTransition)
                                     {
                                         currDialogPoint.Links = linkList.ToArray();
@@ -527,9 +613,17 @@ namespace GameInterpreror
                 }
             }
 
+            AnalizeGameGraph(dialogPointDictionary);
+
             dialogPointDictionary.TryGetValue(0, out DialogPoint root);
 
             return root;
         }
+
+        public DialogPoint ReadGameFromText(string gameText)
+        {
+            return ReadGame(gameText.GetEnumerator());
+        }
     }
 }
+

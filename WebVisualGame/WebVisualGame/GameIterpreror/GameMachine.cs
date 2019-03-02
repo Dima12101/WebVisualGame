@@ -60,13 +60,13 @@ namespace GameInterpreror
 
         private GameMachineReader Reader { get; set; }
 
-        public GameMachine(string path)
+        public GameMachine(string text)
         {
             KeyStorage = new HashSet<int>();
 
             Reader = new GameMachineReader();
 
-            GameStart = Reader.ReadGame(path);
+            GameStart = Reader.ReadGameFromText(text);
 
             CurrentPoint = GameStart;
 
