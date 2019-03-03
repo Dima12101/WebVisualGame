@@ -55,7 +55,7 @@ namespace WebVisualGame.Pages
 			if (Request.Cookies.ContainsKey("GameId"))
 			{
 				int gameId = Int32.Parse(Request.Cookies["GameId"]);
-				Game = db.Games.FindAsync(gameId);
+				Game = db.Games.Find(gameId);
 				Title = Game.Title;
 				Description = Game.Description;
 				UrlIcon = Game.UrlIcon;
@@ -89,7 +89,7 @@ namespace WebVisualGame.Pages
 			file.FileContent = SourceCodeContent;
 			InputGame();
 			Response.Cookies.Delete("GameId");
-			return RedirectToPage("/UserProfil");
+			return RedirectToPage("/UsersPages/UserProfil");
 		}
 
 		private void InputGame()
@@ -111,7 +111,7 @@ namespace WebVisualGame.Pages
 		public IActionResult OnPostCancel()
 		{
 			Response.Cookies.Delete("GameId");
-			return RedirectToPage("/UserProfil");
+			return RedirectToPage("/UsersPages/UserProfil");
 		}
 	}
 }

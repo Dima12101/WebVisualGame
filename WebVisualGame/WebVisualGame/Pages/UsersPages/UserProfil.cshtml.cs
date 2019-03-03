@@ -55,13 +55,13 @@ namespace WebVisualGame.Pages.UsersPages
 		public IActionResult OnPostUpdateGame(int gameId)
 		{
 			Response.Cookies.Append("GameId", gameId.ToString());
-			return RedirectToPage("/Updategame");
+			return RedirectToPage("/UsersPages/Updategame");
 		}
 
 		public IActionResult OnPostNewGame()
 		{
 			Response.Cookies.Delete("GameId");
-			return RedirectToPage("/Updategame");
+			return RedirectToPage("/UsersPages/Updategame");
 		}
 
 		public IActionResult OnPostStartGame(int gameId)
@@ -86,6 +86,16 @@ namespace WebVisualGame.Pages.UsersPages
 		public IActionResult OnPostRedaction()
 		{
 			return RedirectToPage("/UsersPages/UserRedactionProfil");
+		}
+
+		public IActionResult OnPostContinueGame()
+		{
+			int userId = Int32.Parse(Request.Cookies["UserId"]);
+			if (db.SavedGames.FirstOrDefault(i => i.UserId == userId) == null)
+			{
+				return Page();
+			}
+			return RedirectToPage("/UsersPages/UserSavedGame");
 		}
 	}
 }
