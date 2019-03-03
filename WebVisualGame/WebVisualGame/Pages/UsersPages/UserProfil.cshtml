@@ -25,90 +25,55 @@
 
 <h3>Профиль: @Model.UserName !</h3>
 
-@if (Model.InputField)
-{
-	<form method="POST">
-		<button class="UserButton" type="submit" asp-page-handler="Cancel">Выход</button>
-	</form>
-    <br />
-	<div class="panel panel-success">
-		<div class="panel-heading text-center"><h4>@Model.ActionForGame игру</h4></div>
-		<div class="panel-body">
-			<form asp-action="GameWtiter" method="post">
-				<div class="form-group">
-					<label asp-for="_Game.Title">Название:</label>
-					<input asp-for="_Game.Title" />
-				</div>
-				<div class="form-group">
-					<label asp-for="_Game.Description">Описание:</label>
-					<input asp-for="_Game.Description" />
-				</div>
-				<div class="form-group">
-					<label asp-for="_Game.SourceCode">Код игры (url):</label>
-					<input asp-for="_Game.SourceCode" />
-				</div>
-				<div class="form-group">
-					<label asp-for="_Game.UrlIcon">Иконка (url):</label>
-					<input asp-for="_Game.UrlIcon" />
-				</div>
-				<div class="text-center">
-					<button asp-page-handler="InputGame" class="btn bg-primary" type="submit">@Model.ActionForGame!</button>
-				</div>
-			</form>
-		</div>
-	</div>
-}
-else
-{
-	<form method="POST">
-		<button class="UserButton" type="submit" asp-page-handler="Redaction">Редактировать профиль</button>
-	</form>
-	<form method="POST">
-		<button class="UserButton" type="submit" asp-page-handler="Exit">Выход</button>
-	</form>
-	<form method="POST">
-		<button class="UserButton" type="submit" asp-page-handler="NewGame">Добавить новую игру</button>
-	</form>
-	<h3>Список ваших игр:</h3>
-	<div id="ListGame">
-		<table class="table table-striped table-bordered">
-			<thead>
+
+<form method="POST">
+	<button class="UserButton" type="submit" asp-page-handler="Redaction">Редактировать профиль</button>
+</form>
+<form method="POST">
+	<button class="UserButton" type="submit" asp-page-handler="Exit">Выход</button>
+</form>
+<form method="POST">
+	<button class="UserButton" type="submit" asp-page-handler="NewGame">Добавить новую игру</button>
+</form>
+<h3>Список ваших игр:</h3>
+<div id="ListGame">
+	<table class="table table-striped table-bordered">
+		<thead>
+			<tr>
+				<th>Название</th>
+				<th>Иконка</th>
+				<th>Описание</th>
+				<th>Оценка</th>
+				<th>Удалить</th>
+				<th>Редактировать</th>
+				<th>Запустить</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var game in Model.games)
+			{
 				<tr>
-					<th>Название</th>
-					<th>Иконка</th>
-					<th>Описание</th>
-					<th>Оценка</th>
-					<th>Удалить</th>
-					<th>Редактировать</th>
-					<th>Запустить</th>
+					<td>@game.Title</td>
+					<td><img style="width:50px; height:50px;" src=".@game.UrlIcon" alt="GameIcon" /></td>
+					<td>@game.Description</td>
+					<td>@game.Rating</td>
+					<td>
+						<form method="POST">
+							<button type="submit" asp-page-handler="DeleteGame" asp-route-gameId="@game.Id">Удалить</button>
+						</form>
+					</td>
+					<td>
+						<form method="POST">
+							<button type="submit" asp-page-handler="UpdateGame" asp-route-gameId="@game.Id">Обновить</button>
+						</form>
+					</td>
+					<td>
+						<form method="POST">
+							<button type="submit" asp-page-handler="StartGame" asp-route-gameId="@game.Id">Играть</button>
+						</form>
+					</td>
 				</tr>
-			</thead>
-			<tbody>
-				@foreach (var game in Model.games)
-				{
-					<tr>
-						<td>@game.Title</td>
-						<td><img style="width:50px; height:50px;" src=".@game.UrlIcon" alt="GameIcon" /></td>
-						<td>@game.Description</td>
-						<td>@game.Rating</td>
-						<td>
-							<form method="POST">
-								<button type="submit" asp-page-handler="DeleteGame" asp-route-gameId="@game.Id">Удалить</button>
-							</form>
-						</td>
-						<td>
-							<form method="POST">
-								<button type="submit" asp-page-handler="UpdateGame" asp-route-gameId="@game.Id">Обновить</button>
-							</form>
-						</td>
-						<td>
-							<form method="POST">
-								<button type="submit" asp-page-handler="StartGame" asp-route-gameId="@game.Id">Играть</button>
-							</form>
-						</td>
-					</tr>
-				}
-			</tbody>
-		</table>
-	</div>
-}
+			}
+		</tbody>
+	</table>
+</div>
