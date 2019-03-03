@@ -31,7 +31,17 @@ namespace GameInterpreror
 
     class GameMachineReader : IGameMachineReader
     {
-        public GameMachineReader()
+		public DialogPoint ReadGame(string charStream)
+		{
+			return null;
+		}
+
+		public IEnumerator<object> GetWarnings()
+		{
+			return null;
+		}
+
+		public GameMachineReader()
         {
 
         }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using WebVisualGame.Data;
+using WebVisualGame.Data.GameData;
 
 namespace WebVisualGame.Pages
 {
@@ -35,20 +36,6 @@ namespace WebVisualGame.Pages
 
 		public void OnGet()
 		{
-			//var trans3 = db.Transitions.Where(i => i.StartPoint > 3).ToList();
-			//var result = (from trans in trans3
-			//			  join cond in db.Сonditions on trans.Id equals cond.TransitionId
-			//			 select new
-			//			 {
-			//				 Id = trans.Id,
-			//				 NextPoint = trans.NextPoint,
-			//				 Type = cond.Type,
-			//				 KeyСondition = cond.KeyСondition
-			//			 }).ToList();
-
-
-
-
 			if (Request.Cookies.ContainsKey("Login") && Request.Cookies.ContainsKey("Sign"))
 			{
 				var login = Request.Cookies["Login"];
@@ -79,8 +66,27 @@ namespace WebVisualGame.Pages
 		public IActionResult OnPostStartGame(int gameId)
 		{
 			Response.Cookies.Append("GameId", gameId.ToString());
-			Response.Cookies.Append("SetKeys", "");
-			Response.Cookies.Append("Point", "0");
+
+			if (Request.Cookies.ContainsKey("UserId"))
+			{
+				int userId = Int32.Parse(Request.Cookies["UserId"]);
+				if (db.SavedGames.FirstOrDefault(i => i.GameId == gameId &&
+					i.UserId == userId) == null)
+				{
+					var savedGame = new SavedGame() {
+						UserId = userId,
+						State = 0,
+						Keys = "",
+						GameId = gameId
+					};
+					db.SavedGames.Add(savedGame);
+				}
+			}
+			else
+			{
+				Response.Cookies.Append("SetKeys", "");
+				Response.Cookies.Append("Point", "0");
+			}
 			return RedirectToPage("/Playing");
 		}
 
