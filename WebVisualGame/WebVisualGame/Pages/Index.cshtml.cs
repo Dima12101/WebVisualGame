@@ -73,18 +73,19 @@ namespace WebVisualGame.Pages
 				if (db.SavedGames.FirstOrDefault(i => i.GameId == gameId &&
 					i.UserId == userId) == null)
 				{
-					var savedGame = new SavedGame() {
+					var savedGame = new Games() {
 						UserId = userId,
 						State = 0,
 						Keys = "",
 						GameId = gameId
 					};
 					db.SavedGames.Add(savedGame);
+					db.SaveChanges();
 				}
 			}
 			else
 			{
-				Response.Cookies.Append("SetKeys", "");
+				Response.Cookies.Append("Keys", "");
 				Response.Cookies.Append("Point", "0");
 			}
 			return RedirectToPage("/Playing");
@@ -92,7 +93,7 @@ namespace WebVisualGame.Pages
 
 		public IActionResult OnPostExit()
 		{
-			Response.Cookies.Delete("Id");
+			Response.Cookies.Delete("UserId");
 			Response.Cookies.Delete("Login");
 			Response.Cookies.Delete("Sign");
 			isAuthorization = false;

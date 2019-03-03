@@ -14,8 +14,8 @@ namespace WebVisualGame.Data
 		public int Id { get; set; }
 
 		[ForeignKey("User")]
-		[Required]
-		public int UserId { get; set; }
+		public int? UserId { get; set; }
+		public User User { get; set; }
 
 		[MaxLength(100)]
 		[Required(ErrorMessage = "Введите название игры")]
@@ -38,7 +38,7 @@ namespace WebVisualGame.Data
 		public IList<GameData.PointDialog> PointDialogues { get; set; }
 
 		public IList<GameData.Transition> Transitions { get; set; }
-
-		public IList<GameData.SavedGame> SavedGames { get; set; }
+		
+		public IList<GameData.Games> SavedGames { get; set; }
 	}
 }

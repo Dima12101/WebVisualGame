@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebVisualGame.Data;
 
 namespace WebVisualGame.Migrations
 {
     [DbContext(typeof(Repository))]
-    partial class RepositoryModelSnapshot : ModelSnapshot
+    [Migration("20190303181018_addTableSavedGames_test")]
+    partial class addTableSavedGames_test
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,31 +114,6 @@ namespace WebVisualGame.Migrations
                     b.HasIndex("PointDialogId");
 
                     b.ToTable("PointDialogActions");
-                });
-
-            modelBuilder.Entity("WebVisualGame.Data.GameData.SavedGame", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("GameId");
-
-                    b.Property<string>("Keys")
-                        .IsRequired()
-                        .HasMaxLength(200);
-
-                    b.Property<int>("State");
-
-                    b.Property<int>("UserId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GameId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("SavedGames");
                 });
 
             modelBuilder.Entity("WebVisualGame.Data.GameData.Transition", b =>
@@ -258,19 +235,6 @@ namespace WebVisualGame.Migrations
                     b.HasOne("WebVisualGame.Data.GameData.PointDialog")
                         .WithMany("PointDialogActions")
                         .HasForeignKey("PointDialogId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("WebVisualGame.Data.GameData.SavedGame", b =>
-                {
-                    b.HasOne("WebVisualGame.Data.Game")
-                        .WithMany("SavedGames")
-                        .HasForeignKey("GameId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("WebVisualGame.Data.User")
-                        .WithMany("SavedGames")
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

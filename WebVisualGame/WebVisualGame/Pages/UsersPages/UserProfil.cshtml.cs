@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using WebVisualGame.Data;
-
+using WebVisualGame.Data.GameData;
 
 namespace WebVisualGame.Pages.UsersPages
 {
@@ -67,17 +67,28 @@ namespace WebVisualGame.Pages.UsersPages
 		public IActionResult OnPostStartGame(int gameId)
 		{
 			Response.Cookies.Append("GameId", gameId.ToString());
-			Response.Cookies.Append("SetKeys", "");
-			Response.Cookies.Append("StartPoint", "0");
+
+			int userId = Int32.Parse(Request.Cookies["UserId"]);
+			if (db.SavedGames.FirstOrDefault(i => i.GameId == gameId &&
+				i.UserId == userId) == null)
+			{
+				var savedGame = new Games()
+				{
+					UserId = userId,
+					State = 0,
+					Keys = "",
+					GameId = gameId
+				};
+				db.SavedGames.Add(savedGame);
+				db.SaveChanges();
+			}
 			return RedirectToPage("/Playing");
 		}
 
 		public IActionResult OnPostExit()
 		{
 			Response.Cookies.Delete("UserId");
-			Response.Cookies.Delete("InputField");
 			Response.Cookies.Delete("GameId");
-			Response.Cookies.Delete("Id");
 			Response.Cookies.Delete("Login");
 			Response.Cookies.Delete("Sign");
 			return RedirectToPage("/Index");

@@ -13,11 +13,19 @@ namespace WebVisualGame.Data
 		{
 		}
 
+		//protected override void OnModelCreating(ModelBuilder modelBuilder)
+		//{
+		//	modelBuilder.Entity<Game>()
+		//		.HasOne(p => p.User)
+		//		.WithMany(t => t.Games)
+		//		.OnDelete(DeleteBehavior.Cascade);
+		//}
+
 		public DbSet<User> Users { get; set; }
 
 		public DbSet<Game> Games { get; set; }
 
-		public DbSet<GameData.SavedGame> SavedGames { get; set; }
+		public DbSet<GameData.Games> SavedGames { get; set; }
 
 		public DbSet<GameData.PointDialog> PointDialogs { get; set; }
 

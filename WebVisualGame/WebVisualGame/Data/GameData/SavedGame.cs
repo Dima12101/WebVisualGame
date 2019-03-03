@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WebVisualGame.Data.GameData
 {
-	public class SavedGame
+	public class Games
 	{
 		[Key]
 		public int Id { get; set; }

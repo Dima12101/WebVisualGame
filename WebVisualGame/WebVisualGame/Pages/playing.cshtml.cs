@@ -53,28 +53,13 @@ namespace WebVisualGame.Pages
 			var point_actions = db.PointDialogActions.Where(i =>
 				i.PointDialogId == Point.Id).ToArray();
 
-			string stringKey = Request.Cookies["SetKeys"];
-			var numCollection = Regex.Matches(stringKey, "[0-9]+");
-			foreach (Match it in numCollection)
-			{
-				keys.Add(Int32.Parse(it.Value));
-			}
-
-			FillingKey(transiton_actions, point_actions);
-
-			string newKey = "";
-			foreach (int key in keys)
-			{
-				newKey += " " + key.ToString();
-			}
-
 			if (Request.Cookies.ContainsKey("UserId")) 
 			{
-				SaveToDB(newKey);
+				SaveToDB(transiton_actions, point_actions);
 			}
 			else
 			{
-				SaveToCookies(newKey);
+				SaveToCookies(transiton_actions, point_actions);
 			}
 			return RedirectToPage();
 		}
@@ -124,9 +109,15 @@ namespace WebVisualGame.Pages
 			}
 		}
 
-		private void FillingKey(TransitionAction[] transiton_actions,
+		private string FillingKey(string oldKey, TransitionAction[] transiton_actions,
 			PointDialogAction[] point_actions)
 		{
+			var numCollection = Regex.Matches(oldKey, "[0-9]+");
+			foreach (Match it in numCollection)
+			{
+				keys.Add(Int32.Parse(it.Value));
+			}
+
 			for (int i = 0; i < transiton_actions.Length; ++i)
 			{
 				if (transiton_actions[i].Type)
@@ -149,33 +140,46 @@ namespace WebVisualGame.Pages
 					keys.Remove(point_actions[i].KeyAction);
 				}
 			}
+
+			string newKey = "";
+			foreach (int key in keys)
+			{
+				newKey += " " + key.ToString();
+			}
+			return newKey;
 		}
 
-		private async void SaveToDB(string key)
+		private void SaveToDB(TransitionAction[] transiton_actions,
+			PointDialogAction[] point_actions)
 		{
 			int userId = Int32.Parse(Request.Cookies["UserId"]);
 			var save = db.SavedGames.FirstOrDefault(i => i.GameId == Point.GameId &&
 				i.UserId == userId);
 
+			string key = FillingKey(save.Keys, transiton_actions, point_actions);
+
 			save.Keys = key;
 			save.State = Point.StateNumber;
 			db.Attach(save).State = EntityState.Modified;
-			await db.SaveChangesAsync();
+			db.SaveChanges();
 		}
 
-		private void SaveToCookies(string key)
+		private void SaveToCookies(TransitionAction[] transiton_actions,
+			PointDialogAction[] point_actions)
 		{
-			Response.Cookies.Delete("SetKeys");
+			string key = FillingKey(Request.Cookies["Keys"], transiton_actions, point_actions);
+			Response.Cookies.Delete("Keys");
 			Response.Cookies.Delete("Point");
 
-			Response.Cookies.Append("SetKeys", key);
+			Response.Cookies.Append("Keys", key);
 			Response.Cookies.Append("Point", Point.StateNumber.ToString());
 		}
 
 		private void GetFromDB()
 		{
 			int userId = Int32.Parse(Request.Cookies["UserId"]);
-			var save = db.SavedGames.FirstOrDefault(i => i.GameId == Point.GameId &&
+			int gameId = Int32.Parse(Request.Cookies["GameId"]);
+			var save = db.SavedGames.FirstOrDefault(i => i.GameId == gameId &&
 				i.UserId == userId);
 			Point = db.PointDialogs.FirstOrDefault(i => i.GameId == gameId &&
 			i.StateNumber == save.State);
@@ -194,7 +198,7 @@ namespace WebVisualGame.Pages
 			Point = db.PointDialogs.FirstOrDefault(i => i.GameId == gameId &&
 			i.StateNumber == pointNumber);
 
-			string stringKey = Request.Cookies["SetKeys"];
+			string stringKey = Request.Cookies["Keys"];
 			var numCollection = Regex.Matches(stringKey, "[0-9]+");
 			foreach (Match it in numCollection)
 			{
