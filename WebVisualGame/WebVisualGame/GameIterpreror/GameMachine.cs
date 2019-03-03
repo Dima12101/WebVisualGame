@@ -47,7 +47,6 @@ namespace GameInterpreror
         public DialogLink[] Links { get; set; }
     }
 
-
     class GameMachine
     {
         private HashSet<int> KeyStorage { get; set; }

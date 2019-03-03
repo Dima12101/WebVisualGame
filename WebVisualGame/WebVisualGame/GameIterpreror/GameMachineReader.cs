@@ -29,7 +29,7 @@ namespace GameInterpreror
         IEnumerator<object> GetWarnings();
     }
 
-    class GameMachineReader : IGameMachineReader
+    class GameMachineReader
     {
         public GameMachineReader()
         {
