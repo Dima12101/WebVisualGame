@@ -80,7 +80,7 @@ namespace WebVisualGame.Pages
 		{
 			Response.Cookies.Append("GameId", gameId.ToString());
 			Response.Cookies.Append("SetKeys", "");
-			Response.Cookies.Append("StartPoint", "0");
+			Response.Cookies.Append("Point", "0");
 			return RedirectToPage("/Playing");
 		}
 
