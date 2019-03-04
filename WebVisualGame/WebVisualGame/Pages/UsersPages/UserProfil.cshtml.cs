@@ -72,7 +72,7 @@ namespace WebVisualGame.Pages.UsersPages
 			if (db.SavedGames.FirstOrDefault(i => i.GameId == gameId &&
 				i.UserId == userId) == null)
 			{
-				var savedGame = new Games()
+				var savedGame = new SavedGame()
 				{
 					UserId = userId,
 					State = 0,

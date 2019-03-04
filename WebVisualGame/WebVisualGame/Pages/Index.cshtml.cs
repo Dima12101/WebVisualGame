@@ -66,29 +66,7 @@ namespace WebVisualGame.Pages
 		public IActionResult OnPostStartGame(int gameId)
 		{
 			Response.Cookies.Append("GameId", gameId.ToString());
-
-			if (Request.Cookies.ContainsKey("UserId"))
-			{
-				int userId = Int32.Parse(Request.Cookies["UserId"]);
-				if (db.SavedGames.FirstOrDefault(i => i.GameId == gameId &&
-					i.UserId == userId) == null)
-				{
-					var savedGame = new Games() {
-						UserId = userId,
-						State = 0,
-						Keys = "",
-						GameId = gameId
-					};
-					db.SavedGames.Add(savedGame);
-					db.SaveChanges();
-				}
-			}
-			else
-			{
-				Response.Cookies.Append("Keys", "");
-				Response.Cookies.Append("Point", "0");
-			}
-			return RedirectToPage("/Playing");
+			return RedirectToPage("/PageGame");
 		}
 
 		public IActionResult OnPostExit()

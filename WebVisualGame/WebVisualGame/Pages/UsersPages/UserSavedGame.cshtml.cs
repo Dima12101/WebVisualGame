@@ -42,7 +42,6 @@ namespace WebVisualGame.Pages.UsersPages
 							 Rating = i.Rating,
 							 UrlIcon = i.UrlIcon
 						 }).ToList();
-			
 		}
 
 

@@ -4,10 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
-
 namespace WebVisualGame.Data.GameData
 {
-	public class SavedGame
+	public class Review
 	{
 		[Key]
 		public int Id { get; set; }
@@ -21,10 +20,13 @@ namespace WebVisualGame.Data.GameData
 		public int GameId { get; set; }
 
 		[Required]
-		public int State { get; set; }
+		public int Rating { get; set; }
 
-		[MaxLength(200)]
+		[MaxLength(400)]
 		[Required]
-		public string Keys { get; set; }
+		public string Comment { get; set; }
+
+		[Required]
+		public DateTime Date { get; set; }
 	}
 }
