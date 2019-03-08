@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebVisualGame.Data;
 
 namespace WebVisualGame.Migrations
 {
     [DbContext(typeof(Repository))]
-    partial class RepositoryModelSnapshot : ModelSnapshot
+    [Migration("20190304170141_addTable_Review")]
+    partial class addTable_Review
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -121,6 +123,7 @@ namespace WebVisualGame.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Comment")
+                        .IsRequired()
                         .HasMaxLength(400);
 
                     b.Property<DateTime>("Date");
@@ -205,6 +208,20 @@ namespace WebVisualGame.Migrations
                     b.HasIndex("TransitionId");
 
                     b.ToTable("TransitionActions");
+                });
+
+            modelBuilder.Entity("WebVisualGame.Data.TestFile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("FileContent")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("testFiles");
                 });
 
             modelBuilder.Entity("WebVisualGame.Data.User", b =>

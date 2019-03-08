@@ -84,9 +84,6 @@ namespace WebVisualGame.Pages
 				Response.Cookies.Append("Error", "Ошибка чтения файла");
 				return Page();
 			}
-
-			var file = new TestFile();
-			file.FileContent = SourceCodeContent;
 			InputGame();
 			Response.Cookies.Delete("GameId");
 			return RedirectToPage("/UsersPages/UserProfil");

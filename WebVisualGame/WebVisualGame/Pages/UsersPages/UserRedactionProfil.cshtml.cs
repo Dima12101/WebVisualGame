@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using WebVisualGame.Data;
-
+using WebVisualGame.Utilities;
 
 namespace WebVisualGame.Pages.UsersPages
 {

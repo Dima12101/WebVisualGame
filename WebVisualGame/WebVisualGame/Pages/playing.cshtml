@@ -42,6 +42,7 @@
         color: green;
     }
 </style>
+
 <div id="Game">
     <div id="Question">
         <p>@Model.Point.Text</p>
@@ -55,7 +56,7 @@
 			{
 				<li>
 					<form method="POST">
-						<button id="Answer" type="submit" asp-page-handler="Answer" asp-route-id_transition="@transition.Id">@transition.Text</button>
+						<button id="Answer" type="submit" asp-page-handler="Answer" asp-route-id_transition="@Utilities.ProtectData.GetInstance().Encode(transition.Id)">@transition.Text</button>
 					</form>
 				</li>
 			}

@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using WebVisualGame.Data;
 using WebVisualGame.Data.GameData;
+using WebVisualGame.Utilities;
 
 namespace WebVisualGame.Pages
 {
@@ -42,9 +44,10 @@ namespace WebVisualGame.Pages
 			UpdateTransition();
 		}
 
-		public IActionResult OnPostAnswer(int id_transition)
+		public IActionResult OnPostAnswer(string id_transition)
 		{
-			var transition = db.Transitions.FirstOrDefault(i => i.Id == id_transition);
+			var id_transitionDecoded = ProtectData.GetInstance().DecodeToInt(id_transition);
+			var transition = db.Transitions.FirstOrDefault(i => i.Id == id_transitionDecoded);
 			Point = db.PointDialogs.FirstOrDefault(i => i.StateNumber == transition.NextPoint &&
 			i.GameId == transition.GameId);
 

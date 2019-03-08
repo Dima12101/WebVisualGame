@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using WebVisualGame.Data;
-using WebVisualGame.Data.GameData;
+using WebVisualGame.Utilities;
 
 namespace WebVisualGame.Pages
 {
@@ -20,15 +21,11 @@ namespace WebVisualGame.Pages
 		[BindProperty]
 		public IList<Game> games { get; set; }
 
-		public IndexModel(Repository db)
+		public IndexModel(Repository db, IDataProtectionProvider provider)
 		{
+			ProtectData.GetInstance().Initialize(provider);
+
 			var gameDbWriter = new GameDbWriter(db);
-
-			//gameDbWriter.UpdateGame(9, "Короли2", "the_king_39_s_story.txt", "Игра о королях стала лучше. Играйте сцуки!", "./images/kingImg.jpg");
-
-			//gameDbWriter.SaveNewGame("Новый год!", "NewYear.txt", "О новом годе!", "./images/newYear.jpg", 1);
-
-			//gameDbWriter.SaveGameToDd("gamePet.txt", 12);
 			games = db.Games.ToList();
 			isAuthorization = false;
 			this.db = db;
@@ -63,9 +60,10 @@ namespace WebVisualGame.Pages
 		[BindProperty]
 		public bool isAdmin { get; set; }
 
-		public IActionResult OnPostStartGame(int gameId)
+		public IActionResult OnPostAboutGame(string gameId)
 		{
-			Response.Cookies.Append("GameId", gameId.ToString());
+			var gameIdDecoded = ProtectData.GetInstance().DecodeToString(gameId);
+			Response.Cookies.Append("GameId", gameIdDecoded);
 			return RedirectToPage("/PageGame");
 		}
 

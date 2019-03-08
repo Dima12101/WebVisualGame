@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -34,6 +36,10 @@ namespace WebVisualGame
 			services.AddDbContext<Data.Repository>(
 				options => options.UseSqlServer(@"Server=MOI;Database=WebVisualGame;Trusted_Connection=True;"));
 
+			services.AddDataProtection()
+			.PersistKeysToFileSystem(new DirectoryInfo(@"c:\keys"));
+			services.AddDataProtection()
+			.SetDefaultKeyLifetime(TimeSpan.FromDays(14));
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 		}
@@ -50,6 +56,8 @@ namespace WebVisualGame
 				app.UseExceptionHandler("/Error");
 				app.UseHsts();
 			}
+
+			
 
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();

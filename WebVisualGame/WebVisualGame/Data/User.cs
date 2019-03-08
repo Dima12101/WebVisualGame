@@ -45,5 +45,7 @@ namespace WebVisualGame.Data
 
 		public IList<GameData.SavedGame> SavedGames { get; set; }
 
+		public IList<GameData.Review> Reviews { get; set; }
+
 	}
 }

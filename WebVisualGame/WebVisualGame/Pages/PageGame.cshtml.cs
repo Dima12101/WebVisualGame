@@ -16,7 +16,7 @@ namespace WebVisualGame.Pages
 
 		public string UserName { get; set; }
 
-		public int Rating { get; set; }
+		public int Mark { get; set; }
 
 		public string Comment { get; set; }
 
@@ -31,11 +31,11 @@ namespace WebVisualGame.Pages
 
 		public List<ReviewWithName> Reviews { get; set; }
 
+		[BindProperty]
 		public string Comment { get; set; }
 
-		public string Error { get; set; }
-
-		public int Rating { get; set; }
+		[BindProperty]
+		public int Mark { get; set; }
 
 		private readonly Repository db;
 
@@ -55,13 +55,13 @@ namespace WebVisualGame.Pages
 						 UserId = user.Id,
 						 UserName = user.FirstName + " " + user.LastName,
 						 Comment = review.Comment,
-						 Rating = review.Rating,
+						 Mark = review.Mark,
 						 Date = review.Date
 					 }).Select(i => new ReviewWithName
 					 {
 						UserId = i.UserId,
 						UserName = i.UserName,
-						Rating = i.Rating,
+						Mark = i.Mark,
 						Comment = i.Comment,
 						Date = i.Date
 					 }).ToList();
@@ -74,7 +74,7 @@ namespace WebVisualGame.Pages
 					if (review.UserId == UserId)
 					{
 						Comment = review.Comment;
-						Rating = review.Rating;
+						Mark = review.Mark;
 					}
 				}
 			}
@@ -86,23 +86,19 @@ namespace WebVisualGame.Pages
 
 		public IActionResult OnPostSendComment()
 		{
-			if (Rating < 1 || Rating > 5)
-			{
-				Error = "поставтье оценку";
-				return Page();
-			}
 			UserId = Int32.Parse(Request.Cookies["UserID"]);
 			int gameId = Int32.Parse(Request.Cookies["GameID"]);
 			DeleteOldReview(gameId);
 
 			var review = new Review {
 				Comment = this.Comment,
-				Rating = this.Rating,
+				Mark = this.Mark,
 				UserId = this.UserId,
 				GameId = gameId,
 				Date = DateTime.Today
 			};
 			db.Reviews.Add(review);
+			db.SaveChanges();
 
 			CalculateNewRating(gameId);
 			db.SaveChanges();
@@ -120,7 +116,7 @@ namespace WebVisualGame.Pages
 
 		private void CalculateNewRating(int gameId)
 		{
-			double newRating = db.Reviews.Where(i => i.GameId == gameId).Average(i => i.Rating);
+			double newRating = db.Reviews.Where(i => i.GameId == gameId).Average(i => i.Mark);
 			Game = db.Games.FirstOrDefault(i => i.Id == gameId);
 			Game.Rating = newRating;
 			db.Attach(Game).State = EntityState.Modified;

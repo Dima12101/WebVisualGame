@@ -5,7 +5,7 @@ using GameInterpreror;
 
 using WebVisualGame.Data;
 
-namespace WebVisualGame
+namespace WebVisualGame.Utilities
 {
 
     public class GameDbWriter

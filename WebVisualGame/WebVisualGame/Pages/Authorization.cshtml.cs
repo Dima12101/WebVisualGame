@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System.Web;
 using WebVisualGame.Data;
+using WebVisualGame.Utilities;
 
 namespace WebVisualGame.Pages
 {

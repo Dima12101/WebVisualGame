@@ -20,10 +20,9 @@ namespace WebVisualGame.Data.GameData
 		public int GameId { get; set; }
 
 		[Required]
-		public int Rating { get; set; }
+		public int Mark { get; set; }
 
 		[MaxLength(400)]
-		[Required]
 		public string Comment { get; set; }
 
 		[Required]

@@ -38,7 +38,5 @@ namespace WebVisualGame.Data
 		public DbSet<GameData.Condition> Conditions { get; set; }
 
 		public DbSet<GameData.Review> Reviews { get; set; }
-
-		public DbSet<TestFile> testFiles { get; set; }
 	}
 }

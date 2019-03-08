@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using WebVisualGame.Data;
 using WebVisualGame.Data.GameData;
+using WebVisualGame.Utilities;
 
 namespace WebVisualGame.Pages.UsersPages
 {
@@ -45,16 +46,18 @@ namespace WebVisualGame.Pages.UsersPages
 			games = db.Games.Where(i => i.UserId == user.Id).ToList();
 		}
 
-		public IActionResult OnPostDeleteGame(int gameId)
+		public IActionResult OnPostDeleteGame(string gameId)
 		{
+			var gameIdDecoded = ProtectData.GetInstance().DecodeToInt(gameId);
 			var gameDbWriter = new GameDbWriter(db);
-			gameDbWriter.DeleteGame(gameId);
+			gameDbWriter.DeleteGame(gameIdDecoded);
 			return RedirectToPage();
 		}
 
-		public IActionResult OnPostUpdateGame(int gameId)
+		public IActionResult OnPostUpdateGame(string gameId)
 		{
-			Response.Cookies.Append("GameId", gameId.ToString());
+			var gameIdDecoded = ProtectData.GetInstance().DecodeToString(gameId);
+			Response.Cookies.Append("GameId", gameIdDecoded);
 			return RedirectToPage("/UsersPages/Updategame");
 		}
 
@@ -64,12 +67,13 @@ namespace WebVisualGame.Pages.UsersPages
 			return RedirectToPage("/UsersPages/Updategame");
 		}
 
-		public IActionResult OnPostStartGame(int gameId)
+		public IActionResult OnPostStartGame(string gameId)
 		{
-			Response.Cookies.Append("GameId", gameId.ToString());
+			var gameIdDecoded = ProtectData.GetInstance().DecodeToInt(gameId);
+			Response.Cookies.Append("GameId", gameIdDecoded.ToString());
 
 			int userId = Int32.Parse(Request.Cookies["UserId"]);
-			if (db.SavedGames.FirstOrDefault(i => i.GameId == gameId &&
+			if (db.SavedGames.FirstOrDefault(i => i.GameId == gameIdDecoded &&
 				i.UserId == userId) == null)
 			{
 				var savedGame = new SavedGame()
@@ -77,7 +81,7 @@ namespace WebVisualGame.Pages.UsersPages
 					UserId = userId,
 					State = 0,
 					Keys = "",
-					GameId = gameId
+					GameId = gameIdDecoded
 				};
 				db.SavedGames.Add(savedGame);
 				db.SaveChanges();

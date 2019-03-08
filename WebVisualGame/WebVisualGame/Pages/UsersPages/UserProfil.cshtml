@@ -62,17 +62,17 @@
 					<td>@game.Rating</td>
 					<td>
 						<form method="POST">
-							<button type="submit" asp-page-handler="DeleteGame" asp-route-gameId="@game.Id">Удалить</button>
+							<button type="submit" asp-page-handler="DeleteGame" asp-route-gameId="@Utilities.ProtectData.GetInstance().Encode(game.Id)">Удалить</button>
 						</form>
 					</td>
 					<td>
 						<form method="POST">
-							<button type="submit" asp-page-handler="UpdateGame" asp-route-gameId="@game.Id">Обновить</button>
+							<button type="submit" asp-page-handler="UpdateGame" asp-route-gameId="@Utilities.ProtectData.GetInstance().Encode(game.Id)">Обновить</button>
 						</form>
 					</td>
 					<td>
 						<form method="POST">
-							<button type="submit" asp-page-handler="StartGame" asp-route-gameId="@game.Id">Играть</button>
+							<button type="submit" asp-page-handler="StartGame" asp-route-gameId="@Utilities.ProtectData.GetInstance().Encode(game.Id)">Играть</button>
 						</form>
 					</td>
 				</tr>
