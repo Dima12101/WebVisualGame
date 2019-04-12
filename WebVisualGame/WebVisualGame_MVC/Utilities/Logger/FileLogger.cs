@@ -1,14 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Diagnostics;
-using System.Text;
+using System.IO;
+using System.Runtime.CompilerServices;
 
-namespace Project_Infrastructure.Helpers
+namespace WebVisualGame_MVC.Utilities.Logger
 {
     public class FileLogger : ILogger
     {
@@ -91,50 +87,6 @@ namespace Project_Infrastructure.Helpers
                     }
                 }
             }
-        }
-    }
-
-    public class FileLoggerProvider : ILoggerProvider
-    {
-        private string Path { get; set; }
-
-        private Func<string, LogLevel, bool> LogFilter { get; set; }
-
-        public FileLoggerProvider(string _path)
-        {
-            Path = _path;
-            LogFilter = (category, logFilter) => true;
-        }
-
-        public FileLoggerProvider(string _path, Func<string, LogLevel, bool> _logFilter)
-        {
-            Path = _path;
-            LogFilter = _logFilter;
-        }
-
-        public ILogger CreateLogger(string categoryName)
-        {
-            return new FileLogger(Path, LogFilter);
-        }
-
-        public void Dispose()
-        {
-
-        }
-    }
-
-    public static class FileLoggerExtensions
-    {
-        public static ILoggerFactory AddFile(this ILoggerFactory factory, string _path)
-        {
-            factory.AddProvider(new FileLoggerProvider(_path));
-            return factory;
-        }
-
-        public static ILoggerFactory AddFile(this ILoggerFactory factory, string _path, Func<string, LogLevel, bool> _filter)
-        {
-            factory.AddProvider(new FileLoggerProvider(_path, _filter));
-            return factory;
         }
     }
 }

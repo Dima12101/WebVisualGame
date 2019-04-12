@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Authorization";
+}
+
+<div class="panel panel-success">
+    <div class="panel-heading text-center"><h4>Авторизация</h4></div>
+    <div class="panel-body">
+        <div class="text-danger">@ViewBag.Error</div>
+        <form asp-action="Authorization" method="post">
+            <div class="form-group">
+                <label>Ваш Логин:</label>
+                <input type="text" name="Login" />
+            </div>
+            <div class="form-group">
+                <label>Ваш Пароль:</label>
+                <input type="password" name="Password" />
+            </div>
+            <div class="text-center">
+                <button class="btn bg-primary" type="submit">Авторизироваться!</button>
+            </div>
+        </form>
+    </div>
+</div>
