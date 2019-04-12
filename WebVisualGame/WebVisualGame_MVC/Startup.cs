@@ -35,7 +35,7 @@ namespace WebVisualGame_MVC
 				options.MinimumSameSitePolicy = SameSiteMode.None;
 			});
 
-			string connection = Configuration.GetConnectionString("GodisConnection");
+			string connection = Configuration.GetConnectionString("DefaultConnection");
 			services.AddDbContext<DataContext>(options => options.UseSqlServer(connection));
 
 			services.AddDataProtection()
@@ -63,16 +63,16 @@ namespace WebVisualGame_MVC
                 bool LogFilter(string category, LogLevel level)
                 {
                     bool shouldLog =
-                        (category.Contains("Project_Infrastructure")) ||
+                        (category.Contains("WebVisualGame_MVC")) ||
                         (category.Contains("System")) && level >= LogLevel.Error ||
                         (category.Contains("Microsoft") && level >= LogLevel.Error);
 
                     return shouldLog;
                 }
 
-                loggerFactory.AddFile(Path.Combine(Directory.GetCurrentDirectory(), "logger.txt"), LogFilter);
-				//var logger = loggerFactory.CreateLogger("FileLogger");
-				//logger.LogInformation("Processing request {0}", context.Request.Path);
+                loggerFactory.AddFile(Path.Combine(Directory.GetCurrentDirectory(), "log/logger.txt"), LogFilter);
+				loggerFactory.CreateLogger("FileLogger").LogInformation("Logger created!");
+
 				app.UseDeveloperExceptionPage();
 			}
 			else

@@ -29,16 +29,30 @@ namespace WebVisualGame_MVC.Controllers
 
 		public IActionResult Index()
 		{
-			logger.LogInformation("Test Message");
+			logger.LogInformation("Visit index page");
 			var indexModel = new IndexModel(dataContext);
 
-			if (Request.Cookies.ContainsKey("Login") && Request.Cookies.ContainsKey("Sign"))
+			if (Request.Cookies.ContainsKey("Login") &&
+				Request.Cookies.ContainsKey("Sign") &&
+				Request.Cookies.ContainsKey("UserId"))
 			{
 				var login = Request.Cookies["Login"];
 				var sign = Request.Cookies["Sign"];
 				if (sign == SignGenerator.GetSign(login + "bytepp"))
 				{
-					var userId =  Int32.Parse(Request.Cookies["UserId"]);
+					int userId = 0;
+
+					try
+					{
+						userId = Int32.Parse(Request.Cookies["UserId"]);
+					}
+					catch (Exception ex)
+					{
+						logger.LogError(ex.Message);
+
+						throw ex;
+					}
+
 					indexModel.SetUser(userId);
 				}
 			}
@@ -53,9 +67,6 @@ namespace WebVisualGame_MVC.Controllers
 			Response.Cookies.Delete("Sign");
 			return RedirectPermanent("~/Home/Index");
 		}
-
-
-
 
 		public IActionResult About()
 		{

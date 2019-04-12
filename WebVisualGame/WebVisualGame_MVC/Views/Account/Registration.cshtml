@@ -3,7 +3,20 @@
     ViewData["Title"] = "Регистрация";
 }
 
-<div class="panel panel-success">
+<style>
+    .field-labels {
+        width: 15%
+    }
+
+    .column {
+        display: table
+    }
+    .register-panel {
+        margin: auto 20%
+    }
+ </style>
+
+<div class="register-panel panel panel-success">
     <div class="panel-heading text-center"><h4>Регистрация</h4></div>
     <div class="panel-body">
         <form asp-action="Registration" method="post">
@@ -15,32 +28,32 @@
                     }
                 </ul>*@
             <div class="form-group">
-                <label asp-for="FirstName">Ваше Имя:</label>
+                <label class="field-labels" asp-for="FirstName">Ваше Имя:</label>
                 <input type="text" asp-for="FirstName" />
                 <span asp-validation-for="FirstName" />
             </div>
             <div class="form-group">
-                <label asp-for="LastName">Ваша Фамилия:</label>
+                <label class="field-labels" asp-for="LastName">Ваша Фамилия:</label>
                 <input type="text" asp-for="LastName" />
                 <span asp-validation-for="LastName" />
             </div>
             <div class="form-group">
-                <label asp-for="Login">Ваш Логин:</label>
+                <label class="field-labels" asp-for="Login">Ваш Логин:</label>
                 <input type="text" asp-for="Login" />
                 <span asp-validation-for="Login" />
             </div>
             <div class="form-group">
-                <label asp-for="Password">Ваш Пароль:</label>
+                <label class="field-labels" asp-for="Password">Ваш Пароль:</label>
                 <input type="password" asp-for="Password" />
                 <span asp-validation-for="Password" />
             </div>
             <div class="form-group">
-                <label asp-for="PasswordConfirm">Ваш Пароль (повторно):</label>
+                <label class="field-labels" asp-for="PasswordConfirm">Ваш Пароль (повторно):</label>
                 <input type="password" asp-for="PasswordConfirm" />
                 <span asp-validation-for="PasswordConfirm" />
             </div>
             <div class="form-group">
-                <label asp-for="Email">Ваш Email:</label>
+                <label class="field-labels" asp-for="Email">Ваш Email:</label>
                 <input type="text" asp-for="Email" />
                 <span asp-validation-for="Email" />
             </div>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace WebVisualGame_MVC.Models.DbModel
 {

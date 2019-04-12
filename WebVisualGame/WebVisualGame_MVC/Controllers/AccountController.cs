@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using WebVisualGame_MVC.Models.DbModel;
@@ -10,9 +12,13 @@ namespace WebVisualGame_MVC.Controllers
     {
 		private DataContext dataContext;
 
-		public AccountController(DataContext _dataContext)
+		private ILogger logger;
+
+		public AccountController(DataContext _dataContext, ILogger<AccountController> _logger)
 		{
 			dataContext = _dataContext;
+
+			logger = _logger;
 		}
 
 		[HttpGet]
@@ -37,8 +43,18 @@ namespace WebVisualGame_MVC.Controllers
 			}
 			else
 			{
-				dataContext.Users.Add(user);
-				dataContext.SaveChanges();
+				try
+				{
+					dataContext.Users.Add(null);
+					dataContext.SaveChanges();
+				}
+				catch (Exception ex)
+				{
+					logger.LogError($"{ex.Message}");
+
+					// user will see error page
+					throw ex;
+				}
 
 				var userId = dataContext.Users.FirstOrDefault(i => i.Login == user.Login).Id;
 
@@ -69,7 +85,7 @@ namespace WebVisualGame_MVC.Controllers
 				Response.Cookies.Append("UserId", user.Id.ToString());
 				Response.Cookies.Append("Login", login);
 				Response.Cookies.Append("Sign", SignGenerator.GetSign(login + "bytepp"));
-				dataContext.SaveChanges();
+
 				return Redirect("~/Home/Index");
 			}
 		}
