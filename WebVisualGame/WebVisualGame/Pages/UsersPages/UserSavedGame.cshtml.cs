@@ -33,14 +33,16 @@ namespace WebVisualGame.Pages.UsersPages
 							 Title = game.Title,
 							 Description = game.Description,
 							 Rating = game.Rating,
-							 UrlIcon = game.UrlIcon
+							 UrlIcon = game.UrlIcon,
+							 SourceCode = game.SourceCode
 						 }).Select(i => new Game
 						 {
 							 Id = i.Id,
 							 Description = i.Description,
 							 Title = i.Title,
 							 Rating = i.Rating,
-							 UrlIcon = i.UrlIcon
+							 UrlIcon = i.UrlIcon,
+							 SourceCode = i.SourceCode
 						 }).ToList();
 		}
 

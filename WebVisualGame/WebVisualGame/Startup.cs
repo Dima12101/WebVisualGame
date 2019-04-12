@@ -33,6 +33,7 @@ namespace WebVisualGame
 				options.CheckConsentNeeded = context => true;
 				options.MinimumSameSitePolicy = SameSiteMode.None;
 			});
+
 			services.AddDbContext<Data.Repository>(
 				options => options.UseSqlServer(@"Server=MOI;Database=WebVisualGame;Trusted_Connection=True;"));
 
@@ -40,6 +41,8 @@ namespace WebVisualGame
 			.PersistKeysToFileSystem(new DirectoryInfo(@"c:\keys"));
 			services.AddDataProtection()
 			.SetDefaultKeyLifetime(TimeSpan.FromDays(14));
+
+			services.AddAntiforgery(options => options.HeaderName = "X-CSRF-TOKEN");
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 		}
@@ -57,7 +60,8 @@ namespace WebVisualGame
 				app.UseHsts();
 			}
 
-			
+			// обработка ошибок HTTP
+			app.UseStatusCodePagesWithReExecute("/Error/{0}");
 
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
@@ -65,8 +69,8 @@ namespace WebVisualGame
 
 			//app.UseRequestLocalization();
 			//app.UseResponseCompression();
-
 			app.UseMvc();
+			
 		}
 	}
 }

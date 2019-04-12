@@ -59,8 +59,6 @@ namespace WebVisualGame.Utilities
 						var reader =
 							new StreamReader(
 								formFile.OpenReadStream(),
-								new UTF8Encoding(encoderShouldEmitUTF8Identifier: false,
-									throwOnInvalidBytes: true),
 								detectEncodingFromByteOrderMarks: true))
 					{
 						fileContents = await reader.ReadToEndAsync();

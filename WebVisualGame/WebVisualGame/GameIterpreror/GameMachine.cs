@@ -66,7 +66,7 @@ namespace GameInterpreror
 
             Reader = new GameMachineReader();
 
-            GameStart = Reader.ReadGameFromText(text);
+            GameStart = Reader.ReadGame(text);
 
             CurrentPoint = GameStart;
 
