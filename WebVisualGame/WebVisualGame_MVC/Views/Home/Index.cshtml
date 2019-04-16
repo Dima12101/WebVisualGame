@@ -27,14 +27,14 @@
     <div>
         @if (Model.User != null)
         {
-        <p>Здравствуй @Model.User.FirstName @Model.User.LastName !</p>
+            <p>Здравствуй @Model.User.FirstName @Model.User.LastName !</p>
             @if (Model.User.AccessLevel == 1)
             {
                 <a asp-controller="Home" asp-action="Index">Список пользователей <span style="color:red;">(Admin)</span></a>
             }
             @*<div class="UserButton"><a asp-page="/CreateGame">Создать игру</a></div>
             <div class="UserButton"><a asp-page="/UsersPages/UserProfil">Ваш профиль</a></div>*@
-            <form asp-action="Exit" method="post">
+            <form asp-controller="Account" asp-action="Logout" method="post">
                 <button class="UserButton" type="submit">Выход</button>
             </form>
         }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -30,44 +32,42 @@ namespace WebVisualGame_MVC.Controllers
 		public IActionResult Index()
 		{
 			logger.LogInformation("Visit index page");
+
 			var indexModel = new IndexModel(dataContext);
 
-			if (Request.Cookies.ContainsKey("Login") &&
-				Request.Cookies.ContainsKey("Sign") &&
-				Request.Cookies.ContainsKey("UserId"))
+			if (HttpContext.User.Identity.IsAuthenticated)
 			{
-				var login = Request.Cookies["Login"];
-				var sign = Request.Cookies["Sign"];
-				if (sign == SignGenerator.GetSign(login + "bytepp"))
+				logger.LogInformation($"User {HttpContext.User.Identity.Name} is authorized");
+
+				var login = HttpContext.User.Identity.Name;
+				int userId = 0;
+
+				logger.LogInformation($"Trying get user's id");
+
+				try
 				{
-					int userId = 0;
-
-					try
-					{
-						userId = Int32.Parse(Request.Cookies["UserId"]);
-					}
-					catch (Exception ex)
-					{
-						logger.LogError(ex.Message);
-
-						throw ex;
-					}
-
-					indexModel.SetUser(userId);
+					userId = Int32.Parse(Request.Cookies["UserId"]);
 				}
+				catch (Exception ex)
+				{
+					logger.LogError(ex.Message);
+
+					throw ex;
+				}
+
+				logger.LogInformation($"User's id is {userId}");
+
+				indexModel.SetUser(userId);
 			}
+			else
+			{
+				logger.LogInformation($"Authorization hasn't been passed");
+			}
+
 			return View(indexModel);
 		}
 
-		[HttpPost]
-		public IActionResult Exit()
-		{
-			Response.Cookies.Delete("UserId");
-			Response.Cookies.Delete("Login");
-			Response.Cookies.Delete("Sign");
-			return RedirectPermanent("~/Home/Index");
-		}
-
+		[Authorize]
 		public IActionResult About()
 		{
 			ViewData["Message"] = "Your application description page.";

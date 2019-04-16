@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -46,10 +47,9 @@ namespace WebVisualGame_MVC
 			services.AddAntiforgery(options => options.HeaderName = "X-CSRF-TOKEN");
 
 			services.AddDistributedMemoryCache();
-			services.AddSession(options =>
-			{
-				options.IdleTimeout = TimeSpan.FromSeconds(3600);
-			});
+
+			services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+				.AddCookie(options => options.LoginPath = new PathString("/Account/Authorization"));
 
 			// Добавление сервисов фреймворка MVC
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
@@ -83,8 +83,8 @@ namespace WebVisualGame_MVC
 
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
-			app.UseCookiePolicy();
-			app.UseSession();
+//			app.UseCookiePolicy();
+			app.UseAuthentication();
 
 			/*
 			 * if(context.Session.Keys.Contains("name"))
