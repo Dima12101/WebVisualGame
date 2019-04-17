@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace WebVisualGame_MVC.Models.DbModel
+namespace WebVisualGame_MVC.Data
 {
 	public class User
 	{
@@ -13,28 +13,23 @@ namespace WebVisualGame_MVC.Models.DbModel
 		public int Id { get; set; }
 
 		[MaxLength(100)]
-		[Required(ErrorMessage = "Укажите Ваше имя")]
+		[Required]
 		public string FirstName { get; set; }
 
 		[MaxLength(100)]
-		[Required(ErrorMessage = "Укажите Вашу фамилию")]
+		[Required]
 		public string LastName { get; set; }
 
 		[MaxLength(100)]
-		[Required(ErrorMessage = "Укажите Ваш логин")]
+		[Required]
 		public string Login { get; set; }
 
 		[MaxLength(100)]
-		[Required(ErrorMessage = "Укажите Ваш пароль")]
+		[Required]
 		public string Password { get; set; }
 
-		[Compare("Password", ErrorMessage = "Пароли не совпадают")]
-		public string PasswordConfirm { get; set; }
-
 		[MaxLength(100)]
-		[Required(ErrorMessage = "Укажите Ваш Email")]
-		[RegularExpression(@"^([a-zA-Z0-9_\-\.]+)"
-		+ @"@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$", ErrorMessage = "Укажите корректный Email, псина,пожалуйста")]
+		[Required]
 		public string Email { get; set; }
 
 		[Range(0, 1, ErrorMessage = "Введите либо 0, либо 1")]

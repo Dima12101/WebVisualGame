@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WebVisualGame_MVC.Models.DbModel
+namespace WebVisualGame_MVC.Data
 {
 	public class Game
 	{

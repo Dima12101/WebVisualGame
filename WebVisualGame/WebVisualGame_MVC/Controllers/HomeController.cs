@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using WebVisualGame_MVC.Models;
-using WebVisualGame_MVC.Models.DbModel;
+using WebVisualGame_MVC.Data;
 using WebVisualGame_MVC.Models.PageModels;
 using WebVisualGame_MVC.Utilities;
 
@@ -39,14 +39,13 @@ namespace WebVisualGame_MVC.Controllers
 			{
 				logger.LogInformation($"User {HttpContext.User.Identity.Name} is authorized");
 
-				var login = HttpContext.User.Identity.Name;
 				int userId = 0;
 
 				logger.LogInformation($"Trying get user's id");
 
 				try
 				{
-					userId = Int32.Parse(Request.Cookies["UserId"]);
+					userId = Int32.Parse(HttpContext.User.Identity.Name);
 				}
 				catch (Exception ex)
 				{

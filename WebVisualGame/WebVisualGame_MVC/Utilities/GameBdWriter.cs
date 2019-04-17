@@ -3,8 +3,8 @@
 //using System.Linq;
 
 //using GameInterpreror;
-//using WebVisualGame_MVC.Models.DbModel;
-//using WebVisualGame_MVC.Models.DbModel.GameComponents;
+//using WebVisualGame_MVC.Data;
+//using WebVisualGame_MVC.Data.GameComponents;
 
 //namespace WebVisualGame_MVC.Utilities
 //{

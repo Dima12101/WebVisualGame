@@ -5,12 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using WebVisualGame_MVC.Models.DbModel;
+using WebVisualGame_MVC.Data;
 using WebVisualGame_MVC.Utilities;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using WebVisualGame_MVC.Models.PageModels;
 
 namespace WebVisualGame_MVC.Controllers
 {
@@ -30,45 +31,62 @@ namespace WebVisualGame_MVC.Controllers
 		[HttpGet]
 		public IActionResult Registration()
 		{
-			return View();
+			return View(new RegistrationModel());
 		}
 
 		[HttpPost]
-		public IActionResult Registration(User user)
+		public async Task<IActionResult> Registration(RegistrationModel model)
 		{
-			var serverErrors = new List<string>();
-			if (dataContext.Users.FirstOrDefault(i => i.Login == user.Login) != null)
-				serverErrors.Add("Пользователь с таким логином уже существует");
-			if (dataContext.Users.FirstOrDefault(i => i.Email == user.Email) != null)
-				serverErrors.Add("Пользователь с таким адресом эл.почты уже существует");
-
-			if (serverErrors.Count != 0)
+			if (ModelState.IsValid)
 			{
-				ViewBag.serverErrors = serverErrors;
-				return View();
-			}
-			else
-			{
-				try
+				if (dataContext.Users.FirstOrDefault(i => i.Login == model.Login) != null)
 				{
-					dataContext.Users.Add(null);
-					dataContext.SaveChanges();
+					model.Errors.Add("Пользователь с таким логином уже существует");
+					ModelState.AddModelError("", "Пользователь с таким логином уже существует");
 				}
-				catch (Exception ex)
+					
+				if (dataContext.Users.FirstOrDefault(i => i.Email == model.Email) != null)
 				{
-					logger.LogError($"{ex.Message}");
+					model.Errors.Add("Пользователь с таким адресом эл.почты уже существует");
+					ModelState.AddModelError("", "Пользователь с таким адресом эл.почты уже существует");
+				}	
 
-					// user will see error page
-					throw ex;
+				if (!ModelState.IsValid)
+				{
+					return View(model);
 				}
+				else
+				{
+					var user = new User
+					{
+						FirstName = model.FirstName,
+						LastName = model.LastName,
+						Login = model.Login,
+						Email = model.Email,
+						Password = model.Password
+					};
 
-				var userId = dataContext.Users.FirstOrDefault(i => i.Login == user.Login).Id;
+					try
+					{
+						dataContext.Users.Add(user);
+						dataContext.SaveChanges();
+					}
+					catch (Exception ex)
+					{
+						logger.LogError($"{ex.Message}");
 
-				Response.Cookies.Append("UserId", userId.ToString());
-				Response.Cookies.Append("Login", user.Login);
-				Response.Cookies.Append("Sign", SignGenerator.GetSign(user.Login + "bytepp"));
-				return Redirect("~/Home/Index");
+						// user will see error page
+						throw ex;
+					}
+
+					var userId = dataContext.Users.FirstOrDefault(i => i.Login == user.Login).Id;
+
+					await Authorize(userId.ToString()); // авторизация
+
+					return Redirect("~/Home/Index");
+				}
 			}
+			return View(model);		
 		}
 
 		[HttpGet]
@@ -78,37 +96,34 @@ namespace WebVisualGame_MVC.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> Authorization(string login, string password)
+		public async Task<IActionResult> Authorization(AuthorizationModel model)
 		{
-			logger.LogInformation($"Began authorization for user '{login}'");
+			logger.LogInformation($"Began authorization for user '{model.Login}'");
 
-			var user = dataContext.Users.FirstOrDefault(i => i.Login == login && i.Password == password);
-			if (user == null)
+			if (ModelState.IsValid)
 			{
+				var user = dataContext.Users.FirstOrDefault(i => i.Login == model.Login && i.Password == model.Password);
+				if (user != null)
+				{
+					await Authorize(user.Id.ToString()); // авторизация
+
+					logger.LogInformation($"User has authorized");
+
+					return Redirect("~/Home/Index");
+				}
+
 				logger.LogInformation($"Authorization hasn't been passed");
-
-				ViewBag.Error = "Введён неправильный логин или пароль";
-				return View();
+				ViewBag.Error = "Некорректные логин и(или) пароль";
+				ModelState.AddModelError("", "Некорректные логин и(или) пароль");
 			}
-			else
-			{
-				await Authorize(login);
-				
-				Response.Cookies.Append("UserId", user.Id.ToString());
-				//Response.Cookies.Append("Login", login);
-				//Response.Cookies.Append("Sign", SignGenerator.GetSign(login + "bytepp"));
-
-				logger.LogInformation($"User hasn't authorized");
-
-				return Redirect("~/Home/Index");
-			}
+			return View(model);
 		}
 
-		public async Task Authorize(string login)
+		public async Task Authorize(string DB_id)
 		{
 			var claims = new List<Claim>
 				{
-					new Claim(ClaimsIdentity.DefaultNameClaimType, login)
+					new Claim(ClaimsIdentity.DefaultNameClaimType, DB_id)
 				};
 
 			ClaimsIdentity id = new ClaimsIdentity(

@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WebVisualGame_MVC.Models.DbModel.GameComponents
+namespace WebVisualGame_MVC.Data.GameComponents
 {
 	public class Transition
 	{

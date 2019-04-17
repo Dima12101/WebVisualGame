@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
-using WebVisualGame_MVC.Models.DbModel;
+using WebVisualGame_MVC.Data;
 
 namespace WebVisualGame_MVC.Models.PageModels
 {

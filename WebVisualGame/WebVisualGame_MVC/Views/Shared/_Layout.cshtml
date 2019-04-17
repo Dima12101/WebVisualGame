@@ -38,9 +38,6 @@
             </div>
         </div>
     </nav>
-    <!--Позволяет вставлять html внутрь html-->
-    <partial name="_CookieConsentPartial" />-
-    <partial name="_ValidationScriptsPartial" />
 
     <!--основной контент-->
     <div class="container body-content">
@@ -71,6 +68,10 @@
         </script>
         <script src="~/js/site.min.js" asp-append-version="true"></script>
     </environment>
+
+    <!--Позволяет вставлять html внутрь html-->
+    <partial name="_CookieConsentPartial" />-
+    <partial name="_ValidationScriptsPartial" />
 
     @RenderSection("Scripts", required: false)
 </body>

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using WebVisualGame_MVC.Models.DbModel;
+using WebVisualGame_MVC.Data;
 using WebVisualGame_MVC.Utilities.Logger;
 
 namespace WebVisualGame_MVC

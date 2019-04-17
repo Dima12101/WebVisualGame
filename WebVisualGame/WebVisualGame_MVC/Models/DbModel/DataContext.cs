@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 
-namespace WebVisualGame_MVC.Models.DbModel
+namespace WebVisualGame_MVC.Data
 {
 	public class DataContext : DbContext
 	{
