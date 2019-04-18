@@ -6,90 +6,6 @@ using GameTextParsing.GLan;
 
 namespace GameTextParsing
 {
-    // this class for user's error in source code
-    public class SourceCodeError : ApplicationException
-    {
-        public SourceCodeError(string message) : base(message)
-        {
-
-        }
-
-        public SourceCodeError()
-        {
-
-        }
-    }
-
-    // this type of exception for errors in business logic
-    public class BusinessLogicError : ApplicationException
-    {
-        public BusinessLogicError(string message) : base(message)
-        {
-
-        }
-
-        public BusinessLogicError()
-        {
-
-        }
-    }
-
-    public static class ParseTreeNodeExtensions
-    {
-        public static ParseTreeNode GetChild(this ParseTreeNode node, string name)
-        {
-            return node?.ChildNodes?.Find(p => p.Term.Name.Equals(name));
-        }
-
-        public static string GetName(this ParseTreeNode node)
-        {
-            return node.Term?.Name;
-        }
-
-        public static string GetText(this ParseTreeNode node)
-        {
-            return node.FindToken()?.Text;
-        }
-    }
-
-    class IDKeeper<T>
-    {
-        private Dictionary<T, int> Dict { get; set; }
-
-        private int IdCounter { get; set; }
-
-        public IDKeeper()
-        {
-            Dict = new Dictionary<T, int>();
-
-            IdCounter = 0;
-        }
-
-        public int Add(T element, out bool contains)
-        {
-            contains = Dict.TryGetValue(element, out int id);
-
-            if (!contains)
-            {
-                id = ++IdCounter;
-
-                Dict.Add(element, id);
-            }
-
-            return id;
-        }
-
-        public int UniqueID()
-        {
-            return ++IdCounter;
-        }
-
-        public bool TryGetId(T element, out int id)
-        {
-            return Dict.TryGetValue(element, out id);
-        }
-    }
-
     class GameTextParser
     {
         private Parser MyParser { get; set; }
@@ -98,9 +14,9 @@ namespace GameTextParsing
 
         private DialogPoint Start { get; set; }
 
-        private IDKeeper<string> DPointIDs { get; set; }
+        private IdentifierDictionary<string> DPointIDs { get; set; }
 
-        private IDKeeper<string> KeyIDs { get; set; }
+        private IdentifierDictionary<string> KeyIDs { get; set; }
 
         private List<DialogPoint> DPoints { get; set; }
 
@@ -113,8 +29,8 @@ namespace GameTextParsing
             Grammar grammar = new Glan();
             MyParser = new Parser(grammar);
 
-            DPointIDs = new IDKeeper<string>();
-            KeyIDs = new IDKeeper<string>();
+            DPointIDs = new IdentifierDictionary<string>();
+            KeyIDs = new IdentifierDictionary<string>();
             DPoints = new List<DialogPoint>();
             Messages = new List<string>();
         }
