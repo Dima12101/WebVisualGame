@@ -29,7 +29,6 @@ namespace GameTextParsing
     class DialogLink
     {
         public string Text { get; set; }
-        public int Number { get; set; }
         public GameAction[] Actions { get; set; }
         public int NextID { get; set; }
         public LinkCondition Condition { get; set; }

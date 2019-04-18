@@ -154,6 +154,8 @@ namespace GameTextParsing.GLan
                 Minus + Text + NextPointMark |
                 Minus + Text + ActionBlock + NextPointMark;
 
+            AnswerUnion.Rule = MakePlusRule(AnswerUnion, Union, Answer);
+
             ConditionBlock.Rule =
                 IfBlock |
                 IfBlock + ElseBlock |
@@ -174,9 +176,7 @@ namespace GameTextParsing.GLan
                 Condition + And + Condition |
                 Condition + Or + Condition |
                 Key;
-
-            AnswerUnion.Rule = MakePlusRule(AnswerUnion, Union, Answer);
-
+            
             SwitchPoint.Rule =
                 DialogPointMark + Switch + CaseBlock + OtherCase |
                 DialogPointMark + Switch + OtherCase;
@@ -204,10 +204,9 @@ namespace GameTextParsing.GLan
             RegisterOperators(3, Associativity.Neutral, Not);
 
             MarkPunctuation("(", ")", "[", "]", "-", "#", ":");
-            MarkPunctuation(Other, Switch, Else, If, Then);
+            MarkPunctuation(Other, Switch, Else, If, Then, Minus);
 
             MarkTransient(GamePoint, AnswerPoint, GotoBlock, Key, CaseCondition);
-            
         }
     }
 }

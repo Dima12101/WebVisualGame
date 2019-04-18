@@ -6,6 +6,52 @@ using GameTextParsing.GLan;
 
 namespace GameTextParsing
 {
+    // this class for user's error in source code
+    public class SourceCodeError : ApplicationException
+    {
+        public SourceCodeError(string message) : base(message)
+        {
+
+        }
+
+        public SourceCodeError()
+        {
+
+        }
+    }
+
+    // this type of exception for errors in business logic
+    public class BusinessLogicError : ApplicationException
+    {
+        public BusinessLogicError(string message) : base(message)
+        {
+
+        }
+
+        public BusinessLogicError()
+        {
+
+        }
+    }
+
+    public static class ParseTreeNodeExtensions
+    {
+        public static ParseTreeNode GetChild(this ParseTreeNode node, string name)
+        {
+            return node?.ChildNodes?.Find(p => p.Term.Name.Equals(name));
+        }
+
+        public static string GetName(this ParseTreeNode node)
+        {
+            return node.Term?.Name;
+        }
+
+        public static string GetText(this ParseTreeNode node)
+        {
+            return node.FindToken()?.Text;
+        }
+    }
+
     class IDKeeper<T>
     {
         private Dictionary<T, int> Dict { get; set; }
@@ -58,6 +104,8 @@ namespace GameTextParsing
 
         private List<DialogPoint> DPoints { get; set; }
 
+        public List<string> Messages { get; private set; }
+
         private string defaultAnswer = "next...";
 
         public GameTextParser()
@@ -68,7 +116,7 @@ namespace GameTextParsing
             DPointIDs = new IDKeeper<string>();
             KeyIDs = new IDKeeper<string>();
             DPoints = new List<DialogPoint>();
-            
+            Messages = new List<string>();
         }
 
         public void ParseGameText(string sourceText)
@@ -87,7 +135,6 @@ namespace GameTextParsing
             }
         }
 
-
         #region helpers
 
         private List<string> GetChildTokenList(ParseTreeNode ptn)
@@ -98,16 +145,11 @@ namespace GameTextParsing
             {
                 foreach (var child in ptn.ChildNodes)
                 {
-                    tokenList.Add(child.FindToken().Text);
+                    tokenList.Add(child.GetText());
                 }
             }
 
             return tokenList;
-        }
-
-        private ParseTreeNode GetChild(ParseTreeNode node, string tag)
-        {
-            return node.ChildNodes?.Find(p => p.Term.Name.Equals(tag));
         }
 
         #endregion
@@ -116,13 +158,18 @@ namespace GameTextParsing
 
         private GameAction[] ParseActionBlock(ParseTreeNode actBlockNode)
         {
+            if (actBlockNode == null)
+            {
+                return null;
+            }
+
             GameAction action = new GameAction();
 
             var actionBlock = actBlockNode.ChildNodes.ToArray();
 
             for (int i = 0; i < actionBlock.Length / 2; i += 2)
             {
-                string actionType = actionBlock[i].FindToken().Text;
+                string actionType = actionBlock[i].GetText();
 
                 var keyList = GetChildTokenList(actionBlock[i + 1]);
 
@@ -144,16 +191,25 @@ namespace GameTextParsing
             return new GameAction[] { action };
         }
 
-        public enum NodeType { Binary, Single, Leave }
+        private enum NodeType { Binary, Single, Leave }
 
-        public class TreeNode
+        private class TreeNode
         {
+            public TreeNode()
+            {
+                Id = IdCounter++;
+            }
+
             public object Content { get; set; }
             public TreeNode[] Chld { get; set; }
             public NodeType NType { get; set; }
+
+            private int Id { get; set; }
+
+            private static int IdCounter = 0;
         }
 
-        public TreeNode ConvertConditionParseTree(ParseTreeNode condition)
+        private TreeNode CondParseTreeToExprTree(ParseTreeNode condition)
         {
             Queue<ParseTreeNode> condQueue = new Queue<ParseTreeNode>();
             Queue<TreeNode> nodeQueue = new Queue<TreeNode>();
@@ -171,7 +227,7 @@ namespace GameTextParsing
                 // excluding  empty nodes
                 while (cond.ChildNodes != null &&
                     cond.ChildNodes.Count == 1 &&
-                    cond.ChildNodes[0].Term.Name == NTrm.Condition)
+                    cond.ChildNodes[0].GetName() == NTrm.Condition)
                 {
                     cond = cond.ChildNodes[0];
                 }
@@ -182,19 +238,19 @@ namespace GameTextParsing
                 {
                     node.Chld = null;
                     node.NType = NodeType.Leave;
-                    node.Content = cond.FindToken().Text;
+                    node.Content = cond.GetText();
                 }
                 else if (chTokens.Count == 1)
                 {
                     node.Chld = null;
                     node.NType = NodeType.Leave;
-                    node.Content = cond.FindToken().Text;
+                    node.Content = cond.GetText();
                 }
                 else if (chTokens.Contains(Trm.And) || chTokens.Contains(Trm.Or))
                 {
                     node.Chld = new TreeNode[2];
                     node.NType = NodeType.Binary;
-                    node.Content = cond.ChildNodes[1].Term.Name;
+                    node.Content = cond.ChildNodes[1].GetText();
 
                     node.Chld[0] = new TreeNode();
                     node.Chld[1] = new TreeNode();
@@ -209,7 +265,7 @@ namespace GameTextParsing
                 {
                     node.Chld = new TreeNode[1];
                     node.NType = NodeType.Single;
-                    node.Content = cond.ChildNodes[0].Term.Name;
+                    node.Content = cond.ChildNodes[0].GetText();
 
                     node.Chld[0] = new TreeNode();
 
@@ -220,15 +276,25 @@ namespace GameTextParsing
                 else
                 {
                     // temp, for debug
-                    throw new ApplicationException("Met condition with strange structure");
+                    throw new BusinessLogicError("Met condition with strange structure");
                 }
             }
             return root;
         }
 
-        public string ParseCondition(TreeNode condTree)
+        private string ProcessCondition(ParseTreeNode condNode)
         {
+            TreeNode condTree = CondParseTreeToExprTree(condNode);
+
+            Dictionary<string, string> operatorDict = new Dictionary<string, string>
+            {
+                { Trm.And, "&" },
+                { Trm.Or, "|" },
+                { Trm.Not, "-" }
+            };
+
             string cond = "";
+            
             Dictionary<TreeNode, int> nextChIndex = new Dictionary<TreeNode, int>();
             Stack<TreeNode> nodeStack = new Stack<TreeNode>();
 
@@ -240,7 +306,8 @@ namespace GameTextParsing
                 var node = nodeStack.Peek();
                 if (node.NType == NodeType.Leave)
                 {
-                    cond += (string)node.Content + " ";
+                    int id = KeyIDs.Add((string)node.Content, out bool contains);
+                    cond += $"{id} ";
                     nodeStack.Pop();
                     continue;
                 }
@@ -252,7 +319,17 @@ namespace GameTextParsing
                     if (nextIndex >= node.Chld.Length)
                     {
                         nodeStack.Pop();
-                        cond += (string)node.Content + " ";
+
+                        bool contains = operatorDict.TryGetValue((string)node.Content, out string sign);
+
+                        if (contains)
+                        {
+                            cond += sign + " ";
+                        }
+                        else
+                        {
+                            throw new BusinessLogicError($"Unknown operator {(string)node.Content}");
+                        }
                         continue;
                     }
 
@@ -266,19 +343,104 @@ namespace GameTextParsing
             return cond;
         }
 
-        private DialogLink[] ProcessAnswerBlock(ParseTreeNode answBlockNode)
+        private DialogLink ProcessSingleTransition(ParseTreeNode answer)
+        {
+            DialogLink dl = new DialogLink
+            {
+                Text = answer.GetChild("Text")?.GetText(),
+                Actions = ParseActionBlock(answer.GetChild(NTrm.ActionBlock)),
+                NextID = DPointIDs.Add(answer.GetChild(NTrm.NextPointMark).GetText(), out bool tmp)
+            };
+
+            return dl;
+        }
+
+        private DialogLink[] ParseTransitionUnion(ParseTreeNode answerUnion)
+        {
+            var answers = answerUnion?.ChildNodes?.ToArray();
+
+            if (answers == null)
+            {
+                throw new BusinessLogicError("If-statement must have body");
+            }
+
+            DialogLink[] dialogLinks = new DialogLink[answers.Length];
+
+            for (int i = 0; i < answers.Length; ++i)
+            {
+                dialogLinks[i] = ProcessSingleTransition(answers[i]);
+            }
+
+            return dialogLinks;
+        }
+
+        private DialogLink[] ProcessDialogTransitionBlock(ParseTreeNode answBlockNode)
         {
             var dialogLinks = new List<DialogLink>();
 
-            foreach (var answer in answBlockNode.ChildNodes)
+            List<DialogLink> linkList = new List<DialogLink>();
+
+            void SetExprToLinks(IEnumerable<DialogLink> linkArr, string expr)
             {
-                string answerType = answer.Term.Name;
+                LinkCondition cond = new LinkCondition { BoolExpr = expr };
+                foreach (var link in linkArr)
+                {
+                    link.Condition = cond;
+                }
             }
 
-            return null;
+            foreach (var answer in answBlockNode.ChildNodes)
+            {
+                string answerType = answer.GetName();
+                if (answerType.Equals(NTrm.ConditionBlock))
+                {
+                    var ifBlock = answer.GetChild(NTrm.IfBlock);
+
+                    if (ifBlock == null)
+                    {
+                        throw new BusinessLogicError("Condition-block doesn't contain if-block");
+                    }
+
+                    string ifExpr = ProcessCondition(ifBlock.GetChild(NTrm.Condition));
+                    
+                    DialogLink[] ifThenBlockAns = ParseTransitionUnion(ifBlock.GetChild(NTrm.AnswerUnion));
+
+                    SetExprToLinks(ifThenBlockAns, ifExpr);
+
+                    linkList.AddRange(ifThenBlockAns);
+
+                    var elseIfList = answer.GetChild(NTrm.ElseIfList)?.ChildNodes?.ToArray();
+                    
+                    if (elseIfList != null)
+                    {
+                        string goNextCond = ifExpr;
+
+                        for (int i = 0; i < elseIfList.Length; ++i)
+                        {
+                            var currIfCond = ProcessCondition(elseIfList[i].GetChild(NTrm.Condition));
+
+                            var currAnswerBlock = ParseTransitionUnion(elseIfList[i].GetChild(NTrm.AnswerUnion));
+
+                            var totalCond = $"{goNextCond}{currIfCond}& ";
+
+                            SetExprToLinks(currAnswerBlock, totalCond);
+
+                            linkList.AddRange(currAnswerBlock);
+
+                            goNextCond = $"{goNextCond}{currIfCond}- & ";
+                        }
+                    }
+                }
+                else if (answerType.Equals(NTrm.Answer))
+                {
+                    linkList.Add(ProcessSingleTransition(answer));
+                }
+            }
+
+            return linkList.ToArray();
         }
 
-        private int ProcessPointDialogList(int pointIdentifier, List<string> textList)
+        private int ProcessDialogPointSequence(int pointIdentifier, List<string> textList)
         {
             int currID = pointIdentifier;
 
@@ -286,18 +448,18 @@ namespace GameTextParsing
 
             for(int i = 0; i < textBlock.Length - 1; ++i)
             {
-                DialogPoint currDP = new DialogPoint();
+                DialogPoint currDP = new DialogPoint
+                {
+                    ID = currID,
 
-                currDP.ID = currID;
-
-                currDP.Text = textBlock[i];
+                    Text = textBlock[i]
+                };
 
                 currID = DPointIDs.UniqueID();
 
                 DialogLink link = new DialogLink
                 {
                     Text = defaultAnswer,
-                    Number = 0,
                     NextID = currID
                 };
 
@@ -309,37 +471,75 @@ namespace GameTextParsing
             return currID;
         }
 
-        private void ProcessDialogPoint(ParseTreeNode dp)
+        public DialogPoint ProcessDialogPoint(ParseTreeNode dp)
         {
             // point identifier in string format
-            var pointIdentifier = GetChild(dp, NTrm.DialogPointMark).FindToken().Text;
+            var pointIdentifier = dp.GetChild(NTrm.DialogPointMark).GetText();
 
             // adds string identifier and gets int-ID
             var pointID = DPointIDs.Add(pointIdentifier, out bool contains);
 
             if (contains)
             {
-                throw new Exception($"Identifier already exist (Line: {dp.Token.Location.Line}, Pos: {dp.Token.Location.Position})");
+                Messages.Add($"Identifier already exist (Line: {dp.Token.Location.Line}, Pos: {dp.Token.Location.Position})");
+                throw new SourceCodeError();
             }
 
             // dialog point can contain multiple text
-            var textList = GetChildTokenList(GetChild(dp, NTrm.TextBlock));
+            var textList = GetChildTokenList(dp.GetChild(NTrm.TextBlock));
 
             // converting multiple-text-dialog point to a single-text dialog point
-            pointID = ProcessPointDialogList(pointID, textList);
+            pointID = ProcessDialogPointSequence(pointID, textList);
 
             // parsing action block of the DP into GameAction[]
-            var actionBlock = ParseActionBlock(GetChild(dp, NTrm.ActionBlock));
+            var actionBlock = ParseActionBlock(dp.GetChild(NTrm.ActionBlock));
 
-            
+            DialogLink[] links = null;
+
+            if (dp.GetChild(NTrm.NextPointMark) != null)
+            {
+                var nextDP = dp.GetChild(NTrm.NextPointMark).GetText();
+
+                links = new DialogLink[1];
+
+                links[0] = new DialogLink
+                {
+                    Actions = null,
+                    Condition = null,
+                    NextID = DPointIDs.Add(nextDP, out bool no_matter),
+                    Text = defaultAnswer
+                };
+            }
+            else
+            {
+                links = ProcessDialogTransitionBlock(dp.GetChild(NTrm.AnswerBlock));
+            }
+
+            DialogPoint newDp = new DialogPoint
+            {
+                Actions = actionBlock,
+                ID = pointID,
+                Links = links,
+                Text = textList[textList.Count - 1]
+            };
+
+            return newDp;
         }
 
-        public void ProcessParseTree()
+        public bool ProcessParseTree()
         {
-            if (MyParseTree == null || MyParseTree.Root == null)
+            if (MyParseTree == null)
             {
-                //...
-                return;
+                throw new BusinessLogicError("MyParseTree cannot be null");
+            }
+
+            if (MyParseTree.HasErrors())
+            {
+                foreach (var m in MyParseTree.ParserMessages)
+                {
+                    Messages.Add($"{m.Level.ToString()}: {m.Message} at ({m.Location.Line}, {m.Location.Column})");
+                }
+                return false;
             }
 
             var root = MyParseTree.Root;
@@ -348,15 +548,18 @@ namespace GameTextParsing
 
             foreach(var p in dpNodes)
             {
-                if (p.Term.Name.Equals("DialogPoint"))
+                if (p.GetName().Equals("DialogPoint"))
                 {
-                    ProcessDialogPoint(p);
+                    var dp = ProcessDialogPoint(p);
+                    DPoints.Add(dp);
                 }
                 else if (p.Tag.Equals("SwitchPoint"))
                 {
                     //ProcessSwitchPoint(p);
                 }
             }
+
+            return true;
         }
 
         #endregion
