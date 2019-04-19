@@ -162,13 +162,13 @@ namespace GameTextParsing.GLan
                 IfBlock + ElseIfList |
                 IfBlock + ElseIfList + ElseBlock;
 
-            IfBlock.Rule = If + Condition + Then + AnswerUnion;
+            IfBlock.Rule = If + Condition + Colon + AnswerUnion;
 
             ElseBlock.Rule = Else + AnswerUnion;
 
             ElseIfList.Rule = MakePlusRule(ElseIfList, ElseIfBlock);
 
-            ElseIfBlock.Rule = Else + If + Condition + Then + AnswerUnion;
+            ElseIfBlock.Rule = Else + If + Condition + Colon + AnswerUnion;
 
             Condition.Rule =
                 Not + Condition |

@@ -1,85 +1,108 @@
 ﻿using Irony.Parsing;
 using System;
 using System.Collections.Generic;
-
 using GameTextParsing.GLan;
+using GameTextParsing.ParseTreeProcessingHelpers;
 
 namespace GameTextParsing
 {
     class GameTextParser
     {
+        #region fields
         private Parser MyParser { get; set; }
 
         public ParseTree MyParseTree { get; set; }
 
         private DialogPoint Start { get; set; }
 
-        private IdentifierDictionary<string> DPointIDs { get; set; }
+        private IdentifierDictionary<string> DialogPointIdDict { get; set; }
 
-        private IdentifierDictionary<string> KeyIDs { get; set; }
+        private IdentifierDictionary<string> KeyIdDict { get; set; }
 
-        private List<DialogPoint> DPoints { get; set; }
+        private List<DialogPoint> GameDialogPoints { get; set; }
 
         public List<string> Messages { get; private set; }
 
         private string defaultAnswer = "next...";
+
+        #endregion
 
         public GameTextParser()
         {
             Grammar grammar = new Glan();
             MyParser = new Parser(grammar);
 
-            DPointIDs = new IdentifierDictionary<string>();
-            KeyIDs = new IdentifierDictionary<string>();
-            DPoints = new List<DialogPoint>();
+            DialogPointIdDict = new IdentifierDictionary<string>();
+            KeyIdDict = new IdentifierDictionary<string>();
+            GameDialogPoints = new List<DialogPoint>();
             Messages = new List<string>();
         }
 
-        public void ParseGameText(string sourceText)
+        //======================= PROCESSING FUNCTIONS ==========================
+
+        public bool ParseGameText(string sourceText)
         {
             try
             {
                 MyParser.Parse(sourceText);
-
                 MyParseTree = MyParser.Context.CurrentParseTree;
 
-                var dialogPoint = MyParseTree.Root.ChildNodes;
+                if (MyParseTree.HasErrors())
+                {
+                    foreach (var m in MyParseTree.ParserMessages)
+                    {
+                        Messages.Add($"{m.Level.ToString()}: {m.Message} at ({m.Location.Line}, {m.Location.Column})");
+                    }
+                    return false;
+                }
+                else
+                {
+                    var dialogPoint = MyParseTree.Root.ChildNodes;
+                    return true;
+                }
             }
             catch (Exception e)
             {
-                Console.Write(e);
+                new ApplicationException("Something went wrong while parsing; look inner exception", e);
+                return false;
             }
         }
 
-        #region helpers
-
-        private List<string> GetChildTokenList(ParseTreeNode ptn)
+        public void ProcessParseTree()
         {
-            var tokenList = new List<string>();
-
-            if (ptn.ChildNodes != null)
+            if (MyParseTree == null)
             {
-                foreach (var child in ptn.ChildNodes)
+                throw new BusinessLogicError("MyParseTree cannot be null");
+            }
+
+            var root = MyParseTree.Root;
+
+            var dpNodes = root.ChildNodes;
+
+            foreach (var p in dpNodes)
+            {
+                if (p.GetName().Equals("DialogPoint"))
                 {
-                    tokenList.Add(child.GetText());
+                    var dp = ProcessDialogPoint(p);
+                    GameDialogPoints.Add(dp);
+                }
+                else if (p.GetName().Equals("SwitchPoint"))
+                {
+                    var sp = ProcessSwitchPoint(p);
                 }
             }
-
-            return tokenList;
         }
 
-        #endregion
+        #region processing parse tree helper functions
 
-        #region processing parse tree
-
-        private GameAction[] ParseActionBlock(ParseTreeNode actBlockNode)
+        private GameAction[] ProcessActionBlock(ParseTreeNode actBlockNode)
         {
             if (actBlockNode == null)
             {
                 return null;
             }
 
-            GameAction action = new GameAction();
+            List<GameAction> actions = new List<GameAction>();
 
             var actionBlock = actBlockNode.ChildNodes.ToArray();
 
@@ -87,120 +110,29 @@ namespace GameTextParsing
             {
                 string actionType = actionBlock[i].GetText();
 
-                var keyList = GetChildTokenList(actionBlock[i + 1]);
+                var keyList = actionBlock[i + 1].GetChildTokenList();
 
                 foreach (var key in keyList)
                 {
-                    int keyID = KeyIDs.Add(key, out bool contains);
+                    int keyID = KeyIdDict.Add(key, out bool contains);
 
                     if (actionType.Equals(Trm.Find))
                     {
-                        action.FindList.Add(keyID);
+                        actions.Add(new GameAction { Action = ActionType.Find, Key = keyID });
                     }
                     else if (actionType.Equals(Trm.Lose))
                     {
-                        action.LoseList.Add(keyID);
+                        actions.Add(new GameAction { Action = ActionType.Lose, Key = keyID });
                     }
                 }
             }
 
-            return new GameAction[] { action };
-        }
-
-        private enum NodeType { Binary, Single, Leave }
-
-        private class TreeNode
-        {
-            public TreeNode()
-            {
-                Id = IdCounter++;
-            }
-
-            public object Content { get; set; }
-            public TreeNode[] Chld { get; set; }
-            public NodeType NType { get; set; }
-
-            private int Id { get; set; }
-
-            private static int IdCounter = 0;
-        }
-
-        private TreeNode CondParseTreeToExprTree(ParseTreeNode condition)
-        {
-            Queue<ParseTreeNode> condQueue = new Queue<ParseTreeNode>();
-            Queue<TreeNode> nodeQueue = new Queue<TreeNode>();
-
-            TreeNode root = new TreeNode();
-
-            condQueue.Enqueue(condition);
-            nodeQueue.Enqueue(root);
-
-            while (condQueue.Count > 0)
-            {
-                var cond = condQueue.Dequeue();
-                var node = nodeQueue.Dequeue();
-
-                // excluding  empty nodes
-                while (cond.ChildNodes != null &&
-                    cond.ChildNodes.Count == 1 &&
-                    cond.ChildNodes[0].GetName() == NTrm.Condition)
-                {
-                    cond = cond.ChildNodes[0];
-                }
-
-                var chTokens = GetChildTokenList(cond);
-
-                if (chTokens.Count == 0)
-                {
-                    node.Chld = null;
-                    node.NType = NodeType.Leave;
-                    node.Content = cond.GetText();
-                }
-                else if (chTokens.Count == 1)
-                {
-                    node.Chld = null;
-                    node.NType = NodeType.Leave;
-                    node.Content = cond.GetText();
-                }
-                else if (chTokens.Contains(Trm.And) || chTokens.Contains(Trm.Or))
-                {
-                    node.Chld = new TreeNode[2];
-                    node.NType = NodeType.Binary;
-                    node.Content = cond.ChildNodes[1].GetText();
-
-                    node.Chld[0] = new TreeNode();
-                    node.Chld[1] = new TreeNode();
-
-                    nodeQueue.Enqueue(node.Chld[0]);
-                    nodeQueue.Enqueue(node.Chld[1]);
-
-                    condQueue.Enqueue(cond.ChildNodes[0]);
-                    condQueue.Enqueue(cond.ChildNodes[2]);
-                }
-                else if (chTokens.Contains(Trm.Not))
-                {
-                    node.Chld = new TreeNode[1];
-                    node.NType = NodeType.Single;
-                    node.Content = cond.ChildNodes[0].GetText();
-
-                    node.Chld[0] = new TreeNode();
-
-                    nodeQueue.Enqueue(node.Chld[0]);
-
-                    condQueue.Enqueue(cond.ChildNodes[1]);
-                }
-                else
-                {
-                    // temp, for debug
-                    throw new BusinessLogicError("Met condition with strange structure");
-                }
-            }
-            return root;
+            return actions.ToArray();
         }
 
         private string ProcessCondition(ParseTreeNode condNode)
         {
-            TreeNode condTree = CondParseTreeToExprTree(condNode);
+            ExprNode condTree = CondTreeConverter.CondParseTreeToExprTree(condNode);
 
             Dictionary<string, string> operatorDict = new Dictionary<string, string>
             {
@@ -210,9 +142,9 @@ namespace GameTextParsing
             };
 
             string cond = "";
-            
-            Dictionary<TreeNode, int> nextChIndex = new Dictionary<TreeNode, int>();
-            Stack<TreeNode> nodeStack = new Stack<TreeNode>();
+
+            Dictionary<ExprNode, int> nextChIndex = new Dictionary<ExprNode, int>();
+            Stack<ExprNode> nodeStack = new Stack<ExprNode>();
 
             nodeStack.Push(condTree);
             nextChIndex.Add(condTree, 0);
@@ -222,7 +154,7 @@ namespace GameTextParsing
                 var node = nodeStack.Peek();
                 if (node.NType == NodeType.Leave)
                 {
-                    int id = KeyIDs.Add((string)node.Content, out bool contains);
+                    int id = KeyIdDict.Add((string)node.Content, out bool contains);
                     cond += $"{id} ";
                     nodeStack.Pop();
                     continue;
@@ -264,8 +196,8 @@ namespace GameTextParsing
             DialogLink dl = new DialogLink
             {
                 Text = answer.GetChild("Text")?.GetText(),
-                Actions = ParseActionBlock(answer.GetChild(NTrm.ActionBlock)),
-                NextID = DPointIDs.Add(answer.GetChild(NTrm.NextPointMark).GetText(), out bool tmp)
+                Actions = ProcessActionBlock(answer.GetChild(NTrm.ActionBlock)),
+                NextID = DialogPointIdDict.Add(answer.GetChild(NTrm.NextPointMark).GetText(), out bool tmp)
             };
 
             return dl;
@@ -298,10 +230,9 @@ namespace GameTextParsing
 
             void SetExprToLinks(IEnumerable<DialogLink> linkArr, string expr)
             {
-                LinkCondition cond = new LinkCondition { BoolExpr = expr };
                 foreach (var link in linkArr)
                 {
-                    link.Condition = cond;
+                    link.Condition = expr;
                 }
             }
 
@@ -318,7 +249,7 @@ namespace GameTextParsing
                     }
 
                     string ifExpr = ProcessCondition(ifBlock.GetChild(NTrm.Condition));
-                    
+
                     DialogLink[] ifThenBlockAns = ParseTransitionUnion(ifBlock.GetChild(NTrm.AnswerUnion));
 
                     SetExprToLinks(ifThenBlockAns, ifExpr);
@@ -326,25 +257,38 @@ namespace GameTextParsing
                     linkList.AddRange(ifThenBlockAns);
 
                     var elseIfList = answer.GetChild(NTrm.ElseIfList)?.ChildNodes?.ToArray();
-                    
+
+                    string goNextCond = ifExpr;
+
                     if (elseIfList != null)
                     {
-                        string goNextCond = ifExpr;
-
                         for (int i = 0; i < elseIfList.Length; ++i)
                         {
                             var currIfCond = ProcessCondition(elseIfList[i].GetChild(NTrm.Condition));
 
-                            var currAnswerBlock = ParseTransitionUnion(elseIfList[i].GetChild(NTrm.AnswerUnion));
+                            var currAnswerUnion = ParseTransitionUnion(elseIfList[i].GetChild(NTrm.AnswerUnion));
 
                             var totalCond = $"{goNextCond}{currIfCond}& ";
 
-                            SetExprToLinks(currAnswerBlock, totalCond);
+                            SetExprToLinks(currAnswerUnion, totalCond);
 
-                            linkList.AddRange(currAnswerBlock);
+                            linkList.AddRange(currAnswerUnion);
 
                             goNextCond = $"{goNextCond}{currIfCond}- & ";
                         }
+                    }
+
+                    var elseBlock = answer.GetChild(NTrm.ElseBlock);
+
+                    if (elseBlock != null)
+                    {
+                        var elseAnswerUnion = ParseTransitionUnion(elseBlock.GetChild(NTrm.AnswerUnion));
+
+                        var elseConditon = goNextCond + "-";
+
+                        SetExprToLinks(elseAnswerUnion, elseConditon);
+
+                        linkList.AddRange(elseAnswerUnion);
                     }
                 }
                 else if (answerType.Equals(NTrm.Answer))
@@ -356,13 +300,14 @@ namespace GameTextParsing
             return linkList.ToArray();
         }
 
+        // returns new dialog point id
         private int ProcessDialogPointSequence(int pointIdentifier, List<string> textList)
         {
             int currID = pointIdentifier;
 
             var textBlock = textList.ToArray();
 
-            for(int i = 0; i < textBlock.Length - 1; ++i)
+            for (int i = 0; i < textBlock.Length - 1; ++i)
             {
                 DialogPoint currDP = new DialogPoint
                 {
@@ -371,7 +316,7 @@ namespace GameTextParsing
                     Text = textBlock[i]
                 };
 
-                currID = DPointIDs.UniqueID();
+                currID = DialogPointIdDict.UniqueID();
 
                 DialogLink link = new DialogLink
                 {
@@ -381,19 +326,19 @@ namespace GameTextParsing
 
                 currDP.Links = new DialogLink[] { link };
 
-                DPoints.Add(currDP);
+                GameDialogPoints.Add(currDP);
             }
 
             return currID;
         }
 
-        public DialogPoint ProcessDialogPoint(ParseTreeNode dp)
+        private DialogPoint ProcessDialogPoint(ParseTreeNode dp)
         {
             // point identifier in string format
             var pointIdentifier = dp.GetChild(NTrm.DialogPointMark).GetText();
 
             // adds string identifier and gets int-ID
-            var pointID = DPointIDs.Add(pointIdentifier, out bool contains);
+            var pointID = DialogPointIdDict.Add(pointIdentifier, out bool contains);
 
             if (contains)
             {
@@ -402,13 +347,13 @@ namespace GameTextParsing
             }
 
             // dialog point can contain multiple text
-            var textList = GetChildTokenList(dp.GetChild(NTrm.TextBlock));
+            var textList = dp.GetChild(NTrm.TextBlock).GetChildTokenList();
 
             // converting multiple-text-dialog point to a single-text dialog point
             pointID = ProcessDialogPointSequence(pointID, textList);
 
             // parsing action block of the DP into GameAction[]
-            var actionBlock = ParseActionBlock(dp.GetChild(NTrm.ActionBlock));
+            var actionBlock = ProcessActionBlock(dp.GetChild(NTrm.ActionBlock));
 
             DialogLink[] links = null;
 
@@ -422,7 +367,7 @@ namespace GameTextParsing
                 {
                     Actions = null,
                     Condition = null,
-                    NextID = DPointIDs.Add(nextDP, out bool no_matter),
+                    NextID = DialogPointIdDict.Add(nextDP, out bool no_matter),
                     Text = defaultAnswer
                 };
             }
@@ -442,42 +387,73 @@ namespace GameTextParsing
             return newDp;
         }
 
-        public bool ProcessParseTree()
+        public SwitchPoint ProcessSwitchPoint(ParseTreeNode sp)
         {
-            if (MyParseTree == null)
+            var name = sp.GetChild(NTrm.DialogPointMark)?.GetText();
+
+            if (name == null)
             {
-                throw new BusinessLogicError("MyParseTree cannot be null");
+                throw new BusinessLogicError("switch point must have identifier");
             }
 
-            if (MyParseTree.HasErrors())
+            int id = DialogPointIdDict.Add(name, out bool contains);
+
+            if (contains)
             {
-                foreach (var m in MyParseTree.ParserMessages)
-                {
-                    Messages.Add($"{m.Level.ToString()}: {m.Message} at ({m.Location.Line}, {m.Location.Column})");
-                }
-                return false;
+                Messages.Add($"Identifier already exist (Line: {sp.Token.Location.Line}, Pos: {sp.Token.Location.Position})");
+                throw new SourceCodeError();
             }
 
-            var root = MyParseTree.Root;
+            var actions = ProcessActionBlock(sp.GetChild(NTrm.ActionBlock));
 
-            var dpNodes = root.ChildNodes;
+            var caseBlock = sp.GetChild(NTrm.CaseBlock)?.ChildNodes;
 
-            foreach(var p in dpNodes)
+            List<SwitchLink> links = new List<SwitchLink>();
+
+            if (caseBlock != null)
             {
-                if (p.GetName().Equals("DialogPoint"))
+                foreach (var _case in caseBlock)
                 {
-                    var dp = ProcessDialogPoint(p);
-                    DPoints.Add(dp);
-                }
-                else if (p.Tag.Equals("SwitchPoint"))
-                {
-                    //ProcessSwitchPoint(p);
+                    var probCond = _case.GetChild(NTrm.Probability);
+                    var determCond = _case.GetChild(NTrm.Condition);
+
+                    string condition = "";
+
+                    if (determCond != null)
+                    {
+                        condition = ProcessCondition(determCond);
+                    }
+                    else if (probCond != null)
+                    {
+                        condition = probCond.GetText() + "%";
+                    }
+
+                    links.Add(new SwitchLink
+                    {
+                        Actions = ProcessActionBlock(_case.GetChild(NTrm.ActionBlock)),
+                        NextID = DialogPointIdDict.Add(_case.GetChild(NTrm.NextPointMark).GetText(), out bool tmp_1),
+                        Condition = condition
+                    });
                 }
             }
 
-            return true;
+            var otherCase = sp.GetChild(NTrm.OtherCase);
+
+            links.Add(new SwitchLink
+            {
+                Actions = ProcessActionBlock(otherCase.GetChild(NTrm.ActionBlock)),
+                Condition = "",
+                NextID = DialogPointIdDict.Add(otherCase.GetChild(NTrm.NextPointMark).GetText(), out bool tmp_2)
+            });
+
+            return new SwitchPoint
+            {
+                Actions = actions,
+                ID = id,
+                Links = links.ToArray(),
+                SType = SwitchType.Determinate
+            };
         }
-
-        #endregion
     }
+    #endregion
 }

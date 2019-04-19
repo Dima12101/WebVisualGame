@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace GameTextParsing
+namespace GameTextParsing.ParseTreeProcessingHelpers
 {
     class IdentifierDictionary<T>
     {
@@ -41,5 +41,4 @@ namespace GameTextParsing
             return Dict.TryGetValue(element, out id);
         }
     }
-
 }
