@@ -41,7 +41,7 @@ namespace WebVisualGame_MVC.Controllers
 
 				int userId = 0;
 
-				logger.LogInformation($"Trying get user's id");
+				logger.LogInformation($"Trying get user by id");
 
 				try
 				{
