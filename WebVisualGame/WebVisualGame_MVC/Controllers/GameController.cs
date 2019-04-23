@@ -27,90 +27,112 @@ namespace WebVisualGame_MVC.Controllers
 			logger = _logger;
 		}
 
-		[HttpGet]
-		public IActionResult Main(string gameIdEncode)
-        {
-			logger.LogInformation("Visit /Game/Main page");
-
-			var gameIdDecoded = ProtectData.GetInstance().DecodeToString(gameIdEncode);
-
-			logger.LogInformation("GameId: " + gameIdDecoded.ToString());
-
+		private MainModel Get_mainModel(int gameId)
+		{
 			var mainModel = new MainModel();
 			try
 			{
-				var gameId = Int32.Parse(gameIdDecoded);
-				mainModel.game = dataContext.Games.Single(i => i.Id == gameId);
-				
-				if (HttpContext.User.Identity.IsAuthenticated)
-				{
-					logger.LogInformation($"Trying get user by id");
-					var userId = Int32.Parse(HttpContext.User.Identity.Name);
-					logger.LogInformation("UserId: " + userId.ToString());
+				var game = dataContext.Games.Single(i => i.Id == gameId);
 
-					mainModel.user = dataContext.Users.Single(i => i.Id == userId);
-					mainModel.review = new MainModel.SetReview();
-				}
+				mainModel.gameInfo = new MainModel.GameInfo
+				{
+					Title = game.Title,
+					Description = game.Description,
+					Rating = game.Rating
+				};
+
+
+				mainModel.IsAuthorize = HttpContext.User.Identity.IsAuthenticated;
+				mainModel.review = new MainModel.SetReview();
 
 				mainModel.Reviews = (from review in dataContext.Reviews.Where(i => i.GameId == gameId)
-						   join user in dataContext.Users on review.UserId equals user.Id
-						   select new
-						   {
-							   UserName = user.FirstName + " " + user.LastName,
-							   Comment = review.Comment,
-							   Mark = review.Mark,
-							   Date = review.Date
-						   }).Select(i => new MainModel.ReviewDisplay
-						   {
-							   UserName = i.UserName,
-							   Mark = i.Mark,
-							   Comment = i.Comment,
-							   Date = i.Date
-						   }).ToList();
+									 join user in dataContext.Users on review.UserId equals user.Id
+									 select new
+									 {
+										 UserName = user.FirstName + " " + user.LastName,
+										 Comment = review.Comment,
+										 Mark = review.Mark,
+										 Date = review.Date
+									 }).Select(i => new MainModel.ReviewDisplay
+									 {
+										 UserName = i.UserName,
+										 Mark = i.Mark,
+										 Comment = i.Comment,
+										 Date = i.Date
+									 }).ToList();
 			}
 			catch (Exception ex)
 			{
 				logger.LogError(ex.Message);
 				throw ex;
 			}
-			return View(mainModel);
+			return mainModel;
+		}
+
+		[HttpGet]
+		public IActionResult Main(string gameIdEncode)
+        {
+			logger.LogInformation("Visit /Game/Main page");
+
+			var gameIdDecoded = ProtectData.GetInstance().DecodeToString(gameIdEncode);
+			var gameId = Int32.Parse(gameIdDecoded);
+
+			logger.LogInformation("GameId: " + gameIdDecoded);
+			Response.Cookies.Append("GameId", gameIdDecoded);
+
+			return View(Get_mainModel(gameId));
         }
 
 		[Authorize]
 		[HttpPost]
-		public IActionResult SetReview(MainModel.SetReview review)
+		public IActionResult SetReview(MainModel model)
 		{
 			logger.LogInformation("Set review. ");
+			try
+			{
+				var userId = Int32.Parse(HttpContext.User.Identity.Name);
+				var gameId = Int32.Parse(Request.Cookies["GameId"]);
 
-			var oldReview = dataContext.Reviews.FirstOrDefault(i => i.GameId == review.GameId && i.UserId == review.UserId);
-			if (oldReview != null)
-			{
-				oldReview.Comment = review.Comment;
-				oldReview.Mark = review.Mark;
-				oldReview.Date = DateTime.Today;
-				dataContext.Attach(oldReview).State = EntityState.Modified;
-			}
-			else
-			{
-				var newReview = new Review
+				//Проверка на наличие комментария
+				var oldReview = dataContext.Reviews.FirstOrDefault(i => i.GameId == gameId && i.UserId == userId);
+				if (oldReview != null)
 				{
-					Comment = review.Comment,
-					Mark = review.Mark,
-					UserId = review.UserId,
-					GameId = review.GameId,
-					Date = DateTime.Today
-				};
-				dataContext.Reviews.Add(newReview);
-			}	
-			dataContext.SaveChanges();
+					//Изменяем имеющийся
+					oldReview.Comment = model.review.Comment;
+					oldReview.Mark = model.review.Mark;
+					oldReview.Date = DateTime.Today;
+					dataContext.Attach(oldReview).State = EntityState.Modified;
+				}
+				else
+				{
+					//Добавляем новый
+					var newReview = new Review
+					{
+						Comment = model.review.Comment,
+						Mark = model.review.Mark,
+						UserId = userId,
+						GameId = gameId,
+						Date = DateTime.Today
+					};
+					dataContext.Reviews.Add(newReview);
+				}
+				dataContext.SaveChanges();
 
-			double newRating = dataContext.Reviews.Where(i => i.GameId == review.GameId).Average(i => i.Mark);
-			var game = dataContext.Games.FirstOrDefault(i => i.Id == review.GameId);
-			game.Rating = newRating;
-			dataContext.Attach(game).State = EntityState.Modified;
-			dataContext.SaveChanges();
+				//Новый рейтинг
+				double newRating = dataContext.Reviews.Where(i => i.GameId == gameId).Average(i => i.Mark);
+				var game = dataContext.Games.FirstOrDefault(i => i.Id == gameId);
+				game.Rating = newRating;
+				dataContext.Attach(game).State = EntityState.Modified;
+				dataContext.SaveChanges();
+				//---
 
-			return RedirectToAction("Main", new { gameIdEncode = ProtectData.GetInstance().Encode(review.GameId) });
+				return View("Main", Get_mainModel(gameId));
+			}
+			catch (Exception ex)
+			{
+				logger.LogError(ex.Message);
+				throw ex;
+			}
 		}
 
 	}

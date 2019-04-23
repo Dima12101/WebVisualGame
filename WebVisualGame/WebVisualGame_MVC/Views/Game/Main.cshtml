@@ -24,14 +24,14 @@
 </head>
 
 <header>
-    <h2 class="panel-heading text-center bg-success">@Model.game.Title</h2>
+    <h2 class="panel-heading text-center bg-success">@Model.gameInfo.Title</h2>
 </header>
 
 <fieldset class="panel-body bg-warning">
     <h3>Информация об игре:</h3>
 
-    <h4>Описание: @Model.game.Description</h4>
-    <h4>Оценка: @Model.game.Rating</h4>
+    <h4>Описание: @Model.gameInfo.Description</h4>
+    <h4>Оценка: @Model.gameInfo.Rating</h4>
 
     @*<img style="width:100px; height:100px;" src="@Model.Game.UrlIcon" alt="GameIcon" />*@
 
@@ -39,14 +39,12 @@
         <button class="btn btn-default" type="submit" asp-page-handler="StartGame">Играть</button>
     </form>
 </fieldset>
-@if (Model.user != null)
+@if (Model.IsAuthorize)
 {
 <br />
 <fieldset class="panel-body bg-info">
     <h3>Оставить отзыв:</h3>
     <form asp-controller="Game" asp-action="SetReview" method="POST">
-        <input type="text" asp-for="@Model.review.UserId" value="@Model.user.Id" hidden="hidden" />
-        <input type="text" asp-for="@Model.review.GameId" value="@Model.game.Id" hidden="hidden" />
         <div class="form-group">
             <label asp-for="@Model.review.Comment">Комментарий:</label>
             <input type="text" asp-for="@Model.review.Comment" height="300" maxlength="400" placeholder="Не более 400 символов..." rows="4" cols="100" />

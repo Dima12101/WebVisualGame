@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,16 +10,22 @@ namespace WebVisualGame_MVC.Models.PageModels.GameModel
 {
 	public class MainModel
 	{
-		public User user { get; set; }
+		public bool IsAuthorize { get; set; }
 
-		public Game game { get; set; }
+		public class GameInfo
+		{
+			public string Title { get; set; }
+
+			public string Description { get; set; }
+
+			public double Rating { get; set; }
+		}
+
+		[BindProperty]
+		public GameInfo gameInfo { get; set; }
 
 		public class SetReview
 		{
-			public int UserId { get; set; }
-
-			public int GameId { get; set; }
-
 			public int Mark { get; set; }
 
 			public string Comment { get; set; }
