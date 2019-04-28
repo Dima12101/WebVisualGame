@@ -215,6 +215,36 @@ namespace WebVisualGame_MVC.Controllers
 			}
 			return View(model);
 		}
-		#endregion 
+		#endregion
+
+		#region Redaction game
+		[HttpGet]
+		public IActionResult Redaction(string gameIdEncode)
+		{
+			logger.LogInformation("Visit /Game/Redaction page");
+
+			var gameIdDecoded = ProtectData.GetInstance().DecodeToString(gameIdEncode);
+			var gameId = Int32.Parse(gameIdDecoded);
+
+			logger.LogInformation("GameId: " + gameIdDecoded);
+			Response.Cookies.Append("GameId", gameIdDecoded);
+
+			return View();
+		}
+		#endregion
+
+		[HttpPost]
+		public IActionResult Delete(string gameIdEncode)
+		{
+			logger.LogInformation("Visit /Game/Delete action");
+
+			var gameIdDecoded = ProtectData.GetInstance().DecodeToString(gameIdEncode);
+			var gameId = Int32.Parse(gameIdDecoded);
+
+			var gameDbWriter = new GameDbWriter(dataContext);
+			gameDbWriter.DeleteGame(gameId);
+
+			return Redirect("~/User/Profile");
+		}
 	}
 }

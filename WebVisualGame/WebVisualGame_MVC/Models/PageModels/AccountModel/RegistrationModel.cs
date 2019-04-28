@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace WebVisualGame_MVC.Models.PageModels
+namespace WebVisualGame_MVC.Models.PageModels.AccountModel
 {
 	public class RegistrationModel
 	{

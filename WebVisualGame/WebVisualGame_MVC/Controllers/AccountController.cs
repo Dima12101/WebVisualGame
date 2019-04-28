@@ -11,7 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using WebVisualGame_MVC.Models.PageModels;
+using WebVisualGame_MVC.Models.PageModels.AccountModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebVisualGame_MVC.Controllers
 {
@@ -28,6 +29,7 @@ namespace WebVisualGame_MVC.Controllers
 			logger = _logger;
 		}
 
+		#region Authorization and Registration
 		[HttpGet]
 		public IActionResult Registration()
 		{
@@ -119,7 +121,7 @@ namespace WebVisualGame_MVC.Controllers
 			return View(model);
 		}
 
-		public async Task Authorize(string DB_id)
+		private async Task Authorize(string DB_id)
 		{
 			var claims = new List<Claim>
 				{
@@ -134,6 +136,40 @@ namespace WebVisualGame_MVC.Controllers
 				);
 
 			await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+		}
+		#endregion
+
+		[HttpGet]
+		[Authorize]
+		public IActionResult Profile()
+		{
+			logger.LogInformation("Visit /User/Profile page");
+
+			try
+			{
+				var userId = Int32.Parse(HttpContext.User.Identity.Name);
+				var user = dataContext.Users.Single(i => i.Id == userId);
+
+				var profileModel = new ProfileModel();
+				profileModel.UserName = user.FirstName + ' ' + user.LastName;
+				profileModel.PathUserAvatar = user.PathAvatar;
+				profileModel.AccessLevel = user.AccessLevel;
+
+				profileModel.UserGames = (from game in dataContext.Games.Where(i => i.UserId == userId)
+										  select new ProfileModel.UserGame
+										  {
+											  Id = game.Id,
+											  Title = game.Title,
+											  Rating = game.Rating,
+											  PathIcon = game.PathIcon
+										  }).ToList();
+				return View(profileModel);
+			}
+			catch (Exception ex)
+			{
+				logger.LogError(ex.Message);
+				throw ex;
+			}
 		}
 
 		public async Task<IActionResult> Logout()

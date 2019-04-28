@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace WebVisualGame_MVC.Models.PageModels
+namespace WebVisualGame_MVC.Models.PageModels.AccountModel
 {
     public class AuthorizationModel
 	{

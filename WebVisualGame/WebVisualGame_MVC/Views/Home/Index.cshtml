@@ -33,7 +33,7 @@
                 <a asp-controller="Home" asp-action="Index">Список пользователей <span style="color:red;">(Admin)</span></a>
             }
             <div class="UserButton"><a asp-controller="Game" asp-action="Create">Создать игру</a></div>
-            @*<div class="UserButton"><a asp-page="/UsersPages/UserProfil">Ваш профиль</a></div>*@
+            <div class="UserButton"><a asp-controller="Account" asp-action="Profile">Мой профиль</a></div>
             <form asp-controller="Account" asp-action="Logout" method="post">
                 <button class="UserButton" type="submit">Выход</button>
             </form>
