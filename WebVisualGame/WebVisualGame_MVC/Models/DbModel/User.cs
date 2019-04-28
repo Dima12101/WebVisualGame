@@ -32,6 +32,9 @@ namespace WebVisualGame_MVC.Data
 		[Required]
 		public string Email { get; set; }
 
+		[Required]
+		public string PathAvatar { get; set; }
+
 		[Range(0, 1, ErrorMessage = "Введите либо 0, либо 1")]
 		[Required]
 		public int AccessLevel { get; set; }

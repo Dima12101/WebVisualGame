@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -20,13 +22,20 @@ namespace WebVisualGame_MVC.Controllers
 
 		private readonly DataContext dataContext;
 
-		public GameController(DataContext _dataContext, ILogger<HomeController> _logger, IDataProtectionProvider provider)
+		private readonly IHostingEnvironment appEnvironment;
+
+		public GameController(DataContext _dataContext, 
+			ILogger<HomeController> _logger, 
+			IDataProtectionProvider provider,
+			IHostingEnvironment _appEnvironment)
 		{
 			ProtectData.GetInstance().Initialize(provider);
 			dataContext = _dataContext;
+			appEnvironment = _appEnvironment;
 			logger = _logger;
 		}
 
+		#region About game
 		private MainModel Get_mainModel(int gameId)
 		{
 			var mainModel = new MainModel();
@@ -134,6 +143,78 @@ namespace WebVisualGame_MVC.Controllers
 				throw ex;
 			}
 		}
+		#endregion
 
+		#region Create game
+		[Authorize]
+		[HttpGet]
+		public IActionResult Create()
+		{
+			logger.LogInformation("Visit /Game/Create page");
+			return View(new CreateModel());
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> Create(CreateModel model)
+		{
+			if (ModelState.IsValid)
+			{
+				logger.LogInformation($"Began create '{model.Title}'");
+
+				try
+				{
+					var game = new Game();
+					game.UserId = Int32.Parse(HttpContext.User.Identity.Name);
+					game.Title = model.Title;
+					game.Description = model.Description;
+					game.Rating = 0;
+
+					if (model.Icon != null)
+					{
+						// путь к папке /images/game/
+						string pathIcon = "./images/game/" + model.Icon.FileName;
+						// сохраняем файл в папку /images/game/ в каталоге wwwroot
+						using (var fileStream = new FileStream(appEnvironment.WebRootPath + pathIcon, FileMode.Create))
+						{
+							await model.Icon.CopyToAsync(fileStream);
+						}
+						game.PathIcon = pathIcon;
+					}
+					else
+					{
+						game.PathIcon = "./images/game/default_icon.ico";
+					}
+
+					// путь к папке /files/gameCode/
+					string pathCode = "./files/gameCode/" + model.Code.FileName;
+					// сохраняем файл в папку /files/gameCode/ в каталоге wwwroot
+					using (var fileStream = new FileStream(appEnvironment.WebRootPath + pathCode, FileMode.Create))
+					{
+						await model.Code.CopyToAsync(fileStream);
+					}
+					string code = "";
+					// считываем переданный файл в string
+					using (var reader = new StreamReader(model.Code.OpenReadStream(), detectEncodingFromByteOrderMarks: true))
+					{
+						code = await reader.ReadToEndAsync();
+					}
+					// парсинг кода и сохраанения в БД
+					var gameDbWriter = new GameDbWriter(dataContext);
+					gameDbWriter.SaveGameComponents(code, game);
+					game.PathCode = pathCode;
+
+					dataContext.Games.Add(game);
+					dataContext.SaveChanges();
+					return Redirect("~/Home/Index");
+				}
+				catch (Exception ex)
+				{
+					logger.LogError(ex.Message);
+					throw ex;
+				}
+			}
+			return View(model);
+		}
+		#endregion 
 	}
 }

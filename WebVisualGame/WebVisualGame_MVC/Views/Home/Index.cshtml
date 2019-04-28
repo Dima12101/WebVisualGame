@@ -32,8 +32,8 @@
             {
                 <a asp-controller="Home" asp-action="Index">Список пользователей <span style="color:red;">(Admin)</span></a>
             }
-            @*<div class="UserButton"><a asp-page="/CreateGame">Создать игру</a></div>
-            <div class="UserButton"><a asp-page="/UsersPages/UserProfil">Ваш профиль</a></div>*@
+            <div class="UserButton"><a asp-controller="Game" asp-action="Create">Создать игру</a></div>
+            @*<div class="UserButton"><a asp-page="/UsersPages/UserProfil">Ваш профиль</a></div>*@
             <form asp-controller="Account" asp-action="Logout" method="post">
                 <button class="UserButton" type="submit">Выход</button>
             </form>
@@ -62,7 +62,7 @@
             {
                 <tr>
                     <td>@game.Title</td>
-                    <td><img style="width:50px; height:50px;" src="@game.UrlIcon" alt="GameIcon" /></td>
+                    <td><img style="width:50px; height:50px;" src="@game.PathIcon" alt="GameIcon" /></td>
                     <td>@game.Rating</td>
                     <td>
                         <form asp-controller="Game" asp-action="Main" method="get">

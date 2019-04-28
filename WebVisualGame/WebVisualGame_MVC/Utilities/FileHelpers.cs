@@ -8,6 +8,7 @@ using WebVisualGame_MVC.Data;
 
 namespace WebVisualGame_MVC.Utilities
 {
+	//Нужно удалить
 	public class FileHelpers
 	{
 		public static async Task<string> ProcessFormFile(

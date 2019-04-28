@@ -15,4 +15,9 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\files\gameCode\" />
+    <Folder Include="wwwroot\images\user\" />
+  </ItemGroup>
+
 </Project>

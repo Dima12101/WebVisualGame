@@ -14,22 +14,22 @@ namespace WebVisualGame_MVC.Data
 		public User User { get; set; }
 
 		[MaxLength(100)]
-		[Required(ErrorMessage = "Введите название игры")]
+		[Required]
 		public string Title { get; set; }
 
 		[MaxLength(300)]
 		public string Description { get; set; }
 
 		[MaxLength(100)]
-		[Required(ErrorMessage = "Прикрепите иконку игры")]
-		public string UrlIcon { get; set; }
+		[Required]
+		public string PathIcon { get; set; }
 
 		[Required]
 		public double Rating { get; set; }
 
 		[MaxLength(1000)]
-		[Required(ErrorMessage = "Прикрепите код игры")]
-		public string SourceCode { get; set; }
+		[Required]
+		public string PathCode { get; set; }
 
 		public IList<GameComponents.PointDialog> PointDialogues { get; set; }
 

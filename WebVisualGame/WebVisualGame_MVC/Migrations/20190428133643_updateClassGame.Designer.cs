@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebVisualGame_MVC.Data;
 
 namespace WebVisualGame_MVC.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20190428133643_updateClassGame")]
+    partial class updateClassGame
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -234,9 +236,6 @@ namespace WebVisualGame_MVC.Migrations
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(100);
-
-                    b.Property<string>("PathAvatar")
-                        .IsRequired();
 
                     b.HasKey("Id");
 
