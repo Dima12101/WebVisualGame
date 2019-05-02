@@ -139,8 +139,8 @@ namespace WebVisualGame_MVC.Controllers
 		}
 		#endregion
 
-		[HttpGet]
 		[Authorize]
+		[HttpGet]
 		public IActionResult Profile()
 		{
 			logger.LogInformation("Visit /User/Profile page");

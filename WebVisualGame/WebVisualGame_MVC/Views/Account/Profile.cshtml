@@ -3,15 +3,43 @@
     ViewData["Title"] = "Profile";
 }
 
+<style>
+    .image {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    ul {
+        list-style-type: none;
+    }
+    li {
+        position: relative;
+        margin-top: 5px;
+    }
+
+    li ul {
+        list-style-type: circle;
+        display: none;
+        position: absolute;
+        background-color:white;
+        border:double;
+        border-color:#ddd;
+        z-index: 1;
+    }
+    li:hover ul {
+        display: block;
+    }
+</style>
+
 <div class="register-panel panel panel-success">
     <div class="panel-heading text-center"><h4>Профиль</h4></div>
     <div class="panel-body">
         <table>
             <tr>
                 <td width="20%" valign="top">
-                    <img src="@Model.PathUserAvatar" alt="UserAvatar"/>
+                    <img class="image" src="@Model.PathUserAvatar" alt="UserAvatar"/>
                 </td>
-                <td valign="top">
+                <td class="column" valign="top">
                     <p>Меня зовут: @Model.UserName</p>
                     <br />
                     <form method="POST" asp-controller="Account" asp-action="Redaction">
@@ -28,9 +56,7 @@
                         <th>Название</th>
                         <th>Иконка</th>
                         <th>Оценка</th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
+                        
                     </tr>
                 </thead>
                 <tbody>
@@ -41,20 +67,29 @@
                         <td><img style="width:50px; height:50px;" src="@game.PathIcon" alt="GameIcon" /></td>
                         <td>@game.Rating</td>
                         <td>
-                            <form asp-controller="Game" asp-action="Main" method="get">
-                                <button type="submit" name="gameIdEncode" value="@WebVisualGame_MVC.Utilities.ProtectData.GetInstance().Encode(game.Id)">Подробнее</button>
-                            </form>
-                        </td>
-                        <td>
-                            <form asp-controller="Game" asp-action="Redaction" method="get">
-                                <button type="submit" name="gameIdEncode" value="@WebVisualGame_MVC.Utilities.ProtectData.GetInstance().Encode(game.Id)">Редактировать</button>
-                            </form>
-                        </td>
-                        <td>
-                            <form asp-controller="Game" asp-action="Delete" method="post">
-                                <button type="submit" name="gameIdEncode" value="@WebVisualGame_MVC.Utilities.ProtectData.GetInstance().Encode(game.Id)">Удалить</button>
-                            </form>
-                        </td>
+                            <ul>
+                                <li>
+                                    <button class="btn btn-default">Действия</button>
+                                    <ul>
+                                        <li>
+                                            <form asp-controller="Game" asp-action="Main" method="get">
+                                                <button type="submit" name="gameIdEncode" value="@WebVisualGame_MVC.Utilities.ProtectData.GetInstance().Encode(game.Id)">Подробнее</button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form asp-controller="Game" asp-action="Redaction" method="get">
+                                                <button type="submit" name="gameIdEncode" value="@WebVisualGame_MVC.Utilities.ProtectData.GetInstance().Encode(game.Id)">Редактировать</button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form asp-controller="Game" asp-action="Delete" method="post">
+                                                <button type="submit" name="gameIdEncode" value="@WebVisualGame_MVC.Utilities.ProtectData.GetInstance().Encode(game.Id)">Удалить</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </td> 
                     </tr>
                     }
                 </tbody>

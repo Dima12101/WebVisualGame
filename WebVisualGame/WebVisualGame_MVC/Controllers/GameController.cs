@@ -172,7 +172,7 @@ namespace WebVisualGame_MVC.Controllers
 					if (model.Icon != null)
 					{
 						// путь к папке /images/game/
-						string pathIcon = "./images/game/" + model.Icon.FileName;
+						string pathIcon = "../images/game/" + model.Icon.FileName;
 						// сохраняем файл в папку /images/game/ в каталоге wwwroot
 						using (var fileStream = new FileStream(appEnvironment.WebRootPath + pathIcon, FileMode.Create))
 						{
@@ -182,11 +182,11 @@ namespace WebVisualGame_MVC.Controllers
 					}
 					else
 					{
-						game.PathIcon = "./images/game/default_icon.ico";
+						game.PathIcon = "../images/game/default_icon.ico";
 					}
 
 					// путь к папке /files/gameCode/
-					string pathCode = "./files/gameCode/" + model.Code.FileName;
+					string pathCode = "../files/gameCode/" + model.Code.FileName;
 					// сохраняем файл в папку /files/gameCode/ в каталоге wwwroot
 					using (var fileStream = new FileStream(appEnvironment.WebRootPath + pathCode, FileMode.Create))
 					{
@@ -244,7 +244,7 @@ namespace WebVisualGame_MVC.Controllers
 			var gameDbWriter = new GameDbWriter(dataContext);
 			gameDbWriter.DeleteGame(gameId);
 
-			return Redirect("~/User/Profile");
+			return Redirect("~/Account/Profile");
 		}
 	}
 }

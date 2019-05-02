@@ -47,7 +47,8 @@
     <form asp-controller="Game" asp-action="SetReview" method="POST">
         <div class="form-group">
             <label asp-for="@Model.review.Comment">Комментарий:</label>
-            <input type="text" asp-for="@Model.review.Comment" height="300" maxlength="400" placeholder="Не более 400 символов..." rows="4" cols="100" />
+            <br />
+            <textarea type="text" asp-for="@Model.review.Comment" maxlength="400" placeholder="Не более 400 символов..." rows="4" cols="100"></textarea>
         </div>
         <div class="form-group">
             <label asp-for="@Model.review.Mark">Оценка:</label>
