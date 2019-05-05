@@ -31,6 +31,12 @@
     }
 </style>
 
+<script type="text/javascript">
+    function checkAccept() {
+        return window.confirm("Вы точно хотите удалить игру?");
+    }
+</script>
+
 <div class="register-panel panel panel-success">
     <div class="panel-heading text-center"><h4>Профиль</h4></div>
     <div class="panel-body">
@@ -40,10 +46,10 @@
                     <img class="image" src="@Model.PathUserAvatar" alt="UserAvatar"/>
                 </td>
                 <td class="column" valign="top">
-                    <p>Меня зовут: @Model.UserName</p>
+                    <h3>@Model.UserName</h3>
                     <br />
                     <form method="POST" asp-controller="Account" asp-action="Redaction">
-                        <button class="btn btn-default" type="submit">Редактировать</button>
+                        <button class="btn btn-default" onsubmit="" type="submit">Редактировать</button>
                     </form>
                 </td>
             </tr>
@@ -82,7 +88,7 @@
                                             </form>
                                         </li>
                                         <li>
-                                            <form asp-controller="Game" asp-action="Delete" method="post">
+                                            <form asp-controller="Game" asp-action="Delete" method="post" onsubmit="return checkAccept();">
                                                 <button type="submit" name="gameIdEncode" value="@WebVisualGame_MVC.Utilities.ProtectData.GetInstance().Encode(game.Id)">Удалить</button>
                                             </form>
                                         </li>

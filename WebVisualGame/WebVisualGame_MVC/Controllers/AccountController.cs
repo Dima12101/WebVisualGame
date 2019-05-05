@@ -41,13 +41,13 @@ namespace WebVisualGame_MVC.Controllers
 		{
 			if (ModelState.IsValid)
 			{
-				if (dataContext.Users.FirstOrDefault(i => i.Login == model.Login) != null)
+				if (dataContext.Users.FirstOrDefault(i => i.Login == model.userInfo.Login) != null)
 				{
 					model.Errors.Add("Пользователь с таким логином уже существует");
 					ModelState.AddModelError("", "Пользователь с таким логином уже существует");
 				}
 					
-				if (dataContext.Users.FirstOrDefault(i => i.Email == model.Email) != null)
+				if (dataContext.Users.FirstOrDefault(i => i.Email == model.userInfo.Email) != null)
 				{
 					model.Errors.Add("Пользователь с таким адресом эл.почты уже существует");
 					ModelState.AddModelError("", "Пользователь с таким адресом эл.почты уже существует");
@@ -61,11 +61,12 @@ namespace WebVisualGame_MVC.Controllers
 				{
 					var user = new User
 					{
-						FirstName = model.FirstName,
-						LastName = model.LastName,
-						Login = model.Login,
-						Email = model.Email,
-						Password = model.Password
+						FirstName = model.userInfo.FirstName,
+						LastName = model.userInfo.LastName,
+						Login = model.userInfo.Login,
+						Email = model.userInfo.Email,
+						Password = model.userInfo.Password,
+						PathAvatar = "../images/user/default_avatar.ico"
 					};
 
 					try

@@ -35,3 +35,12 @@ body {
         display: none;
     }
 }
+
+/*Стили для форм*/
+.field-labels {
+    width: 15%
+}
+
+.my-panel {
+    margin: auto 20%
+}

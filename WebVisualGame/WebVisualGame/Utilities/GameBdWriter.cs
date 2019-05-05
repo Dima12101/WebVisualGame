@@ -231,8 +231,8 @@ namespace WebVisualGame.Utilities
             {
                 Title = title,
                 Description = description,
-                SourceCode = path,
-                UrlIcon = icon,
+                PathCode = path,
+                PathIcon = icon,
                 UserId = userID,
                 PointDialogues = new List<Data.GameData.PointDialog>(),
                 Transitions = new List<Data.GameData.Transition>(),
@@ -277,11 +277,11 @@ namespace WebVisualGame.Utilities
             {
                 gameNote.Title = title;
 
-                gameNote.SourceCode = path;
+                gameNote.PathCode = path;
 
                 gameNote.Description = description;
 
-                gameNote.UrlIcon = icon;
+                gameNote.PathIcon = icon;
             }
 
             SaveGameComponents(path, gameNote);

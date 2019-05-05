@@ -142,9 +142,9 @@ if (typeof jQuery === 'undefined') {
   function Plugin(option) {
     return this.each(function () {
       var $this = $(this)
-      var data  = $this.Data('bs.alert')
+      var data  = $this.data('bs.alert')
 
-      if (!data) $this.Data('bs.alert', (data = new Alert(this)))
+      if (!data) $this.data('bs.alert', (data = new Alert(this)))
       if (typeof option == 'string') data[option].call($this)
     })
   }
@@ -167,7 +167,7 @@ if (typeof jQuery === 'undefined') {
   // ALERT DATA-API
   // ==============
 
-  $(document).on('click.bs.alert.Data-api', dismiss, Alert.prototype.close)
+  $(document).on('click.bs.alert.data-api', dismiss, Alert.prototype.close)
 
 }(jQuery);
 
@@ -202,11 +202,11 @@ if (typeof jQuery === 'undefined') {
     var d    = 'disabled'
     var $el  = this.$element
     var val  = $el.is('input') ? 'val' : 'html'
-    var data = $el.Data()
+    var data = $el.data()
 
     state += 'Text'
 
-    if (data.resetText == null) $el.Data('resetText', $el[val]())
+    if (data.resetText == null) $el.data('resetText', $el[val]())
 
     // push to event loop to allow forms to submit
     setTimeout($.proxy(function () {
@@ -251,10 +251,10 @@ if (typeof jQuery === 'undefined') {
   function Plugin(option) {
     return this.each(function () {
       var $this   = $(this)
-      var data    = $this.Data('bs.button')
+      var data    = $this.data('bs.button')
       var options = typeof option == 'object' && option
 
-      if (!data) $this.Data('bs.button', (data = new Button(this, options)))
+      if (!data) $this.data('bs.button', (data = new Button(this, options)))
 
       if (option == 'toggle') data.toggle()
       else if (option) data.setState(option)
@@ -280,7 +280,7 @@ if (typeof jQuery === 'undefined') {
   // ===============
 
   $(document)
-    .on('click.bs.button.Data-api', '[data-toggle^="button"]', function (e) {
+    .on('click.bs.button.data-api', '[data-toggle^="button"]', function (e) {
       var $btn = $(e.target).closest('.btn')
       Plugin.call($btn, 'toggle')
       if (!($(e.target).is('input[type="radio"], input[type="checkbox"]'))) {
@@ -291,7 +291,7 @@ if (typeof jQuery === 'undefined') {
         else $btn.find('input:visible,button:visible').first().trigger('focus')
       }
     })
-    .on('focus.bs.button.Data-api blur.bs.button.Data-api', '[data-toggle^="button"]', function (e) {
+    .on('focus.bs.button.data-api blur.bs.button.data-api', '[data-toggle^="button"]', function (e) {
       $(e.target).closest('.btn').toggleClass('focus', /^focus(in)?$/.test(e.type))
     })
 
@@ -475,11 +475,11 @@ if (typeof jQuery === 'undefined') {
   function Plugin(option) {
     return this.each(function () {
       var $this   = $(this)
-      var data    = $this.Data('bs.carousel')
-      var options = $.extend({}, Carousel.DEFAULTS, $this.Data(), typeof option == 'object' && option)
+      var data    = $this.data('bs.carousel')
+      var options = $.extend({}, Carousel.DEFAULTS, $this.data(), typeof option == 'object' && option)
       var action  = typeof option == 'string' ? option : options.slide
 
-      if (!data) $this.Data('bs.carousel', (data = new Carousel(this, options)))
+      if (!data) $this.data('bs.carousel', (data = new Carousel(this, options)))
       if (typeof option == 'number') data.to(option)
       else if (action) data[action]()
       else if (options.interval) data.pause().cycle()
@@ -509,27 +509,27 @@ if (typeof jQuery === 'undefined') {
     var $this   = $(this)
     var $target = $($this.attr('data-target') || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) // strip for ie7
     if (!$target.hasClass('carousel')) return
-    var options = $.extend({}, $target.Data(), $this.Data())
+    var options = $.extend({}, $target.data(), $this.data())
     var slideIndex = $this.attr('data-slide-to')
     if (slideIndex) options.interval = false
 
     Plugin.call($target, options)
 
     if (slideIndex) {
-      $target.Data('bs.carousel').to(slideIndex)
+      $target.data('bs.carousel').to(slideIndex)
     }
 
     e.preventDefault()
   }
 
   $(document)
-    .on('click.bs.carousel.Data-api', '[data-slide]', clickHandler)
-    .on('click.bs.carousel.Data-api', '[data-slide-to]', clickHandler)
+    .on('click.bs.carousel.data-api', '[data-slide]', clickHandler)
+    .on('click.bs.carousel.data-api', '[data-slide-to]', clickHandler)
 
   $(window).on('load', function () {
     $('[data-ride="carousel"]').each(function () {
       var $carousel = $(this)
-      Plugin.call($carousel, $carousel.Data())
+      Plugin.call($carousel, $carousel.data())
     })
   })
 
@@ -587,7 +587,7 @@ if (typeof jQuery === 'undefined') {
     var actives = this.$parent && this.$parent.children('.panel').children('.in, .collapsing')
 
     if (actives && actives.length) {
-      activesData = actives.Data('bs.collapse')
+      activesData = actives.data('bs.collapse')
       if (activesData && activesData.transitioning) return
     }
 
@@ -597,7 +597,7 @@ if (typeof jQuery === 'undefined') {
 
     if (actives && actives.length) {
       Plugin.call(actives, 'hide')
-      activesData || actives.Data('bs.collapse', null)
+      activesData || actives.data('bs.collapse', null)
     }
 
     var dimension = this.dimension()
@@ -707,11 +707,11 @@ if (typeof jQuery === 'undefined') {
   function Plugin(option) {
     return this.each(function () {
       var $this   = $(this)
-      var data    = $this.Data('bs.collapse')
-      var options = $.extend({}, Collapse.DEFAULTS, $this.Data(), typeof option == 'object' && option)
+      var data    = $this.data('bs.collapse')
+      var options = $.extend({}, Collapse.DEFAULTS, $this.data(), typeof option == 'object' && option)
 
       if (!data && options.toggle && /show|hide/.test(option)) options.toggle = false
-      if (!data) $this.Data('bs.collapse', (data = new Collapse(this, options)))
+      if (!data) $this.data('bs.collapse', (data = new Collapse(this, options)))
       if (typeof option == 'string') data[option]()
     })
   }
@@ -734,14 +734,14 @@ if (typeof jQuery === 'undefined') {
   // COLLAPSE DATA-API
   // =================
 
-  $(document).on('click.bs.collapse.Data-api', '[data-toggle="collapse"]', function (e) {
+  $(document).on('click.bs.collapse.data-api', '[data-toggle="collapse"]', function (e) {
     var $this   = $(this)
 
     if (!$this.attr('data-target')) e.preventDefault()
 
     var $target = getTargetFromTrigger($this)
-    var data    = $target.Data('bs.collapse')
-    var option  = data ? 'toggle' : $this.Data()
+    var data    = $target.data('bs.collapse')
+    var option  = data ? 'toggle' : $this.data()
 
     Plugin.call($target, option)
   })
@@ -880,9 +880,9 @@ if (typeof jQuery === 'undefined') {
   function Plugin(option) {
     return this.each(function () {
       var $this = $(this)
-      var data  = $this.Data('bs.dropdown')
+      var data  = $this.data('bs.dropdown')
 
-      if (!data) $this.Data('bs.dropdown', (data = new Dropdown(this)))
+      if (!data) $this.data('bs.dropdown', (data = new Dropdown(this)))
       if (typeof option == 'string') data[option].call($this)
     })
   }
@@ -906,11 +906,11 @@ if (typeof jQuery === 'undefined') {
   // ===================================
 
   $(document)
-    .on('click.bs.dropdown.Data-api', clearMenus)
-    .on('click.bs.dropdown.Data-api', '.dropdown form', function (e) { e.stopPropagation() })
-    .on('click.bs.dropdown.Data-api', toggle, Dropdown.prototype.toggle)
-    .on('keydown.bs.dropdown.Data-api', toggle, Dropdown.prototype.keydown)
-    .on('keydown.bs.dropdown.Data-api', '.dropdown-menu', Dropdown.prototype.keydown)
+    .on('click.bs.dropdown.data-api', clearMenus)
+    .on('click.bs.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() })
+    .on('click.bs.dropdown.data-api', toggle, Dropdown.prototype.toggle)
+    .on('keydown.bs.dropdown.data-api', toggle, Dropdown.prototype.keydown)
+    .on('keydown.bs.dropdown.data-api', '.dropdown-menu', Dropdown.prototype.keydown)
 
 }(jQuery);
 
@@ -1208,10 +1208,10 @@ if (typeof jQuery === 'undefined') {
   function Plugin(option, _relatedTarget) {
     return this.each(function () {
       var $this   = $(this)
-      var data    = $this.Data('bs.modal')
-      var options = $.extend({}, Modal.DEFAULTS, $this.Data(), typeof option == 'object' && option)
+      var data    = $this.data('bs.modal')
+      var options = $.extend({}, Modal.DEFAULTS, $this.data(), typeof option == 'object' && option)
 
-      if (!data) $this.Data('bs.modal', (data = new Modal(this, options)))
+      if (!data) $this.data('bs.modal', (data = new Modal(this, options)))
       if (typeof option == 'string') data[option](_relatedTarget)
       else if (options.show) data.show(_relatedTarget)
     })
@@ -1235,11 +1235,11 @@ if (typeof jQuery === 'undefined') {
   // MODAL DATA-API
   // ==============
 
-  $(document).on('click.bs.modal.Data-api', '[data-toggle="modal"]', function (e) {
+  $(document).on('click.bs.modal.data-api', '[data-toggle="modal"]', function (e) {
     var $this   = $(this)
     var href    = $this.attr('href')
     var $target = $($this.attr('data-target') || (href && href.replace(/.*(?=#[^\s]+$)/, ''))) // strip for ie7
-    var option  = $target.Data('bs.modal') ? 'toggle' : $.extend({ remote: !/#/.test(href) && href }, $target.Data(), $this.Data())
+    var option  = $target.data('bs.modal') ? 'toggle' : $.extend({ remote: !/#/.test(href) && href }, $target.data(), $this.data())
 
     if ($this.is('a')) e.preventDefault()
 
@@ -1340,7 +1340,7 @@ if (typeof jQuery === 'undefined') {
   }
 
   Tooltip.prototype.getOptions = function (options) {
-    options = $.extend({}, this.getDefaults(), this.$element.Data(), options)
+    options = $.extend({}, this.getDefaults(), this.$element.data(), options)
 
     if (options.delay && typeof options.delay == 'number') {
       options.delay = {
@@ -1365,11 +1365,11 @@ if (typeof jQuery === 'undefined') {
 
   Tooltip.prototype.enter = function (obj) {
     var self = obj instanceof this.constructor ?
-      obj : $(obj.currentTarget).Data('bs.' + this.type)
+      obj : $(obj.currentTarget).data('bs.' + this.type)
 
     if (!self) {
       self = new this.constructor(obj.currentTarget, this.getDelegateOptions())
-      $(obj.currentTarget).Data('bs.' + this.type, self)
+      $(obj.currentTarget).data('bs.' + this.type, self)
     }
 
     if (obj instanceof $.Event) {
@@ -1402,11 +1402,11 @@ if (typeof jQuery === 'undefined') {
 
   Tooltip.prototype.leave = function (obj) {
     var self = obj instanceof this.constructor ?
-      obj : $(obj.currentTarget).Data('bs.' + this.type)
+      obj : $(obj.currentTarget).data('bs.' + this.type)
 
     if (!self) {
       self = new this.constructor(obj.currentTarget, this.getDelegateOptions())
-      $(obj.currentTarget).Data('bs.' + this.type, self)
+      $(obj.currentTarget).data('bs.' + this.type, self)
     }
 
     if (obj instanceof $.Event) {
@@ -1458,7 +1458,7 @@ if (typeof jQuery === 'undefined') {
         .detach()
         .css({ top: 0, left: 0, display: 'block' })
         .addClass(placement)
-        .Data('bs.' + this.type, this)
+        .data('bs.' + this.type, this)
 
       this.options.container ? $tip.appendTo(this.options.container) : $tip.insertAfter(this.$element)
       this.$element.trigger('inserted.bs.' + this.type)
@@ -1712,10 +1712,10 @@ if (typeof jQuery === 'undefined') {
   Tooltip.prototype.toggle = function (e) {
     var self = this
     if (e) {
-      self = $(e.currentTarget).Data('bs.' + this.type)
+      self = $(e.currentTarget).data('bs.' + this.type)
       if (!self) {
         self = new this.constructor(e.currentTarget, this.getDelegateOptions())
-        $(e.currentTarget).Data('bs.' + this.type, self)
+        $(e.currentTarget).data('bs.' + this.type, self)
       }
     }
 
@@ -1750,11 +1750,11 @@ if (typeof jQuery === 'undefined') {
   function Plugin(option) {
     return this.each(function () {
       var $this   = $(this)
-      var data    = $this.Data('bs.tooltip')
+      var data    = $this.data('bs.tooltip')
       var options = typeof option == 'object' && option
 
       if (!data && /destroy|hide/.test(option)) return
-      if (!data) $this.Data('bs.tooltip', (data = new Tooltip(this, options)))
+      if (!data) $this.data('bs.tooltip', (data = new Tooltip(this, options)))
       if (typeof option == 'string') data[option]()
     })
   }
@@ -1859,11 +1859,11 @@ if (typeof jQuery === 'undefined') {
   function Plugin(option) {
     return this.each(function () {
       var $this   = $(this)
-      var data    = $this.Data('bs.popover')
+      var data    = $this.data('bs.popover')
       var options = typeof option == 'object' && option
 
       if (!data && /destroy|hide/.test(option)) return
-      if (!data) $this.Data('bs.popover', (data = new Popover(this, options)))
+      if (!data) $this.data('bs.popover', (data = new Popover(this, options)))
       if (typeof option == 'string') data[option]()
     })
   }
@@ -1942,7 +1942,7 @@ if (typeof jQuery === 'undefined') {
       .find(this.selector)
       .map(function () {
         var $el   = $(this)
-        var href  = $el.Data('target') || $el.attr('href')
+        var href  = $el.data('target') || $el.attr('href')
         var $href = /^#./.test(href) && $(href)
 
         return ($href
@@ -2022,10 +2022,10 @@ if (typeof jQuery === 'undefined') {
   function Plugin(option) {
     return this.each(function () {
       var $this   = $(this)
-      var data    = $this.Data('bs.scrollspy')
+      var data    = $this.data('bs.scrollspy')
       var options = typeof option == 'object' && option
 
-      if (!data) $this.Data('bs.scrollspy', (data = new ScrollSpy(this, options)))
+      if (!data) $this.data('bs.scrollspy', (data = new ScrollSpy(this, options)))
       if (typeof option == 'string') data[option]()
     })
   }
@@ -2048,10 +2048,10 @@ if (typeof jQuery === 'undefined') {
   // SCROLLSPY DATA-API
   // ==================
 
-  $(window).on('load.bs.scrollspy.Data-api', function () {
+  $(window).on('load.bs.scrollspy.data-api', function () {
     $('[data-spy="scroll"]').each(function () {
       var $spy = $(this)
-      Plugin.call($spy, $spy.Data())
+      Plugin.call($spy, $spy.data())
     })
   })
 
@@ -2085,7 +2085,7 @@ if (typeof jQuery === 'undefined') {
   Tab.prototype.show = function () {
     var $this    = this.element
     var $ul      = $this.closest('ul:not(.dropdown-menu)')
-    var selector = $this.Data('target')
+    var selector = $this.data('target')
 
     if (!selector) {
       selector = $this.attr('href')
@@ -2177,9 +2177,9 @@ if (typeof jQuery === 'undefined') {
   function Plugin(option) {
     return this.each(function () {
       var $this = $(this)
-      var data  = $this.Data('bs.tab')
+      var data  = $this.data('bs.tab')
 
-      if (!data) $this.Data('bs.tab', (data = new Tab(this)))
+      if (!data) $this.data('bs.tab', (data = new Tab(this)))
       if (typeof option == 'string') data[option]()
     })
   }
@@ -2208,8 +2208,8 @@ if (typeof jQuery === 'undefined') {
   }
 
   $(document)
-    .on('click.bs.tab.Data-api', '[data-toggle="tab"]', clickHandler)
-    .on('click.bs.tab.Data-api', '[data-toggle="pill"]', clickHandler)
+    .on('click.bs.tab.data-api', '[data-toggle="tab"]', clickHandler)
+    .on('click.bs.tab.data-api', '[data-toggle="pill"]', clickHandler)
 
 }(jQuery);
 
@@ -2232,8 +2232,8 @@ if (typeof jQuery === 'undefined') {
     this.options = $.extend({}, Affix.DEFAULTS, options)
 
     this.$target = $(this.options.target)
-      .on('scroll.bs.affix.Data-api', $.proxy(this.checkPosition, this))
-      .on('click.bs.affix.Data-api',  $.proxy(this.checkPositionWithEventLoop, this))
+      .on('scroll.bs.affix.data-api', $.proxy(this.checkPosition, this))
+      .on('click.bs.affix.data-api',  $.proxy(this.checkPositionWithEventLoop, this))
 
     this.$element     = $(element)
     this.affixed      = null
@@ -2334,10 +2334,10 @@ if (typeof jQuery === 'undefined') {
   function Plugin(option) {
     return this.each(function () {
       var $this   = $(this)
-      var data    = $this.Data('bs.affix')
+      var data    = $this.data('bs.affix')
       var options = typeof option == 'object' && option
 
-      if (!data) $this.Data('bs.affix', (data = new Affix(this, options)))
+      if (!data) $this.data('bs.affix', (data = new Affix(this, options)))
       if (typeof option == 'string') data[option]()
     })
   }
@@ -2363,7 +2363,7 @@ if (typeof jQuery === 'undefined') {
   $(window).on('load', function () {
     $('[data-spy="affix"]').each(function () {
       var $spy = $(this)
-      var data = $spy.Data()
+      var data = $spy.data()
 
       data.offset = data.offset || {}
 

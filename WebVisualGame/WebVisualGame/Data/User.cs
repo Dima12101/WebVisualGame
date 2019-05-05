@@ -28,14 +28,14 @@ namespace WebVisualGame.Data
 		[Required(ErrorMessage = "Укажите Ваш пароль")]
 		public string Password { get; set; }
 
-		[Compare("Password", ErrorMessage = "Пароли не совпадают")]
-		public string PasswordConfirm { get; set; }
-
 		[MaxLength(100)]
 		[Required(ErrorMessage = "Укажите Ваш Email")]
 		[RegularExpression(@"^([a-zA-Z0-9_\-\.]+)"
 		+ @"@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$", ErrorMessage = "Укажите корректный Email, псина,пожалуйста")]
 		public string Email { get; set; }
+
+		[Required]
+		public string PathAvatar { get; set; }
 
 		[Range(0, 1, ErrorMessage = "Введите либо 0, либо 1")]
 		[Required]

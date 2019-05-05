@@ -109,7 +109,7 @@ namespace WebVisualGame_MVC.Controllers
 					//Изменяем имеющийся
 					oldReview.Comment = model.review.Comment;
 					oldReview.Mark = model.review.Mark;
-					oldReview.Date = DateTime.Today;
+					oldReview.Date = DateTime.Now;
 					dataContext.Attach(oldReview).State = EntityState.Modified;
 				}
 				else
@@ -121,7 +121,7 @@ namespace WebVisualGame_MVC.Controllers
 						Mark = model.review.Mark,
 						UserId = userId,
 						GameId = gameId,
-						Date = DateTime.Today
+						Date = DateTime.Now
 					};
 					dataContext.Reviews.Add(newReview);
 				}

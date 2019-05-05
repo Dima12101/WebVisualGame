@@ -58,7 +58,7 @@ namespace WebVisualGame.Pages
 				Game = db.Games.Find(gameId);
 				Title = Game.Title;
 				Description = Game.Description;
-				UrlIcon = Game.UrlIcon;
+				UrlIcon = Game.PathIcon;
 				ActionForGame = "Обновить";
 			}
 		}

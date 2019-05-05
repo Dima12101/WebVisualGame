@@ -26,14 +26,14 @@ namespace WebVisualGame.Data
 
 		[MaxLength(100)]
 		[Required(ErrorMessage = "Прикрепите иконку игры")]
-		public string UrlIcon { get; set; }
+		public string PathIcon { get; set; }
 
 		[Required]
 		public double Rating { get; set; }
 
 		[MaxLength(1000)]
 		[Required(ErrorMessage = "Прикрепите код игры")]
-		public string SourceCode { get; set; }
+		public string PathCode { get; set; }
 
 		public IList<GameData.PointDialog> PointDialogues { get; set; }
 
