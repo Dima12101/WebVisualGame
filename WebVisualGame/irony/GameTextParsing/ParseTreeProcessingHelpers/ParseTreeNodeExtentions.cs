@@ -36,5 +36,4 @@ namespace GameTextParsing.ParseTreeProcessingHelpers
             return tokenList;
         }
     }
-
 }

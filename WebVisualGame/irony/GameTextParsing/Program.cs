@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace GameTextParsing
 {
@@ -16,7 +17,15 @@ namespace GameTextParsing
 
                 parser.ParseGameText(sourceText);
 
-                parser.ProcessParseTree();
+                try
+                {
+                    parser.ProcessParseTree();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.ReadKey();
+                }
             }
         }
     }

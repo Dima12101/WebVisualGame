@@ -4,13 +4,13 @@ using System.Text;
 
 namespace GameTextParsing.ParseTreeProcessingHelpers
 {
-    class IdentifierDictionary<T>
+    class IdDictionary<T>
     {
         private Dictionary<T, int> Dict { get; set; }
 
         private int IdCounter { get; set; }
 
-        public IdentifierDictionary()
+        public IdDictionary()
         {
             Dict = new Dictionary<T, int>();
 
@@ -29,6 +29,11 @@ namespace GameTextParsing.ParseTreeProcessingHelpers
             }
 
             return id;
+        }
+
+        public bool Contains(T element)
+        {
+            return Dict.ContainsKey(element);
         }
 
         public int UniqueID()
