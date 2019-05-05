@@ -5,6 +5,8 @@
 
 <style>
     .image {
+        width: 250px;
+        height: 250px;
         margin-left: 10px;
         margin-right: 10px;
     }
@@ -48,8 +50,8 @@
                 <td class="column" valign="top">
                     <h3>@Model.UserName</h3>
                     <br />
-                    <form method="POST" asp-controller="Account" asp-action="Redaction">
-                        <button class="btn btn-default" onsubmit="" type="submit">Редактировать</button>
+                    <form method="get" asp-controller="Account" asp-action="Redaction">
+                        <button class="btn btn-default" type="submit">Редактировать</button>
                     </form>
                 </td>
             </tr>

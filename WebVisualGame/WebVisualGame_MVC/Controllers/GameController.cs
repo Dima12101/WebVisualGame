@@ -172,13 +172,13 @@ namespace WebVisualGame_MVC.Controllers
 					if (model.Icon != null)
 					{
 						// путь к папке /images/game/
-						string pathIcon = "../images/game/" + model.Icon.FileName;
+						string pathIcon = "/images/game/" + model.Icon.FileName;
 						// сохраняем файл в папку /images/game/ в каталоге wwwroot
 						using (var fileStream = new FileStream(appEnvironment.WebRootPath + pathIcon, FileMode.Create))
 						{
 							await model.Icon.CopyToAsync(fileStream);
 						}
-						game.PathIcon = pathIcon;
+						game.PathIcon = ".." + pathIcon;
 					}
 					else
 					{
@@ -186,7 +186,7 @@ namespace WebVisualGame_MVC.Controllers
 					}
 
 					// путь к папке /files/gameCode/
-					string pathCode = "../files/gameCode/" + model.Code.FileName;
+					string pathCode = "/files/gameCode/" + model.Code.FileName;
 					// сохраняем файл в папку /files/gameCode/ в каталоге wwwroot
 					using (var fileStream = new FileStream(appEnvironment.WebRootPath + pathCode, FileMode.Create))
 					{
@@ -201,7 +201,7 @@ namespace WebVisualGame_MVC.Controllers
 					// парсинг кода и сохраанения в БД
 					var gameDbWriter = new GameDbWriter(dataContext);
 					gameDbWriter.SaveGameComponents(code, game);
-					game.PathCode = pathCode;
+					game.PathCode = ".." + pathCode;
 
 					dataContext.Games.Add(game);
 					dataContext.SaveChanges();

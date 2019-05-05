@@ -1,12 +1,12 @@
-﻿@model WebVisualGame_MVC.Models.PageModels.AccountModel.RegistrationModel
+﻿@model WebVisualGame_MVC.Models.PageModels.AccountModel.RedactionModel
 @{
     ViewData["Title"] = "Редактирование";
 }
 
 <div class="my-panel panel panel-success">
-    <div class="panel-heading text-center"><h4>Регистрация</h4></div>
+    <div class="panel-heading text-center"><h4>Редактирование профиля</h4></div>
     <div class="panel-body">
-        <form asp-action="Registration" asp-controller="Account" method="post">
+        <form asp-action="Redaction" asp-controller="Account" method="post" enctype="multipart/form-data">
             <div class="validation" asp-validation-summary="ModelOnly" />
             <ul class="text-danger">
                 @foreach (var error in Model.Errors)
@@ -44,13 +44,16 @@
                 <input type="password" asp-for="userInfo.ConfirmPassword" />
                 <span asp-validation-for="userInfo.ConfirmPassword" class="text-danger" />
             </div>
+            <div class="form-group">
+                <label class="field-labels" asp-for="userInfo.Avatar">
+                    <abbr class="text-danger" title="Необязательно">*</abbr>Аватар:
+                </label>
+                <input type="file" asp-for="userInfo.Avatar" />
+                <span asp-validation-for="userInfo.Avatar" class="text-danger" />
+            </div>
             <div class="text-center">
-                <button class="btn bg-primary" type="submit">Зарегистрироваться!</button>
+                <button class="btn bg-primary" type="submit">Изменить!</button>
             </div>
         </form>
     </div>
 </div>
-
-@*@section scripts{
-        <partial name="_ValidationScriptsPartial" />
-    }*@
