@@ -41,18 +41,21 @@ namespace GameTextParsing
     {
         public GameParseMetadata()
         {
-            DialogPointIdDict = new IdDictionary<string>();
-            KeyIdDict = new IdDictionary<string>();
+            DialogPointIdDict = new IdMaker<string>();
+            KeyIdDict = new IdMaker<string>();
             DialogPoints = new Dictionary<int, DialogPoint>();
+            SwitchPoints = new Dictionary<int, SwitchPoint>();
         }
 
         public DialogPoint Start { get; set; }
 
-        public IdDictionary<string> DialogPointIdDict { get; set; }
+        public IdMaker<string> DialogPointIdDict { get; set; }
 
-        public IdDictionary<string> KeyIdDict { get; set; }
+        public IdMaker<string> KeyIdDict { get; set; }
 
         public Dictionary<int, DialogPoint> DialogPoints { get; set; }
+
+        public Dictionary<int, SwitchPoint> SwitchPoints { get; set; }
     }
 
     class ParsedGameAnalyzer
@@ -65,13 +68,16 @@ namespace GameTextParsing
 
         private void CheckEntryPoints(GameParseMetadata meta, MessageBuffer messages)
         {
-            bool hasEntryPoint = 
-                meta.KeyIdDict.TryGetId("0", out int __) ||
-                meta.KeyIdDict.TryGetId("start", out __);
+            bool hasEntryPoint = false;
+
+            if (meta.DialogPointIdDict.TryGetId("start", out int id))
+            {
+                hasEntryPoint = meta.DialogPoints.ContainsKey(id) || meta.SwitchPoints.ContainsKey(id);
+            }
 
             if (!hasEntryPoint)
             {
-                messages.PutMsg($"Source code should contain entry point (with edentifier '0' or 'start')");
+                messages.PutMsg($"Source code should contain entry point (with edentifier 'start')");
             }
         }
 
@@ -81,11 +87,14 @@ namespace GameTextParsing
             {
                 foreach (var link in dp.Links)
                 {
-                    bool isValidTransition = meta.DialogPoints.ContainsKey(link.NextID);
+                    if (link.NextIdentifier.Equals("")) continue;
+
+                    bool isValidTransition = 
+                        meta.DialogPoints.ContainsKey(link.NextID) || meta.SwitchPoints.ContainsKey(link.NextID);
 
                     if (!isValidTransition)
                     {
-                        messages.PutMsg($"Transition '{link.Text}' in {dp.ID} has hanging end-points");
+                        messages.PutMsg($"Transition \"{link.Text}\" in ({dp.Identifier}) has hanging end-points: [{link.NextIdentifier}]");
                     }
                 }
             }
@@ -177,6 +186,7 @@ namespace GameTextParsing
                 else if (p.GetName().Equals("SwitchPoint"))
                 {
                     var sp = ProcessSwitchPoint(p);
+                    Meta.SwitchPoints.Add(sp.ID, sp);
                 }
             }
 
@@ -206,7 +216,7 @@ namespace GameTextParsing
 
                 foreach (var key in keyList)
                 {
-                    int keyID = Meta.KeyIdDict.Add(key, out bool contains);
+                    int keyID = Meta.KeyIdDict.GetId(key);
 
                     if (actionType.Equals(Trm.Find))
                     {
@@ -246,7 +256,7 @@ namespace GameTextParsing
                 var node = nodeStack.Peek();
                 if (node.NType == NodeType.Leave)
                 {
-                    int id = Meta.KeyIdDict.Add((string)node.Content, out bool contains);
+                    int id = Meta.KeyIdDict.GetId((string)node.Content);
                     cond += $"{id} ";
                     nodeStack.Pop();
                     continue;
@@ -285,11 +295,13 @@ namespace GameTextParsing
 
         private DialogLink ProcessSingleTransition(ParseTreeNode answer)
         {
+            string nextIdentifier = answer.GetChild(NTrm.NextPointMark).GetText();
             DialogLink dl = new DialogLink
             {
                 Text = answer.GetChild("Text")?.GetText(),
                 Actions = ProcessActionBlock(answer.GetChild(NTrm.ActionBlock)),
-                NextID = Meta.DialogPointIdDict.Add(answer.GetChild(NTrm.NextPointMark).GetText(), out bool tmp)
+                NextID = Meta.DialogPointIdDict.GetId(nextIdentifier),
+                NextIdentifier = nextIdentifier
             };
 
             return dl;
@@ -404,7 +416,7 @@ namespace GameTextParsing
                 DialogPoint currDP = new DialogPoint
                 {
                     ID = currID,
-
+                    Identifier = "",
                     Text = textBlock[i]
                 };
 
@@ -413,7 +425,8 @@ namespace GameTextParsing
                 DialogLink link = new DialogLink
                 {
                     Text = defaultAnswer,
-                    NextID = currID
+                    NextID = currID,
+                    NextIdentifier = ""
                 };
 
                 currDP.Links = new DialogLink[] { link };
@@ -430,7 +443,8 @@ namespace GameTextParsing
             var pointIdentifier = dp.GetChild(NTrm.DialogPointMark).GetText();
 
             // adds string identifier and gets int-ID
-            var pointID = Meta.DialogPointIdDict.Add(pointIdentifier, out bool contains);
+            var pointID = Meta.DialogPointIdDict.GetId(pointIdentifier);
+            bool contains = Meta.DialogPoints.ContainsKey(pointID) || Meta.SwitchPoints.ContainsKey(pointID);
 
             if (contains)
             {
@@ -459,7 +473,8 @@ namespace GameTextParsing
                 {
                     Actions = null,
                     Condition = null,
-                    NextID = Meta.DialogPointIdDict.Add(nextDP, out bool no_matter),
+                    NextID = Meta.DialogPointIdDict.GetId(nextDP),
+                    NextIdentifier = nextDP,
                     Text = defaultAnswer
                 };
             }
@@ -472,6 +487,7 @@ namespace GameTextParsing
             {
                 Actions = actionBlock,
                 ID = pointID,
+                Identifier = pointIdentifier,
                 Links = links,
                 Text = textList[textList.Count - 1]
             };
@@ -488,7 +504,8 @@ namespace GameTextParsing
                 throw new BusinessLogicError("switch point must have identifier");
             }
 
-            int id = Meta.DialogPointIdDict.Add(name, out bool contains);
+            int id = Meta.DialogPointIdDict.GetId(name);
+            bool contains = Meta.DialogPoints.ContainsKey(id) || Meta.SwitchPoints.ContainsKey(id);
 
             if (contains)
             {
@@ -554,28 +571,37 @@ namespace GameTextParsing
                         condition = probCond.GetText() + "%";
                     }
 
+                    string nextIdentifier = _case.GetChild(NTrm.NextPointMark).GetText();
+
                     links.Add(new SwitchLink
                     {
                         Actions = ProcessActionBlock(_case.GetChild(NTrm.ActionBlock)),
-                        NextID = Meta.DialogPointIdDict.Add(_case.GetChild(NTrm.NextPointMark).GetText(), out bool tmp_1),
+                        NextID = Meta.DialogPointIdDict.GetId(nextIdentifier),
+                        NextIdentifier = nextIdentifier,
                         Condition = condition
                     });
                 }
             }
 
-            var otherCase = sp.GetChild(NTrm.OtherCase);
-
-            links.Add(new SwitchLink
             {
-                Actions = ProcessActionBlock(otherCase.GetChild(NTrm.ActionBlock)),
-                Condition = "",
-                NextID = Meta.DialogPointIdDict.Add(otherCase.GetChild(NTrm.NextPointMark).GetText(), out bool tmp_2)
-            });
+                var otherCase = sp.GetChild(NTrm.OtherCase);
+
+                string nextIdentifier = otherCase.GetChild(NTrm.NextPointMark).GetText();
+
+                links.Add(new SwitchLink
+                {
+                    Actions = ProcessActionBlock(otherCase.GetChild(NTrm.ActionBlock)),
+                    Condition = "",
+                    NextID = Meta.DialogPointIdDict.GetId(otherCase.GetChild(NTrm.NextPointMark).GetText()),
+                    NextIdentifier = nextIdentifier
+                });
+            }
 
             return new SwitchPoint
             {
                 Actions = actions,
                 ID = id,
+                Identifier = name,
                 Links = links.ToArray(),
                 SType = type
             };

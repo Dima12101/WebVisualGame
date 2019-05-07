@@ -4,22 +4,22 @@ using System.Text;
 
 namespace GameTextParsing.ParseTreeProcessingHelpers
 {
-    class IdDictionary<T>
+    class IdMaker<T>
     {
         private Dictionary<T, int> Dict { get; set; }
 
         private int IdCounter { get; set; }
 
-        public IdDictionary()
+        public IdMaker()
         {
             Dict = new Dictionary<T, int>();
-
+            
             IdCounter = 0;
         }
 
-        public int Add(T element, out bool contains)
+        public int GetId(T element)
         {
-            contains = Dict.TryGetValue(element, out int id);
+            bool contains = Dict.TryGetValue(element, out int id);
 
             if (!contains)
             {
@@ -29,11 +29,6 @@ namespace GameTextParsing.ParseTreeProcessingHelpers
             }
 
             return id;
-        }
-
-        public bool Contains(T element)
-        {
-            return Dict.ContainsKey(element);
         }
 
         public int UniqueID()

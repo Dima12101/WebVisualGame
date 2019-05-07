@@ -13,6 +13,7 @@ namespace GameTextParsing
         public string Text { get; set; }
         public GameAction[] Actions { get; set; }
         public int NextID { get; set; }
+        public string NextIdentifier { get; set; }
         public string Condition { get; set; }
 
         public DialogLink()
@@ -26,6 +27,7 @@ namespace GameTextParsing
     {
         public string Text { get; set; }
         public int ID { get; set; }
+        public string Identifier { get; set; }
         public GameAction[] Actions { get; set; }
         public DialogLink[] Links { get; set; }
     }
@@ -37,11 +39,13 @@ namespace GameTextParsing
         public string Condition { get; set; }
         public GameAction[] Actions { get; set; }
         public int NextID { get; set; }
+        public string NextIdentifier { get; set; }
     }
 
     class SwitchPoint
     {
         public int ID { get; set; }
+        public string Identifier { get; set; }
         public SwitchType SType { get; set; }
         public GameAction[] Actions { get; set; }
         public SwitchLink[] Links { get; set; }
