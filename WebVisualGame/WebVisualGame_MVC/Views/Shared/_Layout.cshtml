@@ -17,6 +17,7 @@
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
         <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
     </environment>
+    @RenderSection("Styles", required: false)
 </head>
 <body>
     <!--меню-->
@@ -31,6 +32,10 @@
                     <li><a asp-area="" asp-controller="Home" asp-action="About">О нас</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="Contact">Контакты</a></li>
                 </ul>
+                <ul style="float: right;" class="nav navbar-nav">
+                    @RenderSection("UserButton", required: false)
+                </ul>
+               
             </div>
         </div>
     </nav>
@@ -43,6 +48,8 @@
         @RenderBody()
         <hr />
         <footer>
+            @RenderSection("Footer", required: false)
+            <br />
             <p>&copy; 2019 - WebVisualGame_MVC</p>
         </footer>
     </div>
