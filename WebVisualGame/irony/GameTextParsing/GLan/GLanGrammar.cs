@@ -1,6 +1,6 @@
 ﻿using Irony.Parsing;
 
-namespace GameTextParsing.GLan
+namespace Irony.Samples.Glan
 {
     public static class Trm
     {
@@ -20,6 +20,7 @@ namespace GameTextParsing.GLan
         public static string Then = "then";
         public static string Other = "other";
         public static string Percent = "%";
+        public static string RandomSwitch = "random";
     }
 
     public static class NTrm
@@ -27,6 +28,7 @@ namespace GameTextParsing.GLan
         public static string Game = "Game";
         public static string DialogPoint = "DialogPoint";
         public static string SwitchPoint = "SwitchPoint";
+        public static string RandomSwitchPoint = "RandomSwitchPoint";
         public static string GamePoint = "GamePoint";
         public static string Answer = "Answer";
         public static string AnswerBlock = "AnswerBlock";
@@ -48,10 +50,12 @@ namespace GameTextParsing.GLan
         public static string ElseIfBlock = "ElseIfBlock";
         public static string AnswerPoint = "AnswerPoint";
         public static string CaseBlock = "CaseBlock";
+        public static string RandomCaseBlock = "RandomCaseBlock";
         public static string Case = "Case";
+        public static string RandomCase = "RandomCase";
         public static string Probability = "Probability";
         public static string OtherCase = "OtherCase";
-        public static string CaseCondition = "CaseCondition";
+        public static string RandomOtherCase = "RandomOtherCase";
     }
 
     public class Glan : Grammar
@@ -78,6 +82,7 @@ namespace GameTextParsing.GLan
             Terminal Find = ToTerm(Trm.Find);
             Terminal Lose = ToTerm(Trm.Lose);
             Terminal Switch = ToTerm(Trm.Switch);
+            Terminal RandomSwitch = ToTerm(Trm.RandomSwitch);
             Terminal Not = ToTerm(Trm.Not);
             Terminal If = ToTerm(Trm.If);
             Terminal Else = ToTerm(Trm.Else);
@@ -91,6 +96,7 @@ namespace GameTextParsing.GLan
             NonTerminal Game = new NonTerminal(NTrm.Game);
             NonTerminal DialogPoint = new NonTerminal(NTrm.DialogPoint);
             NonTerminal SwitchPoint = new NonTerminal(NTrm.SwitchPoint);
+            NonTerminal RandomSwitchPoint = new NonTerminal(NTrm.RandomSwitchPoint);
             NonTerminal GamePoint = new NonTerminal(NTrm.GamePoint);
             NonTerminal Answer = new NonTerminal(NTrm.Answer);
             NonTerminal AnswerBlock = new NonTerminal(NTrm.AnswerBlock);
@@ -105,17 +111,19 @@ namespace GameTextParsing.GLan
             NonTerminal KeyList = new NonTerminal(NTrm.KeyList);
             NonTerminal Key = new NonTerminal(NTrm.Key);
             NonTerminal ConditionBlock = new NonTerminal(NTrm.ConditionBlock);
-            NonTerminal Condition = new NonTerminal(NTrm.Condition);
+            NonTerminal BoolExpr = new NonTerminal(NTrm.Condition);
             NonTerminal ElseIfList = new NonTerminal(NTrm.ElseIfList);
             NonTerminal ElseBlock = new NonTerminal(NTrm.ElseBlock);
             NonTerminal IfBlock = new NonTerminal(NTrm.IfBlock);
             NonTerminal ElseIfBlock = new NonTerminal(NTrm.ElseIfBlock);
             NonTerminal AnswerPoint = new NonTerminal(NTrm.AnswerPoint);
             NonTerminal CaseBlock = new NonTerminal(NTrm.CaseBlock);
+            NonTerminal RandomCaseBlock = new NonTerminal(NTrm.RandomCaseBlock);
             NonTerminal Case = new NonTerminal(NTrm.Case);
+            NonTerminal RandomCase = new NonTerminal(NTrm.RandomCase);
             NonTerminal Probability = new NonTerminal(NTrm.Probability);
             NonTerminal OtherCase = new NonTerminal(NTrm.OtherCase);
-            NonTerminal CaseCondition = new NonTerminal(NTrm.CaseCondition);
+            NonTerminal RandomOtherCase = new NonTerminal(NTrm.RandomOtherCase);
 
             #endregion
 
@@ -123,7 +131,7 @@ namespace GameTextParsing.GLan
 
             Game.Rule = MakePlusRule(Game, GamePoint);
 
-            GamePoint.Rule = DialogPoint | SwitchPoint;
+            GamePoint.Rule = DialogPoint | SwitchPoint | RandomSwitchPoint;
 
             TextBlock.Rule = MakePlusRule(TextBlock, Comma, Text);
             KeyIdentifier.Rule = Name | LongName;
@@ -156,44 +164,55 @@ namespace GameTextParsing.GLan
 
             AnswerUnion.Rule = MakePlusRule(AnswerUnion, Union, Answer);
 
+            #region IF ELSE
             ConditionBlock.Rule =
                 IfBlock |
                 IfBlock + ElseBlock |
                 IfBlock + ElseIfList |
                 IfBlock + ElseIfList + ElseBlock;
 
-            IfBlock.Rule = If + Condition + Colon + AnswerUnion;
+            IfBlock.Rule = If + BoolExpr + Colon + AnswerUnion;
 
             ElseBlock.Rule = Else + AnswerUnion;
 
             ElseIfList.Rule = MakePlusRule(ElseIfList, ElseIfBlock);
 
-            ElseIfBlock.Rule = Else + If + Condition + Colon + AnswerUnion;
+            ElseIfBlock.Rule = Else + If + BoolExpr + Colon + AnswerUnion;
 
-            Condition.Rule =
-                Not + Condition |
-                "(" + Condition + ")" |
-                Condition + And + Condition |
-                Condition + Or + Condition |
+            #endregion
+
+            BoolExpr.Rule =
+                Not + BoolExpr |
+                "(" + BoolExpr + ")" |
+                BoolExpr + And + BoolExpr |
+                BoolExpr + Or + BoolExpr |
                 Key;
-            
+
+            #region SWITCH
+
             SwitchPoint.Rule =
                 DialogPointMark + Switch + CaseBlock + OtherCase |
                 DialogPointMark + Switch + OtherCase;
 
             CaseBlock.Rule = MakePlusRule(CaseBlock, Case);
 
-            Case.Rule =
-                CaseCondition + Colon + ActionBlock + NextPointMark |
-                CaseCondition + Colon + NextPointMark;
+            Case.Rule = BoolExpr + Colon + NextPointMark;
+            OtherCase.Rule = Other + Colon + NextPointMark;
 
-            CaseCondition.Rule = Condition | Probability;
+            #endregion
 
+            #region RANDOM SWITCH
             Probability.Rule = Number + Percent;
 
-            OtherCase.Rule =
-                Other + Colon + ActionBlock + NextPointMark |
-                Other + Colon + NextPointMark;
+            RandomSwitchPoint.Rule =
+                DialogPointMark + RandomSwitch + RandomCaseBlock + RandomOtherCase |
+                DialogPointMark + RandomSwitch + RandomOtherCase;
+
+            RandomCaseBlock.Rule = MakePlusRule(RandomCaseBlock, RandomCase);
+
+            RandomCase.Rule = Probability + Colon + NextPointMark;
+            RandomOtherCase.Rule = Other + Colon + NextPointMark;
+            #endregion
 
             #endregion
 
@@ -204,9 +223,9 @@ namespace GameTextParsing.GLan
             RegisterOperators(3, Associativity.Neutral, Not);
 
             MarkPunctuation("(", ")", "[", "]", "-", "#", ":");
-            MarkPunctuation(Other, Switch, Else, If, Then, Minus);
+            MarkPunctuation(Other, Switch, RandomSwitch, Else, If, Then, Minus);
 
-            MarkTransient(GamePoint, AnswerPoint, GotoBlock, Key, CaseCondition);
+            MarkTransient(GamePoint, AnswerPoint, GotoBlock, Key);
         }
     }
 }
