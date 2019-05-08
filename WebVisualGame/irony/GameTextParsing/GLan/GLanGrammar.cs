@@ -1,6 +1,6 @@
 ﻿using Irony.Parsing;
 
-namespace Irony.Samples.Glan
+namespace GameTextParsing.GLan
 {
     public static class Trm
     {

@@ -1,4 +1,6 @@
 ﻿
+using System.Collections.Generic;
+
 namespace GameTextParsing
 {
     enum ActionType { Find, Lose }
@@ -15,6 +17,7 @@ namespace GameTextParsing
         public int NextID { get; set; }
         public string NextIdentifier { get; set; }
         public string Condition { get; set; }
+        public int Number { get; set; }
 
         public DialogLink()
         {
@@ -29,7 +32,7 @@ namespace GameTextParsing
         public int ID { get; set; }
         public string Identifier { get; set; }
         public GameAction[] Actions { get; set; }
-        public DialogLink[] Links { get; set; }
+        public List<DialogLink> Links { get; set; }
     }
 
     enum SwitchType { Determinate, Probabilistic }
@@ -37,9 +40,10 @@ namespace GameTextParsing
     class SwitchLink
     {
         public string Condition { get; set; }
-        public GameAction[] Actions { get; set; }
+        //public GameAction[] Actions { get; set; }
         public int NextID { get; set; }
         public string NextIdentifier { get; set; }
+        public int Number { get; set; }
     }
 
     class SwitchPoint
@@ -47,7 +51,7 @@ namespace GameTextParsing
         public int ID { get; set; }
         public string Identifier { get; set; }
         public SwitchType SType { get; set; }
-        public GameAction[] Actions { get; set; }
-        public SwitchLink[] Links { get; set; }
+        //public GameAction[] Actions { get; set; }
+        public List<SwitchLink> Links { get; set; }
     }
 }

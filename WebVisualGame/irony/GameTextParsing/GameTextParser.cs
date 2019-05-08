@@ -60,13 +60,14 @@ namespace GameTextParsing
 
     class ParsedGameAnalyzer
     {
-        public void Analyze(GameParseMetadata meta, MessageBuffer messages)
+        public bool Analyze(GameParseMetadata meta, MessageBuffer messages)
         {
-            CheckEntryPoints(meta, messages);
+            return
+            CheckEntryPoints(meta, messages) &
             CheckHangingTransitions(meta, messages);
         }
 
-        private void CheckEntryPoints(GameParseMetadata meta, MessageBuffer messages)
+        private bool CheckEntryPoints(GameParseMetadata meta, MessageBuffer messages)
         {
             bool hasEntryPoint = false;
 
@@ -79,10 +80,14 @@ namespace GameTextParsing
             {
                 messages.PutMsg($"Source code should contain entry point (with edentifier 'start')");
             }
+
+            return hasEntryPoint;
         }
 
-        private void CheckHangingTransitions(GameParseMetadata meta, MessageBuffer messages)
+        private bool CheckHangingTransitions(GameParseMetadata meta, MessageBuffer messages)
         {
+            bool hasNotHangingTransitions = true;
+
             foreach (var dp in meta.DialogPoints.Values)
             {
                 foreach (var link in dp.Links)
@@ -94,10 +99,30 @@ namespace GameTextParsing
 
                     if (!isValidTransition)
                     {
-                        messages.PutMsg($"Transition \"{link.Text}\" in ({dp.Identifier}) has hanging end-points: [{link.NextIdentifier}]");
+                        messages.PutMsg($"Transition №{link.Number} in ({dp.Identifier}) has hanging end-point [{link.NextIdentifier}]");
+                        hasNotHangingTransitions = false;
                     }
                 }
             }
+
+            foreach (var sp in meta.SwitchPoints.Values)
+            {
+                foreach (var link in sp.Links)
+                {
+                    if (link.NextIdentifier.Equals("")) continue;
+
+                    bool isValidTransition =
+                        meta.DialogPoints.ContainsKey(link.NextID) || meta.SwitchPoints.ContainsKey(link.NextID);
+
+                    if (!isValidTransition)
+                    {
+                        messages.PutMsg($"Transition №{link.Number} in ({sp.Identifier}) has hanging end-points: [{link.NextIdentifier}]");
+                        hasNotHangingTransitions = false;
+                    }
+                }
+            }
+
+            return hasNotHangingTransitions;
         }
     }
 
@@ -178,12 +203,12 @@ namespace GameTextParsing
 
             foreach (var p in dpNodes)
             {
-                if (p.GetName().Equals("DialogPoint"))
+                if (p.GetName().Equals(NTrm.DialogPoint))
                 {
                     var dp = ProcessDialogPoint(p);
                     Meta.DialogPoints.Add(dp.ID, dp);
                 }
-                else if (p.GetName().Equals("SwitchPoint"))
+                else if (p.GetName().Equals(NTrm.SwitchPoint) || p.GetName().Equals(NTrm.RandomSwitchPoint))
                 {
                     var sp = ProcessSwitchPoint(p);
                     Meta.SwitchPoints.Add(sp.ID, sp);
@@ -191,8 +216,21 @@ namespace GameTextParsing
             }
 
             // analyzing processed source code
+            // finding hanging transitions (transitions with not-defined end-point)
+            // checking start point
             var analyzer = new ParsedGameAnalyzer();
-            analyzer.Analyze(meta: Meta, messages: Messages);
+            var analyzeResult = analyzer.Analyze(Meta, Messages);
+
+            if (!analyzeResult)
+            {
+                return;
+            }
+            
+            // coninue processing:
+            // reduce switches
+            // reduce actions on dialog points
+
+
         }
 
         #region processing parse tree helper functions
@@ -301,7 +339,7 @@ namespace GameTextParsing
                 Text = answer.GetChild("Text")?.GetText(),
                 Actions = ProcessActionBlock(answer.GetChild(NTrm.ActionBlock)),
                 NextID = Meta.DialogPointIdDict.GetId(nextIdentifier),
-                NextIdentifier = nextIdentifier
+                NextIdentifier = nextIdentifier,
             };
 
             return dl;
@@ -321,12 +359,13 @@ namespace GameTextParsing
             for (int i = 0; i < answers.Length; ++i)
             {
                 dialogLinks[i] = ProcessSingleTransition(answers[i]);
+                dialogLinks[i].Number = i + 1;
             }
 
             return dialogLinks;
         }
 
-        private DialogLink[] ProcessDialogTransitionBlock(ParseTreeNode answBlockNode)
+        private List<DialogLink> ProcessDialogTransitionBlock(ParseTreeNode answBlockNode)
         {
             var dialogLinks = new List<DialogLink>();
 
@@ -397,11 +436,13 @@ namespace GameTextParsing
                 }
                 else if (answerType.Equals(NTrm.Answer))
                 {
-                    linkList.Add(ProcessSingleTransition(answer));
+                    var newTransition = ProcessSingleTransition(answer);
+                    newTransition.Number = linkList.Count;
+                    linkList.Add(newTransition);
                 }
             }
 
-            return linkList.ToArray();
+            return linkList;
         }
 
         // returns new dialog point id
@@ -426,10 +467,11 @@ namespace GameTextParsing
                 {
                     Text = defaultAnswer,
                     NextID = currID,
-                    NextIdentifier = ""
+                    NextIdentifier = "",
+                    Number = 1
                 };
 
-                currDP.Links = new DialogLink[] { link };
+                currDP.Links = new List<DialogLink> { link };
 
                 Meta.DialogPoints.Add(currDP.ID, currDP);
             }
@@ -449,7 +491,6 @@ namespace GameTextParsing
             if (contains)
             {
                 Messages.PutMsg($"Identifier already exist (Line: {dp.Span.Location.Line}, Pos: {dp.Span.Location.Column})");
-                throw new SourceCodeError();
             }
 
             // dialog point can contain multiple text
@@ -461,21 +502,25 @@ namespace GameTextParsing
             // parsing action block of the DP into GameAction[]
             var actionBlock = ProcessActionBlock(dp.GetChild(NTrm.ActionBlock));
 
-            DialogLink[] links = null;
+            List<DialogLink> links = null;
 
             if (dp.GetChild(NTrm.NextPointMark) != null)
             {
                 var nextDP = dp.GetChild(NTrm.NextPointMark).GetText();
 
-                links = new DialogLink[1];
-
-                links[0] = new DialogLink
+                var newLink = new DialogLink
                 {
                     Actions = null,
                     Condition = null,
                     NextID = Meta.DialogPointIdDict.GetId(nextDP),
                     NextIdentifier = nextDP,
-                    Text = defaultAnswer
+                    Text = defaultAnswer,
+                    Number = 1
+                };
+
+                links = new List<DialogLink>
+                {
+                    newLink
                 };
             }
             else
@@ -497,6 +542,23 @@ namespace GameTextParsing
 
         public SwitchPoint ProcessSwitchPoint(ParseTreeNode sp)
         {
+            var typeName = sp.GetName();
+
+            SwitchType type = SwitchType.Determinate;
+
+            if (typeName.Equals(NTrm.SwitchPoint))
+            {
+                type = SwitchType.Determinate;
+            }
+            else if (typeName.Equals(NTrm.RandomSwitchPoint))
+            {
+                type = SwitchType.Probabilistic;
+            }
+            else
+            {
+                throw new BusinessLogicError("Error when parsing switch type");
+            }
+
             var name = sp.GetChild(NTrm.DialogPointMark)?.GetText();
 
             if (name == null)
@@ -510,99 +572,82 @@ namespace GameTextParsing
             if (contains)
             {
                 Messages.PutMsg($"Identifier already exist (Line: {sp.Span.Location.Line}, Pos: {sp.Span.Location.Column})");
-                throw new SourceCodeError();
             }
 
-            var actions = ProcessActionBlock(sp.GetChild(NTrm.ActionBlock));
+            //var actions = ProcessActionBlock(sp.GetChild(NTrm.ActionBlock));
 
-            var caseBlock = sp.GetChild(NTrm.CaseBlock)?.ChildNodes;
+            var caseBlock = 
+                (type == SwitchType.Determinate) ? 
+                sp.GetChild(NTrm.CaseBlock)?.ChildNodes :
+                sp.GetChild(NTrm.RandomCaseBlock)?.ChildNodes;
 
             List<SwitchLink> links = new List<SwitchLink>();
 
-            bool typeDefined = false;
-
-            SwitchType type = SwitchType.Determinate;
+            string goNextCondition = "";
+            int otherProbability = 100;
 
             if (caseBlock != null)
             {
                 foreach (var _case in caseBlock)
                 {
-                    var probCond = _case.GetChild(NTrm.Probability);
-                    var determCond = _case.GetChild(NTrm.Condition);
-
-                    string condition = "";
-
-                    if (determCond != null)
+                    string totalCond = "";
+                    if (type == SwitchType.Determinate)
                     {
-                        if (typeDefined)
-                        {
-                            if (type != SwitchType.Determinate)
-                            {
-                                Messages.PutMsg("It is forbidden to make both determinate and" +
-                                    " probabilistic transitions in one switch. " +
-                                    $"Line: {_case.Span.Location.Line}, Pos: {_case.Span.Location.Column}");
-                                throw new SourceCodeError();
-                            }
-                        }
-                        else
-                        {
-                            type = SwitchType.Determinate;
-                            typeDefined = true;
-                        }
-                        condition = ProcessCondition(determCond);
+                        var boolExpr = _case.GetChild(NTrm.Condition);
+                        string currCond = ProcessCondition(boolExpr);
+                        totalCond = $"{goNextCondition}{currCond}& ";
+                        goNextCondition = $"{goNextCondition}{currCond}- & ";
                     }
-                    else if (probCond != null)
+                    else if (type == SwitchType.Probabilistic)
                     {
-                        if (typeDefined)
+                        var probab = _case.GetChild(NTrm.Probability);
+                        otherProbability -= int.Parse(probab.GetText());
+
+                        if (otherProbability < 0)
                         {
-                            if (type != SwitchType.Probabilistic)
-                            {
-                                Messages.PutMsg("It is forbidden to make both determinate and" +
-                                    " probabilistic transitions in one switch. " +
-                                    $"Line: {_case.Span.Location.Line}, Pos: {_case.Span.Location.Column}");
-                                throw new SourceCodeError();
-                            }
+                            Messages.PutMsg($"Sum of probabilities couldn't be more than 100% (Line: {_case.Span.Location.Line}, Pos: {_case.Span.Location.Column})");
                         }
-                        else
-                        {
-                            type = SwitchType.Probabilistic;
-                            typeDefined = true;
-                        }
-                        condition = probCond.GetText() + "%";
+
+                        totalCond = probab.GetText() + "%";
                     }
 
                     string nextIdentifier = _case.GetChild(NTrm.NextPointMark).GetText();
 
                     links.Add(new SwitchLink
                     {
-                        Actions = ProcessActionBlock(_case.GetChild(NTrm.ActionBlock)),
+                        //Actions = ProcessActionBlock(_case.GetChild(NTrm.ActionBlock)),
                         NextID = Meta.DialogPointIdDict.GetId(nextIdentifier),
                         NextIdentifier = nextIdentifier,
-                        Condition = condition
+                        Condition = totalCond,
+                        Number = links.Count + 1
                     });
                 }
             }
 
             {
-                var otherCase = sp.GetChild(NTrm.OtherCase);
+                var otherCase = 
+                    (type == SwitchType.Determinate) ?
+                    sp.GetChild(NTrm.OtherCase) :
+                    sp.GetChild(NTrm.RandomOtherCase);
 
                 string nextIdentifier = otherCase.GetChild(NTrm.NextPointMark).GetText();
 
                 links.Add(new SwitchLink
                 {
-                    Actions = ProcessActionBlock(otherCase.GetChild(NTrm.ActionBlock)),
-                    Condition = "",
-                    NextID = Meta.DialogPointIdDict.GetId(otherCase.GetChild(NTrm.NextPointMark).GetText()),
-                    NextIdentifier = nextIdentifier
+                    //Actions = ProcessActionBlock(otherCase.GetChild(NTrm.ActionBlock)),
+                    Condition = goNextCondition,
+                    NextID = Meta.DialogPointIdDict.GetId(nextIdentifier),
+                    NextIdentifier = nextIdentifier,
+                    Number = links.Count + 1
                 });
             }
 
             return new SwitchPoint
             {
-                Actions = actions,
+                //Actions = actions,
                 ID = id,
                 Identifier = name,
-                Links = links.ToArray(),
+                Links = links,
                 SType = type
             };
         }
