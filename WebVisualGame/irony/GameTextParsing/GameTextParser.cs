@@ -225,12 +225,12 @@ namespace GameTextParsing
             {
                 return;
             }
-            
+
             // coninue processing:
             // reduce switches
             // reduce actions on dialog points
 
-
+            ReduceSwitches();
         }
 
         #region processing parse tree helper functions
@@ -340,6 +340,7 @@ namespace GameTextParsing
                 Actions = ProcessActionBlock(answer.GetChild(NTrm.ActionBlock)),
                 NextID = Meta.DialogPointIdDict.GetId(nextIdentifier),
                 NextIdentifier = nextIdentifier,
+                Condition = ""
             };
 
             return dl;
@@ -470,7 +471,8 @@ namespace GameTextParsing
                     Text = defaultAnswer,
                     NextID = currID,
                     NextIdentifier = "",
-                    Number = 1
+                    Number = 1,
+                    Condition = ""
                 };
 
                 currDP.Links = new List<DialogLink> { link };
@@ -513,7 +515,7 @@ namespace GameTextParsing
                 var newLink = new DialogLink
                 {
                     Actions = null,
-                    Condition = null,
+                    Condition = "",
                     NextID = Meta.DialogPointIdDict.GetId(nextDP),
                     NextIdentifier = nextDP,
                     Text = defaultAnswer,
@@ -578,8 +580,8 @@ namespace GameTextParsing
 
             //var actions = ProcessActionBlock(sp.GetChild(NTrm.ActionBlock));
 
-            var caseBlock = 
-                (type == SwitchType.Determinate) ? 
+            var caseBlock =
+                (type == SwitchType.Determinate) ?
                 sp.GetChild(NTrm.CaseBlock)?.ChildNodes :
                 sp.GetChild(NTrm.RandomCaseBlock)?.ChildNodes;
 
@@ -630,7 +632,7 @@ namespace GameTextParsing
             }
 
             {
-                var otherCase = 
+                var otherCase =
                     (type == SwitchType.Determinate) ?
                     sp.GetChild(NTrm.OtherCase) :
                     sp.GetChild(NTrm.RandomOtherCase);
@@ -656,6 +658,48 @@ namespace GameTextParsing
                 SType = type
             };
         }
+        #endregion
+
+        #region reduce switches
+
+        void ReduceSwitches()
+        {
+            foreach(var pair_id_dp in Meta.DialogPoints)
+            {
+                var dp = pair_id_dp.Value;
+
+                List<DialogLink> newLinks = new List<DialogLink>();
+
+                foreach (var link in dp.Links)
+                {
+                    bool goesToSwitch = Meta.SwitchPoints.TryGetValue(link.NextID, out SwitchPoint sp);
+                    if (!goesToSwitch)
+                    {
+                        newLinks.Add(link);
+                        continue;
+                    };
+
+                    int number = 1;
+                    foreach(var switchLink in sp.Links)
+                    {
+                        string amp = (link.Condition.Equals("")) ? "" : "&";
+                        DialogLink newDialogLink = new DialogLink
+                        {
+                            Actions = link.Actions,
+                            Condition = $"{link.Condition}{switchLink.Condition}{amp} ",
+                            NextID = switchLink.NextID,
+                            Number = number++,
+                            NextIdentifier = switchLink.NextIdentifier,
+                            Text = link.Text
+                        };
+                        newLinks.Add(newDialogLink);
+                    }
+                }
+
+                dp.Links = newLinks;
+            }
+        }
+
+        #endregion
     }
-    #endregion
 }
