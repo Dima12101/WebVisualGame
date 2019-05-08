@@ -411,13 +411,15 @@ namespace GameTextParsing
 
                             var currAnswerUnion = ParseTransitionUnion(elseIfList[i].GetChild(NTrm.AnswerUnion));
 
-                            var totalCond = $"{goNextCond}{currIfCond}& ";
+                            string amp = (goNextCond.Equals("")) ? "" : "&";
+
+                            var totalCond = $"{goNextCond}{currIfCond}{amp} ";
 
                             SetExprToLinks(currAnswerUnion, totalCond);
 
                             linkList.AddRange(currAnswerUnion);
 
-                            goNextCond = $"{goNextCond}{currIfCond}- & ";
+                            goNextCond = $"{goNextCond}{currIfCond}- {amp} ";
                         }
                     }
 
@@ -595,8 +597,11 @@ namespace GameTextParsing
                     {
                         var boolExpr = _case.GetChild(NTrm.Condition);
                         string currCond = ProcessCondition(boolExpr);
-                        totalCond = $"{goNextCondition}{currCond}& ";
-                        goNextCondition = $"{goNextCondition}{currCond}- & ";
+
+                        string amp = (goNextCondition.Equals("")) ? "" : "&";
+
+                        totalCond = $"{goNextCondition}{currCond}{amp} ";
+                        goNextCondition = $"{goNextCondition}{currCond}- {amp} ";
                     }
                     else if (type == SwitchType.Probabilistic)
                     {
