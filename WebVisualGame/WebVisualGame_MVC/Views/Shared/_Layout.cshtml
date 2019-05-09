@@ -33,7 +33,17 @@
                     <li><a asp-area="" asp-controller="Home" asp-action="Contact">Контакты</a></li>
                 </ul>
                 <ul style="float: right;" class="nav navbar-nav">
-                    @RenderSection("UserButton", required: false)
+                    @if (Context.User.Identity.IsAuthenticated)
+                    {
+                        <li><a asp-controller="Game" asp-action="Create">Создать игру</a></li>
+                        <li><a asp-controller="Account" asp-action="Profile">Мой профиль</a></li>
+                        <li><a asp-controller="Account" asp-action="Logout">Выход</a></li>
+                    }
+                    else
+                    {
+                        <li><a asp-controller="Account" asp-action="Registration">Зарегистрироваться</a></li>
+                        <li><a asp-controller="Account" asp-action="Authorization">Авторизироваться</a></li>
+                    }
                 </ul>
                
             </div>
@@ -46,7 +56,6 @@
     <!--основной контент-->
     <div class="container body-content">
         @RenderBody()
-        <hr />
         <footer>
             @RenderSection("Footer", required: false)
             <br />

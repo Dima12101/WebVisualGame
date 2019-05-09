@@ -36,6 +36,65 @@ body {
     }
 }
 
+a {
+    text-decoration: none; /* Отменяем подчеркивание у ссылки */
+    
+}
+
+.navbar {
+    background-color: #67667d;
+}
+
+.navbar-inverse .navbar-brand {
+    border-bottom: none;
+    color: white;
+}
+
+    .navbar-inverse .navbar-brand:hover, .navbar-inverse .navbar-brand:focus {
+        color: #202024;
+    }
+
+.navbar-inverse .navbar-nav > li > a {
+    border-bottom: none;
+    color: white;
+}
+
+    .navbar-inverse .navbar-nav > li > a:hover, .navbar-inverse .navbar-nav > li > a:focus {
+        color: #202024;
+    }
+
+.inner .navbar {
+    margin-bottom: 0px;
+    height:auto;
+    background-color: transparent;
+}
+
+.SwitchButtons {
+    float: right;
+    padding: 0 0 0 10px;
+    width: auto;
+    height: auto;
+    background-color: transparent;
+    border-color: transparent;
+}
+.SwitchButtons tr td{
+    padding: 0;
+    height: auto;
+    background-color: transparent;
+}
+.SwitchButtons tr td form{
+    margin: 0;
+    background-color: transparent;
+}
+.SwitchButtons tr td form button {
+    width:auto;
+    height:auto;
+    background-color: transparent;
+    color: white !important;
+}
+.SwitchButtons tr td form button:hover{
+    color: #70c7be !important;
+}
 /*Стили для форм*/
 .field-labels {
     width: 15%

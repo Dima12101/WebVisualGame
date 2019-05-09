@@ -10,19 +10,17 @@ namespace WebVisualGame_MVC.Models.PageModels.GameModel
 {
 	public class MainModel
 	{
-		public bool IsAuthorize { get; set; }
-
 		public class GameInfo
 		{
+			public int Id { get; set; }
+
 			public string Title { get; set; }
 
 			public string Description { get; set; }
 
 			public double Rating { get; set; }
 		}
-
-		[BindProperty]
-		public GameInfo gameInfo { get; set; }
+		public GameInfo Game { get; set; }
 
 		public class SetReview
 		{
@@ -30,7 +28,7 @@ namespace WebVisualGame_MVC.Models.PageModels.GameModel
 
 			public string Comment { get; set; }
 		}
-		public SetReview review { get; set; }
+		public SetReview Review { get; set; }
 
 		public class ReviewDisplay
 		{

@@ -1,5 +1,4 @@
-﻿@charset "UTF-8";
-@import url(font-awesome.min.css);
+﻿@import url(/fonts/font-awesome-4.7.0/css/font-awesome.min.css);
 @import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400|Passion+One:400");
 
 /*
@@ -93,11 +92,16 @@
 /* Type */
 
 body, input, select, textarea {
-    color:azure;
+    color: azure;
     font-family: "Source Sans Pro", sans-serif;
     font-size: 14pt;
     font-weight: 300;
     line-height: 1.65;
+}
+
+nav {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
 }
 
 		@media screen and (max-width: 1680px) {
@@ -1151,7 +1155,6 @@ body, input, select, textarea {
 		}
 
 /* Banner */
-
 	#banner {
 		-moz-align-items: center;
 		-webkit-align-items: center;
@@ -1336,7 +1339,7 @@ body, input, select, textarea {
 /* Main */
 
 	#main {
-		padding: 4em 0 2em 0;
+		padding: 4em 0 0 0;
 	}
 
 		@media screen and (max-width: 736px) {

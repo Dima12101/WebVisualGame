@@ -11,24 +11,24 @@
         margin-right: 10px;
     }
 
-    ul {
+    .profile ul {
         list-style-type: none;
     }
-    li {
+    .profile li {
         position: relative;
         margin-top: 5px;
     }
 
-    li ul {
+    .profile li ul {
         list-style-type: circle;
         display: none;
         position: absolute;
-        background-color:white;
-        border:double;
-        border-color:#ddd;
+        background-color: white;
+        border: double;
+        border-color: #ddd;
         z-index: 1;
     }
-    li:hover ul {
+    .profile li:hover ul {
         display: block;
     }
 </style>
@@ -41,7 +41,7 @@
 
 <div class="register-panel panel panel-success">
     <div class="panel-heading text-center"><h4>Профиль</h4></div>
-    <div class="panel-body">
+    <div class="panel-body profile">
         <table>
             <tr>
                 <td width="20%" valign="top">

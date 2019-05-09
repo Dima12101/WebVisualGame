@@ -24,14 +24,14 @@
 </head>
 
 <header>
-    <h2 class="panel-heading text-center bg-success">@Model.gameInfo.Title</h2>
+    <h2 class="panel-heading text-center bg-success">@Model.Game.Title</h2>
 </header>
 
 <fieldset class="panel-body bg-warning">
     <h3>Информация об игре:</h3>
 
-    <h4>Описание: @Model.gameInfo.Description</h4>
-    <h4>Оценка: @Model.gameInfo.Rating</h4>
+    <h4>Описание: @Model.Game.Description</h4>
+    <h4>Оценка: @Model.Game.Rating</h4>
 
     @*<img style="width:100px; height:100px;" src="@Model.Game.UrlIcon" alt="GameIcon" />*@
 
@@ -39,27 +39,27 @@
         <button class="btn btn-default" type="submit" asp-page-handler="StartGame">Играть</button>
     </form>
 </fieldset>
-@if (Model.IsAuthorize)
+@if (Context.User.Identity.IsAuthenticated)
 {
 <br />
 <fieldset class="panel-body bg-info">
     <h3>Оставить отзыв:</h3>
     <form asp-controller="Game" asp-action="SetReview" method="POST">
         <div class="form-group">
-            <label asp-for="@Model.review.Comment">Комментарий:</label>
+            <label asp-for="@Model.Review.Comment">Комментарий:</label>
             <br />
-            <textarea type="text" asp-for="@Model.review.Comment" maxlength="400" placeholder="Не более 400 символов..." rows="4" cols="100"></textarea>
+            <textarea type="text" asp-for="@Model.Review.Comment" maxlength="400" placeholder="Не более 400 символов..." rows="4" cols="100"></textarea>
         </div>
         <div class="form-group">
-            <label asp-for="@Model.review.Mark">Оценка:</label>
+            <label asp-for="@Model.Review.Mark">Оценка:</label>
             <br />
-            <input type="radio" asp-for="@Model.review.Mark" value="1" /> 1 <br />
-            <input type="radio" asp-for="@Model.review.Mark" value="2" /> 2 <br />
-            <input type="radio" asp-for="@Model.review.Mark" value="3" /> 3 <br />
-            <input type="radio" asp-for="@Model.review.Mark" value="4" /> 4 <br />
-            <input type="radio" asp-for="@Model.review.Mark" value="5" checked="checked" /> 5 <br />
+            <input type="radio" asp-for="@Model.Review.Mark" value="1" /> 1 <br />
+            <input type="radio" asp-for="@Model.Review.Mark" value="2" /> 2 <br />
+            <input type="radio" asp-for="@Model.Review.Mark" value="3" /> 3 <br />
+            <input type="radio" asp-for="@Model.Review.Mark" value="4" /> 4 <br />
+            <input type="radio" asp-for="@Model.Review.Mark" value="5" checked="checked" /> 5 <br />
         </div>
-        <button class="btn btn-default" type="submit">Оценить</button>
+        <button class="btn btn-default" name="gameIdEncode" value="@WebVisualGame_MVC.Utilities.ProtectData.GetInstance().Encode(Model.Game.Id)" type="submit">Оценить</button>
     </form>
 </fieldset>
 }

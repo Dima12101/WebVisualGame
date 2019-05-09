@@ -29,44 +29,69 @@ namespace WebVisualGame_MVC.Controllers
 			logger = _logger;
 		}
 
+		private List<IndexModel.GameInfo> Get_Games(IndexModel.TypeSelect typeSelect)
+		{
+			switch(typeSelect)
+			{
+				case IndexModel.TypeSelect.Last:
+					return dataContext.Games.Take(6).Select(i => new IndexModel.GameInfo
+					{
+						Id = i.Id,
+						Title = i.Title,
+						Rating = i.Rating,
+						PathIcon = i.PathIcon
+					}).ToList();
+				case IndexModel.TypeSelect.Best:
+					return dataContext.Games.OrderByDescending(i => i.Rating).Take(6).Select(i => new IndexModel.GameInfo
+					{
+						Id = i.Id,
+						Title = i.Title,
+						Rating = i.Rating,
+						PathIcon = i.PathIcon
+					}).ToList();
+			}
+			return dataContext.Games.Select(i => new IndexModel.GameInfo
+			{
+				Id = i.Id,
+				Title = i.Title,
+				Rating = i.Rating,
+				PathIcon = i.PathIcon
+			}).ToList();
+		}
+
+		[HttpPost]
+		public IActionResult ChangeTypeSelect(IndexModel.TypeSelect typeSelect)
+		{
+			logger.LogInformation("Index page: Change type select game");
+			
+			var indexModel = new IndexModel
+			{
+				CurrentTypeSelect = typeSelect,
+				Games = Get_Games(typeSelect)
+			};
+			return View("Index", indexModel);
+		}
+
+		[HttpGet]
 		public IActionResult Index()
 		{
 			logger.LogInformation("Visit index page");
-
-			var indexModel = new IndexModel(dataContext);
-
 			if (HttpContext.User.Identity.IsAuthenticated)
 			{
 				logger.LogInformation($"User {HttpContext.User.Identity.Name} is authorized");
-
-				int userId = 0;
-
-				logger.LogInformation($"Trying get user by id");
-
-				try
-				{
-					userId = Int32.Parse(HttpContext.User.Identity.Name);
-				}
-				catch (Exception ex)
-				{
-					logger.LogError(ex.Message);
-
-					throw ex;
-				}
-
-				logger.LogInformation($"User's id is {userId}");
-
-				indexModel.SetUser(userId);
 			}
-			else
+
+			var indexModel = new IndexModel
 			{
-				logger.LogInformation($"Authorization hasn't been passed");
-			}
-
+				CurrentTypeSelect = IndexModel.TypeSelect.Last,
+				Games = Get_Games(IndexModel.TypeSelect.Last)
+			};
 			return View(indexModel);
 		}
 
-		[Authorize]
+
+
+
 		public IActionResult About()
 		{
 			ViewData["Message"] = "Your application description page.";

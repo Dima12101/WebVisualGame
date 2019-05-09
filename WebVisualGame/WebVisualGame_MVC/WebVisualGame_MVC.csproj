@@ -5,6 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\css\authorizationPack\vendor\**" />
+    <Content Remove="wwwroot\css\authorizationPack\vendor\**" />
+    <EmbeddedResource Remove="wwwroot\css\authorizationPack\vendor\**" />
+    <None Remove="wwwroot\css\authorizationPack\vendor\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Views\Home\IndexOld.cshtml" />
     <Content Remove="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.min.js" />
   </ItemGroup>
 

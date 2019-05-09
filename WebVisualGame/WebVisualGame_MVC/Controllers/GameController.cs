@@ -43,16 +43,16 @@ namespace WebVisualGame_MVC.Controllers
 			{
 				var game = dataContext.Games.Single(i => i.Id == gameId);
 
-				mainModel.gameInfo = new MainModel.GameInfo
+				mainModel.Game = new MainModel.GameInfo
 				{
+					Id = gameId,
 					Title = game.Title,
 					Description = game.Description,
 					Rating = game.Rating
 				};
 
 
-				mainModel.IsAuthorize = HttpContext.User.Identity.IsAuthenticated;
-				mainModel.review = new MainModel.SetReview();
+				mainModel.Review = new MainModel.SetReview();
 
 				mainModel.Reviews = (from review in dataContext.Reviews.Where(i => i.GameId == gameId)
 									 join user in dataContext.Users on review.UserId equals user.Id
@@ -87,28 +87,29 @@ namespace WebVisualGame_MVC.Controllers
 			var gameId = Int32.Parse(gameIdDecoded);
 
 			logger.LogInformation("GameId: " + gameIdDecoded);
-			Response.Cookies.Append("GameId", gameIdDecoded);
 
 			return View(Get_mainModel(gameId));
         }
 
 		[Authorize]
 		[HttpPost]
-		public IActionResult SetReview(MainModel model)
+		public IActionResult SetReview(MainModel.SetReview model, string gameIdEncode)
 		{
 			logger.LogInformation("Set review. ");
 			try
 			{
 				var userId = Int32.Parse(HttpContext.User.Identity.Name);
-				var gameId = Int32.Parse(Request.Cookies["GameId"]);
+
+				var gameIdDecoded = ProtectData.GetInstance().DecodeToString(gameIdEncode);
+				var gameId = Int32.Parse(gameIdDecoded);
 
 				//Проверка на наличие комментария
 				var oldReview = dataContext.Reviews.FirstOrDefault(i => i.GameId == gameId && i.UserId == userId);
 				if (oldReview != null)
 				{
 					//Изменяем имеющийся
-					oldReview.Comment = model.review.Comment;
-					oldReview.Mark = model.review.Mark;
+					oldReview.Comment = model.Comment;
+					oldReview.Mark = model.Mark;
 					oldReview.Date = DateTime.Now;
 					dataContext.Attach(oldReview).State = EntityState.Modified;
 				}
@@ -117,8 +118,8 @@ namespace WebVisualGame_MVC.Controllers
 					//Добавляем новый
 					var newReview = new Review
 					{
-						Comment = model.review.Comment,
-						Mark = model.review.Mark,
+						Comment = model.Comment,
+						Mark = model.Mark,
 						UserId = userId,
 						GameId = gameId,
 						Date = DateTime.Now

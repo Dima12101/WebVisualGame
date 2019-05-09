@@ -7,23 +7,19 @@ namespace WebVisualGame_MVC.Models.PageModels
 {
 	public class IndexModel
 	{
-		private readonly DataContext dataContext;
-
-		[BindProperty]
-		public User User { get; private set; }
-
-		public List<Game> Games { get; private set; }
-
-		public IndexModel(DataContext _dataContext)
+		public class GameInfo
 		{
-			dataContext = _dataContext;
+			public int Id { get; set; }
 
-			Games = dataContext.Games.ToList();
-		}
+			public string Title { get; set; }
 
-		public void SetUser(int userId)
-		{
-			User = dataContext.Users.FirstOrDefault(i => i.Id == userId);
+			public double Rating { get; set; }
+
+			public string PathIcon { get; set; }
 		}
+		public enum TypeSelect { Last = 0, Best = 1 }
+
+		public TypeSelect CurrentTypeSelect { get; set; }
+		public List<GameInfo> Games { get; set; }
 	}
 }
