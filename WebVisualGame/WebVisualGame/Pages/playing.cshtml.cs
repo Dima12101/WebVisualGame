@@ -28,11 +28,11 @@ namespace WebVisualGame.Pages
 			public static int[] WayControl(string _keys, string[] booleanExps)
 			{
 				percents = new Dictionary<int, int>();
-				percentsLastUsed = new Dictionary<int, int>(); // for remamber intevals
+				percentsLastUsed = new Dictionary<int, int>();
 				keys = new SortedSet<int>();
 				var splitedKeys = _keys.Split();
 
-				foreach (var key in splitedKeys)
+				foreach (var key in splitedKeys) // filling keys
 				{
 					keys.Add(Int32.Parse(key));
 				}
@@ -40,14 +40,12 @@ namespace WebVisualGame.Pages
 				var result = new Queue<int>();
 				for (int i = 0; i < booleanExps.Length; ++i)
 				{
-					if (IsCorrectWay(booleanExps[i]))
+					if (booleanExps[i].Length == 0 || IsCorrectWay(booleanExps[i]))
 					{
 						result.Enqueue(i);
 					}
 				}
-				percents = null;
-				percentsLastUsed = null;
-				keys = null;
+
 				return result.ToArray();
 			}
 
@@ -55,7 +53,7 @@ namespace WebVisualGame.Pages
 			{
 				var random = new Random(DateTime.Now.Millisecond);
 				var stack = new Stack<bool>();
-				var expression = booleanExp.Split();
+				var expression = booleanExp.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
 				foreach (var item in expression)
 				{
@@ -80,9 +78,9 @@ namespace WebVisualGame.Pages
 						stack.Push(b1 == b2);
 						continue;
 					}
-					if (item[0] == '~')
+					if (item[0] == '-')
 					{
-						stack.Push(false == stack.Pop());
+						stack.Push(!stack.Pop());
 						continue;
 					}
 					if (item[0] == '^')
@@ -92,7 +90,7 @@ namespace WebVisualGame.Pages
 						stack.Push(b1 ^ b2);
 						continue;
 					}
-					if (item[item.Length - 1] == '%')
+					if (item.Last() == '%')
 					{
 
 						var temp = item.Substring(0, item.Length - 1);
