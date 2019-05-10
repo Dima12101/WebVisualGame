@@ -25,8 +25,5 @@ namespace WebVisualGame_MVC.Data.GameComponents
 		[MaxLength(100)]
 		[Required]
 		public string Background_imageURL { get; set; }
-
-		[Required]
-		public IList<PointDialogAction> PointDialogActions { get; set; }
 	}
 }

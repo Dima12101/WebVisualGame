@@ -31,9 +31,11 @@ namespace WebVisualGame_MVC.Data
 		[Required]
 		public string PathCode { get; set; }
 
+		//ДЛя процесса игры
 		public IList<GameComponents.PointDialog> PointDialogues { get; set; }
 
 		public IList<GameComponents.Transition> Transitions { get; set; }
+
 
 		public IList<GameComponents.SavedGame> SavedGames { get; set; }
 

@@ -41,6 +41,7 @@ namespace WebVisualGame_MVC.Data
 
 		public IList<Game> Games { get; set; }
 
+
 		public IList<GameComponents.SavedGame> SavedGames { get; set; }
 
 		public IList<GameComponents.Review> Reviews { get; set; }

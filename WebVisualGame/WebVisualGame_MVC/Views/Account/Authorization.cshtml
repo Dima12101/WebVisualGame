@@ -26,18 +26,18 @@
 <div class="limiter">
     <div class="container-login100">
         <div class="wrap-login100">
-            <div class="text-danger">@ViewBag.Error</div>
             <form class="login100-form p-l-55 p-r-55 p-t-178 validate-form" asp-antiforgery="true" asp-action="Authorization" asp-controller="Account" method="post">
                 <span class="login100-form-title">
                     Добро пожаловать!
                 </span>
-                <div  asp-validation-summary="ModelOnly" />
+                <div class="text-danger">@ViewBag.Error</div>
+                <div asp-validation-summary="ModelOnly" />
                 <div class="wrap-input100 m-b-16 validate-input" data-validate="Введите ваш Логин">
-                    <input class="input100" type="text" asp-for="Login" placeholder="Username"/>
+                    <input class="input100" type="text" asp-for="Login" placeholder="Username" />
                     @*<span class="focus-input100"></span>*@
                 </div>
-                <div class="wrap-input100 m-b-16 validate-input" data-validate = "Введите ваш Пароль">
-                    <input class="input100" type="password" asp-for="Password" placeholder="Password"/>
+                <div class="wrap-input100 m-b-16 validate-input" data-validate="Введите ваш Пароль">
+                    <input class="input100" type="password" asp-for="Password" placeholder="Password" />
                     @*<span class="focus-input100"></span>*@
                 </div>
 

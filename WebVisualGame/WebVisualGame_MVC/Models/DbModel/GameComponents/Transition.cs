@@ -14,6 +14,9 @@ namespace WebVisualGame_MVC.Data.GameComponents
 		public int GameId { get; set; }
 
 		[Required]
+		public string Condition { get; set; }
+
+		[Required]
 		public int StartPoint { get; set; }
 
 		[Required]
@@ -22,9 +25,6 @@ namespace WebVisualGame_MVC.Data.GameComponents
 		[MaxLength(400)]
 		[Required]
 		public string Text { get; set; }
-
-		[Required]
-		public IList<Condition> Conditions { get; set; }
 
 		[Required]
 		public IList<TransitionAction> TransitionActions { get; set; }

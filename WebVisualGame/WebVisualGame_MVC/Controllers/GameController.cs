@@ -234,6 +234,17 @@ namespace WebVisualGame_MVC.Controllers
 		}
 		#endregion
 
+		#region Play game
+		public IActionResult Play()
+		{
+			logger.LogInformation("Visit /Game/Play page");
+			var model = new PlayModel();
+			//..
+
+			return View(model);
+		}
+		#endregion
+
 		[HttpPost]
 		public IActionResult Delete(string gameIdEncode)
 		{

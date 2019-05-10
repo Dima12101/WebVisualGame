@@ -7,19 +7,18 @@ namespace WebVisualGame_MVC.Data
 	{
 		public DbSet<User> Users { get; set; }
 
+
 		public DbSet<Game> Games { get; set; }
 
 		public DbSet<GameComponents.SavedGame> SavedGames { get; set; }
 
-		public DbSet<GameComponents.PointDialog> PointDialogs { get; set; }
 
-		public DbSet<GameComponents.PointDialogAction> PointDialogActions { get; set; }
+		public DbSet<GameComponents.PointDialog> PointDialogs { get; set; }
 
 		public DbSet<GameComponents.Transition> Transitions { get; set; }
 
 		public DbSet<GameComponents.TransitionAction> TransitionActions { get; set; }
 
-		public DbSet<GameComponents.Condition> Conditions { get; set; }
 
 		public DbSet<GameComponents.Review> Reviews { get; set; }
 
