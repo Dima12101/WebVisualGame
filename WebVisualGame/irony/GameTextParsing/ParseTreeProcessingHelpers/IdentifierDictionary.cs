@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GameTextParsing.ParseTreeProcessingHelpers
 {
-    class IdMaker<T>
+    public class IdMaker<T>
     {
         private Dictionary<T, int> Dict { get; set; }
 

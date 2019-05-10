@@ -35,8 +35,8 @@
 
     @*<img style="width:100px; height:100px;" src="@Model.Game.UrlIcon" alt="GameIcon" />*@
 
-    <form method="POST">
-        <button class="btn btn-default" type="submit" asp-page-handler="StartGame">Играть</button>
+    <form asp-controller="Game" asp-action="Play" method="get">
+        <button class="btn btn-default" type="submit" name="gameIdEncode" value="@WebVisualGame_MVC.Utilities.ProtectData.GetInstance().Encode(Model.Game.Id)" >Играть</button>
     </form>
 </fieldset>
 @if (Context.User.Identity.IsAuthenticated)

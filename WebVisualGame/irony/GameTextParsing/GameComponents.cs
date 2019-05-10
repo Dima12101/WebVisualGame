@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace GameTextParsing
 {
-    enum ActionType { Find, Lose }
-    class GameAction
+    public enum ActionType { Find, Lose }
+    public class GameAction
     {
         public ActionType Action { get; set; }
         public int Key { get; set; }
     }
 
-    class DialogLink
+    public class DialogLink
     {
         public string Text { get; set; }
         public List<GameAction> Actions { get; set; }
@@ -26,7 +26,7 @@ namespace GameTextParsing
         }
     }
 
-    class DialogPoint
+    public class DialogPoint
     {
         public string Text { get; set; }
         public int ID { get; set; }
@@ -35,9 +35,9 @@ namespace GameTextParsing
         public List<DialogLink> Links { get; set; }
     }
 
-    enum SwitchType { Determinate, Probabilistic }
+    public enum SwitchType { Determinate, Probabilistic }
 
-    class SwitchLink
+    public class SwitchLink
     {
         public string Condition { get; set; }
         //public GameAction[] Actions { get; set; }
@@ -46,7 +46,7 @@ namespace GameTextParsing
         public int Number { get; set; }
     }
 
-    class SwitchPoint
+    public class SwitchPoint
     {
         public int ID { get; set; }
         public string Identifier { get; set; }

@@ -32,4 +32,8 @@
     <Folder Include="wwwroot\images\user\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\irony\GameTextParsing\GameTextParsing.csproj" />
+  </ItemGroup>
+
 </Project>

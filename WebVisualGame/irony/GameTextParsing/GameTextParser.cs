@@ -7,7 +7,7 @@ using System.Collections;
 
 namespace GameTextParsing
 {
-    class MessageBuffer : IEnumerable<string>
+    public class MessageBuffer : IEnumerable<string>
     {
         private List<string> Messages { get; set; }
 
@@ -37,7 +37,7 @@ namespace GameTextParsing
         }
     }
 
-    class GameParseMetadata
+    public class GameParseMetadata
     {
         public GameParseMetadata()
         {
@@ -58,7 +58,7 @@ namespace GameTextParsing
         public Dictionary<int, SwitchPoint> SwitchPoints { get; set; }
     }
 
-    class ParsedGameAnalyzer
+    public class ParsedGameAnalyzer
     {
         public bool Analyze(GameParseMetadata meta, MessageBuffer messages)
         {
@@ -126,7 +126,7 @@ namespace GameTextParsing
         }
     }
 
-    class GameTextParser
+    public class GameTextParser
     {
         #region fields
         private Parser MyParser { get; set; }
@@ -190,7 +190,7 @@ namespace GameTextParsing
             }
         }
 
-        public void ProcessParseTree()
+        public GameParseMetadata ProcessParseTree()
         {
             if (MyParseTree == null)
             {
@@ -223,7 +223,7 @@ namespace GameTextParsing
 
             if (!analyzeResult)
             {
-                return;
+                return null;
             }
 
             // coninue processing:
@@ -233,6 +233,8 @@ namespace GameTextParsing
             ReduceSwitches();
 
             ReduceDialogPointActions();
+
+			return Meta;
         }
 
         #region processing parse tree helper functions
@@ -404,25 +406,25 @@ namespace GameTextParsing
 
                     var elseIfList = answer.GetChild(NTrm.ElseIfList)?.ChildNodes?.ToArray();
 
-                    string goNextCond = ifExpr;
+                    string goNextCond = ifExpr + "- ";
 
                     if (elseIfList != null)
                     {
                         for (int i = 0; i < elseIfList.Length; ++i)
                         {
-                            var currIfCond = ProcessCondition(elseIfList[i].GetChild(NTrm.Condition));
+                            string currIfCond = ProcessCondition(elseIfList[i].GetChild(NTrm.Condition));
 
                             var currAnswerUnion = ParseTransitionUnion(elseIfList[i].GetChild(NTrm.AnswerUnion));
 
-                            string amp = (goNextCond.Equals("")) ? "" : "&";
+                            //string amp = (goNextCond.Equals("")) ? "" : "&";
 
-                            var totalCond = $"{goNextCond}{currIfCond}{amp} ";
+                            var totalCond = $"{goNextCond}{currIfCond}& ";
 
                             SetExprToLinks(currAnswerUnion, totalCond);
 
                             linkList.AddRange(currAnswerUnion);
 
-                            goNextCond = $"{goNextCond}{currIfCond}- {amp} ";
+                            goNextCond = $"{goNextCond}{currIfCond}- & ";
                         }
                     }
 
@@ -432,7 +434,7 @@ namespace GameTextParsing
                     {
                         var elseAnswerUnion = ParseTransitionUnion(elseBlock.GetChild(NTrm.AnswerUnion));
 
-                        var elseConditon = goNextCond + "-";
+                        var elseConditon = goNextCond;
 
                         SetExprToLinks(elseAnswerUnion, elseConditon);
 
@@ -687,7 +689,7 @@ namespace GameTextParsing
                         string amp = (link.Condition.Equals("")) ? "" : "&";
                         string condition = (sp.SType == SwitchType.Determinate) ?
                             $"{link.Condition}{switchLink.Condition}{amp} " :
-                            $"{link.Condition}{sp.ID}_{switchLink.Condition}{amp} ";
+                            $"{link.Condition}{link.Number}_{switchLink.Condition}{amp} ";
                         DialogLink newDialogLink = new DialogLink
                         {
                             Actions = link.Actions,

@@ -173,7 +173,7 @@ namespace GameTextParsing.GLan
 
             IfBlock.Rule = If + BoolExpr + Colon + AnswerUnion;
 
-            ElseBlock.Rule = Else + AnswerUnion;
+            ElseBlock.Rule = Else + Colon + AnswerUnion;
 
             ElseIfList.Rule = MakePlusRule(ElseIfList, ElseIfBlock);
 
