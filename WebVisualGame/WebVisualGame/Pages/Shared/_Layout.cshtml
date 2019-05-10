@@ -42,6 +42,7 @@
     <!--<partial name="_CookieConsentPartial" />-->
 
     <div class="container body-content">
+        <!--Здесь будут размещаться страницы-->
         @RenderBody()
         <hr />
         <footer>
@@ -49,11 +50,14 @@
         </footer>
     </div>
 
+    <!--Следующие скрипты будут загружены, если установлена среда "Development"-->
     <environment include="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
     </environment>
+
+    <!--Следующие скрипты будут загружены, если не установлена среда "Development"-->
     <environment exclude="Development">
         <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
                 asp-fallback-src="~/lib/jquery/dist/jquery.min.js"

@@ -26,19 +26,15 @@ namespace GameInterpreror
     {
         DialogPoint ReadGame(string charStream);
 
-        IEnumerator<object> GetWarnings();
+        IEnumerable<string> GetWarnings();
     }
 
     class GameMachineReader : IGameMachineReader
     {
-		public DialogPoint ReadGame(string charStream)
-		{
-			return null;
-		}
 
-		public IEnumerator<object> GetWarnings()
+		public IEnumerable<string> GetWarnings()
 		{
-			return null;
+			return warnings;
 		}
 
 		public GameMachineReader()
@@ -630,7 +626,7 @@ namespace GameInterpreror
             return root;
         }
 
-        public DialogPoint ReadGameFromText(string gameText)
+        public DialogPoint ReadGame(string gameText)
         {
             return ReadGame(gameText.GetEnumerator());
         }
