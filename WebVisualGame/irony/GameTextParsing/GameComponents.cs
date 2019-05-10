@@ -13,7 +13,7 @@ namespace GameTextParsing
     class DialogLink
     {
         public string Text { get; set; }
-        public GameAction[] Actions { get; set; }
+        public List<GameAction> Actions { get; set; }
         public int NextID { get; set; }
         public string NextIdentifier { get; set; }
         public string Condition { get; set; }
@@ -21,7 +21,7 @@ namespace GameTextParsing
 
         public DialogLink()
         {
-            Actions = new GameAction[0];
+            Actions = new List<GameAction>();
             Condition = "";
         }
     }
@@ -31,7 +31,7 @@ namespace GameTextParsing
         public string Text { get; set; }
         public int ID { get; set; }
         public string Identifier { get; set; }
-        public GameAction[] Actions { get; set; }
+        public List<GameAction> Actions { get; set; }
         public List<DialogLink> Links { get; set; }
     }
 

@@ -231,11 +231,13 @@ namespace GameTextParsing
             // reduce actions on dialog points
 
             ReduceSwitches();
+
+            ReduceDialogPointActions();
         }
 
         #region processing parse tree helper functions
 
-        private GameAction[] ProcessActionBlock(ParseTreeNode actBlockNode)
+        private List<GameAction> ProcessActionBlock(ParseTreeNode actBlockNode)
         {
             if (actBlockNode == null)
             {
@@ -267,7 +269,7 @@ namespace GameTextParsing
                 }
             }
 
-            return actions.ToArray();
+            return actions;
         }
 
         private string ProcessCondition(ParseTreeNode condNode)
@@ -642,7 +644,7 @@ namespace GameTextParsing
                 links.Add(new SwitchLink
                 {
                     //Actions = ProcessActionBlock(otherCase.GetChild(NTrm.ActionBlock)),
-                    Condition = goNextCondition,
+                    Condition = (type == SwitchType.Determinate) ? goNextCondition : $"{otherProbability}% ",
                     NextID = Meta.DialogPointIdDict.GetId(nextIdentifier),
                     NextIdentifier = nextIdentifier,
                     Number = links.Count + 1
@@ -664,7 +666,7 @@ namespace GameTextParsing
 
         void ReduceSwitches()
         {
-            foreach(var pair_id_dp in Meta.DialogPoints)
+            foreach (var pair_id_dp in Meta.DialogPoints)
             {
                 var dp = pair_id_dp.Value;
 
@@ -680,13 +682,16 @@ namespace GameTextParsing
                     };
 
                     int number = 1;
-                    foreach(var switchLink in sp.Links)
+                    foreach (var switchLink in sp.Links)
                     {
                         string amp = (link.Condition.Equals("")) ? "" : "&";
+                        string condition = (sp.SType == SwitchType.Determinate) ?
+                            $"{link.Condition}{switchLink.Condition}{amp} " :
+                            $"{link.Condition}{sp.ID}_{switchLink.Condition}{amp} ";
                         DialogLink newDialogLink = new DialogLink
                         {
                             Actions = link.Actions,
-                            Condition = $"{link.Condition}{switchLink.Condition}{amp} ",
+                            Condition = condition,
                             NextID = switchLink.NextID,
                             Number = number++,
                             NextIdentifier = switchLink.NextIdentifier,
@@ -697,6 +702,36 @@ namespace GameTextParsing
                 }
 
                 dp.Links = newLinks;
+            }
+        }
+
+        void ReduceDialogPointActions()
+        {
+            foreach (var pair_id_dp in Meta.DialogPoints)
+            {
+                var dp = pair_id_dp.Value;
+                
+                foreach (var link in dp.Links)
+                {
+                    var contains = Meta.DialogPoints.TryGetValue(link.NextID, out DialogPoint nextDp);
+                    if (!contains) throw new BusinessLogicError();
+
+                    if (nextDp.Actions == null) continue;
+
+                    List<GameAction> newActionList = new List<GameAction>();
+
+                    if (link.Actions != null)
+                    {
+                        newActionList.AddRange(link.Actions);
+                    }
+
+                    foreach (var dpAction in nextDp.Actions)
+                    {
+                        newActionList.Add(dpAction);
+                    }
+
+                    link.Actions = newActionList;
+                }
             }
         }
 
