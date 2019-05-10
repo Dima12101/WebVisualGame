@@ -19,6 +19,113 @@ namespace WebVisualGame.Pages
 		private int gameId;
 		private SortedSet<int> keys;
 
+		public static class WayControler
+		{
+			private static Dictionary<int, int> percents;
+			private static Dictionary<int, int> percentsLastUsed; // for remamber intevals
+			private static SortedSet<int> keys;
+
+			public static int[] WayControl(string _keys, string[] booleanExps)
+			{
+				percents = new Dictionary<int, int>();
+				percentsLastUsed = new Dictionary<int, int>(); // for remamber intevals
+				keys = new SortedSet<int>();
+				var splitedKeys = _keys.Split();
+
+				foreach (var key in splitedKeys)
+				{
+					keys.Add(Int32.Parse(key));
+				}
+
+				var result = new Queue<int>();
+				for (int i = 0; i < booleanExps.Length; ++i)
+				{
+					if (IsCorrectWay(booleanExps[i]))
+					{
+						result.Enqueue(i);
+					}
+				}
+				percents = null;
+				percentsLastUsed = null;
+				keys = null;
+				return result.ToArray();
+			}
+
+			private static bool IsCorrectWay(string booleanExp)
+			{
+				var random = new Random(DateTime.Now.Millisecond);
+				var stack = new Stack<bool>();
+				var expression = booleanExp.Split();
+
+				foreach (var item in expression)
+				{
+					if (item[0] == '&')
+					{
+						var b2 = stack.Pop();
+						var b1 = stack.Pop();
+						stack.Push(b1 & b2);
+						continue;
+					}
+					if (item[0] == '|')
+					{
+						var b2 = stack.Pop();
+						var b1 = stack.Pop();
+						stack.Push(b1 | b2);
+						continue;
+					}
+					if (item[0] == '=')
+					{
+						var b2 = stack.Pop();
+						var b1 = stack.Pop();
+						stack.Push(b1 == b2);
+						continue;
+					}
+					if (item[0] == '~')
+					{
+						stack.Push(false == stack.Pop());
+						continue;
+					}
+					if (item[0] == '^')
+					{
+						var b2 = stack.Pop();
+						var b1 = stack.Pop();
+						stack.Push(b1 ^ b2);
+						continue;
+					}
+					if (item[item.Length - 1] == '%')
+					{
+
+						var temp = item.Substring(0, item.Length - 1);
+						var numbers = temp.Split('_');
+						int index = Int32.Parse(numbers[0]);
+						int startInterval = 0;
+						int endInterval = Int32.Parse(numbers[1]) + startInterval;
+						int x;
+						if (!percents.ContainsKey(index))
+						{
+							x = random.Next(1, 100);
+							percents.Add(index, x);
+							percentsLastUsed.Add(index, endInterval);
+						}
+						else
+						{
+							x = percents[index];
+							startInterval = percentsLastUsed[index];
+							endInterval += startInterval;
+							percentsLastUsed.Remove(index);
+							percentsLastUsed.Add(index, endInterval);
+						}
+						stack.Push(x > startInterval && x <= endInterval);
+						continue;
+					}
+
+					int key = Int32.Parse(item);
+					stack.Push(keys.Contains(key));
+				}
+				return stack.Pop();
+			}
+		}
+
 		[BindProperty]
 		public PointDialog Point { get; set; }
 		[BindProperty]
