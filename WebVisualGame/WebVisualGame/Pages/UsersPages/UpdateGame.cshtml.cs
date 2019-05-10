@@ -28,13 +28,16 @@ namespace WebVisualGame.Pages
 
 
 		[BindProperty]
-		public IFormFile SourceCode { get; set; }
+		public IFormFile SourceCodeForm { get; set; }
 
 		[BindProperty]
 		public string SourceCodeContent { get; set; }
 
 		[BindProperty]
-		public string UrlIcon { get; set; }
+		public string UrlIconContent { get; set; }
+
+		[BindProperty]
+		public IFormFile UrlIconForm { get; set; }
 
 		[BindProperty]
 		public string Error { get; set; }
@@ -51,42 +54,73 @@ namespace WebVisualGame.Pages
 			Response.Cookies.Delete("Content");
 			Response.Cookies.Delete("Error");
 
-			ActionForGame = "Создать";
+			ActionForGame = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ";
 			if (Request.Cookies.ContainsKey("GameId"))
 			{
 				int gameId = Int32.Parse(Request.Cookies["GameId"]);
 				Game = db.Games.Find(gameId);
 				Title = Game.Title;
 				Description = Game.Description;
-				UrlIcon = Game.PathIcon;
-				ActionForGame = "Обновить";
+				UrlIcon = Game.UrlIcon;
+				ActionForGame = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ";
 			}
 		}
 
 		[HttpPost]
 		public async Task<IActionResult> OnPostSubmit()
 		{
+			UrlIconContent = "HereShouldBeIcon";
+
 			// Perform an initial check to catch FileUpload class
 			// attribute violations.
+
 			if (!ModelState.IsValid)
 			{
-				Response.Cookies.Append("Error", "Ошибка на клиенте");
-				return Page();
+				Response.Cookies.Append("Error", "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
+				return RedirectToPage("/UsersPages/UpdateGame");
 			}
 
 			SourceCodeContent =
-				await FileHelpers.ProcessFormFile(SourceCode, ModelState);
+				await FileHelpers.ProcessFormFile(SourceCodeForm, ModelState);
 
 			// Perform a second check to catch ProcessFormFile method
 			// violations.
+			
 			if (!ModelState.IsValid)
 			{
-				Response.Cookies.Append("Error", "Ошибка чтения файла");
-				return Page();
+				if (ModelState.Keys.Contains(SourceCodeForm.Name))
+				{
+					string errors = "";
+					foreach (var err in ModelState[SourceCodeForm.Name].Errors)
+					{
+						errors += err.ErrorMessage + "\n";
+					}
+					Response.Cookies.Append("Error", errors);
+				}
+				else
+				{
+					Response.Cookies.Append("Error", "Reading file error!");
+				}
+				return RedirectToPage("/UsersPages/UpdateGame");
 			}
-			InputGame();
+
+			try
+			{
+				InputGame();
+			}
+			catch (Exception e)
+			{
+				Response.Cookies.Append("Error", e.Message + "\n" +
+					((e.InnerException != null) ? e.InnerException.Message : ""));
+
+				return RedirectToPage("/UsersPages/UpdateGame");
+			}
+
 			Response.Cookies.Delete("GameId");
-			return RedirectToPage("/UsersPages/UserProfil");
+
+			//return RedirectToPage("/UsersPages/UserProfil");
+			return RedirectToPage("/Index");
+
 		}
 
 		private void InputGame()
@@ -96,13 +130,14 @@ namespace WebVisualGame.Pages
 			if (Request.Cookies.ContainsKey("GameId"))
 			{
 				int gameId = Int32.Parse(Request.Cookies["GameId"]);
-				gameDbWriter.UpdateGame(gameId, Title, SourceCodeContent, Description, UrlIcon);
+				gameDbWriter.UpdateGame(gameId, Title, SourceCodeContent, Description, UrlIconContent);
 			}
 			else
 			{
-				gameDbWriter.SaveNewGame(Title, SourceCodeContent, Description, UrlIcon,
+				gameDbWriter.SaveNewGame(Title, SourceCodeContent, Description, UrlIconContent,
 					Int32.Parse(Request.Cookies["UserId"]));
 			}
+
 		}
 
 		public IActionResult OnPostCancel()
@@ -112,3 +147,4 @@ namespace WebVisualGame.Pages
 		}
 	}
 }
+				UrlIcon = Game.PathIcon;

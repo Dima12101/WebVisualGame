@@ -38,7 +38,12 @@
 		</thead>
 		<tbody>
 			@foreach (var game in Model.games)
-			{
+            {
+                // FIX IT
+                if (game == null)
+                {
+                    continue;
+                }
 				<tr>
 					<td>@game.Title</td>
 					<td><img style="width:50px; height:50px;" src=".@game.PathIcon" alt="GameIcon" /></td>

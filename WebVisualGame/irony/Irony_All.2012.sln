@@ -1,0 +1,72 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.421
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{05F0AC0D-AD43-45B4-8A98-00C54CF5280D}"
+	ProjectSection(SolutionItems) = preProject
+		Irony_All.2010.vsmdi = Irony_All.2010.vsmdi
+		License.txt = License.txt
+		ReadMe.txt = ReadMe.txt
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "010.Irony.2012", "Irony\010.Irony.2012.csproj", "{D81F5C91-D7DB-46E5-BC99-49488FB6814C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "015.Irony.Interpreter.2012", "Irony.Interpreter\015.Irony.Interpreter.2012.csproj", "{321A7F5D-00C2-4095-9970-075CDEE8C139}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameTextParsing", "GameTextParsing\GameTextParsing.csproj", "{25033D18-5295-4894-874A-B871995C1217}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		FxCop|Any CPU = FxCop|Any CPU
+		Release|Any CPU = Release|Any CPU
+		Silverlight Debug|Any CPU = Silverlight Debug|Any CPU
+		Silverlight Release|Any CPU = Silverlight Release|Any CPU
+		SpecSharp|Any CPU = SpecSharp|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D81F5C91-D7DB-46E5-BC99-49488FB6814C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D81F5C91-D7DB-46E5-BC99-49488FB6814C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D81F5C91-D7DB-46E5-BC99-49488FB6814C}.FxCop|Any CPU.ActiveCfg = Release|Any CPU
+		{D81F5C91-D7DB-46E5-BC99-49488FB6814C}.FxCop|Any CPU.Build.0 = Release|Any CPU
+		{D81F5C91-D7DB-46E5-BC99-49488FB6814C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D81F5C91-D7DB-46E5-BC99-49488FB6814C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D81F5C91-D7DB-46E5-BC99-49488FB6814C}.Silverlight Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D81F5C91-D7DB-46E5-BC99-49488FB6814C}.Silverlight Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D81F5C91-D7DB-46E5-BC99-49488FB6814C}.Silverlight Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D81F5C91-D7DB-46E5-BC99-49488FB6814C}.Silverlight Release|Any CPU.Build.0 = Release|Any CPU
+		{D81F5C91-D7DB-46E5-BC99-49488FB6814C}.SpecSharp|Any CPU.ActiveCfg = Release|Any CPU
+		{D81F5C91-D7DB-46E5-BC99-49488FB6814C}.SpecSharp|Any CPU.Build.0 = Release|Any CPU
+		{321A7F5D-00C2-4095-9970-075CDEE8C139}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{321A7F5D-00C2-4095-9970-075CDEE8C139}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{321A7F5D-00C2-4095-9970-075CDEE8C139}.FxCop|Any CPU.ActiveCfg = Release|Any CPU
+		{321A7F5D-00C2-4095-9970-075CDEE8C139}.FxCop|Any CPU.Build.0 = Release|Any CPU
+		{321A7F5D-00C2-4095-9970-075CDEE8C139}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{321A7F5D-00C2-4095-9970-075CDEE8C139}.Release|Any CPU.Build.0 = Release|Any CPU
+		{321A7F5D-00C2-4095-9970-075CDEE8C139}.Silverlight Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{321A7F5D-00C2-4095-9970-075CDEE8C139}.Silverlight Debug|Any CPU.Build.0 = Debug|Any CPU
+		{321A7F5D-00C2-4095-9970-075CDEE8C139}.Silverlight Release|Any CPU.ActiveCfg = Release|Any CPU
+		{321A7F5D-00C2-4095-9970-075CDEE8C139}.Silverlight Release|Any CPU.Build.0 = Release|Any CPU
+		{321A7F5D-00C2-4095-9970-075CDEE8C139}.SpecSharp|Any CPU.ActiveCfg = Release|Any CPU
+		{321A7F5D-00C2-4095-9970-075CDEE8C139}.SpecSharp|Any CPU.Build.0 = Release|Any CPU
+		{25033D18-5295-4894-874A-B871995C1217}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25033D18-5295-4894-874A-B871995C1217}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25033D18-5295-4894-874A-B871995C1217}.FxCop|Any CPU.ActiveCfg = Debug|Any CPU
+		{25033D18-5295-4894-874A-B871995C1217}.FxCop|Any CPU.Build.0 = Debug|Any CPU
+		{25033D18-5295-4894-874A-B871995C1217}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25033D18-5295-4894-874A-B871995C1217}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25033D18-5295-4894-874A-B871995C1217}.Silverlight Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25033D18-5295-4894-874A-B871995C1217}.Silverlight Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25033D18-5295-4894-874A-B871995C1217}.Silverlight Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25033D18-5295-4894-874A-B871995C1217}.Silverlight Release|Any CPU.Build.0 = Release|Any CPU
+		{25033D18-5295-4894-874A-B871995C1217}.SpecSharp|Any CPU.ActiveCfg = Debug|Any CPU
+		{25033D18-5295-4894-874A-B871995C1217}.SpecSharp|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3D1A1CD6-D8C0-4157-8B7C-9A782F373F5B}
+	EndGlobalSection
+EndGlobal

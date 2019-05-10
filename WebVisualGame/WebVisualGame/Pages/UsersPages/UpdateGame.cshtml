@@ -20,12 +20,12 @@
 				<input asp-for="@Model.Description" />
 			</div>
 			<div class="form-group">
-				<label asp-for="@Model.SourceCode">Код игры</label>
-				<input type="file" asp-for="@Model.SourceCode" />
+				<label asp-for="@Model.SourceCodeForm">Код игры</label>
+				<input type="file" asp-for="@Model.SourceCodeForm" />
 			</div>
 			<div class="form-group">
-				<label asp-for="@Model.UrlIcon">Код игры</label>
-				<input type="file" asp-for="@Model.UrlIcon" />
+				<label asp-for="@Model.UrlIconForm">Иконка</label>
+				<input type="file" asp-for="@Model.UrlIconForm" />
 			</div>
 			<div class="text-center">
 				<button class="btn bg-primary" type="submit" asp-page-handler="Submit">@Model.ActionForGame игру</button>
