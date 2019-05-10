@@ -34,7 +34,7 @@ namespace WebVisualGame_MVC.Controllers
 			switch(typeSelect)
 			{
 				case IndexModel.TypeSelect.Last:
-					return dataContext.Games.Take(6).Select(i => new IndexModel.GameInfo
+					return Enumerable.Reverse(dataContext.Games).Take(6).Select(i => new IndexModel.GameInfo
 					{
 						Id = i.Id,
 						Title = i.Title,

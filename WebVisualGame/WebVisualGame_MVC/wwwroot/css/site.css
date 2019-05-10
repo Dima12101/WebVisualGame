@@ -95,6 +95,21 @@ a {
 .SwitchButtons tr td form button:hover{
     color: #70c7be !important;
 }
+
+
+.scroll {
+    overflow: auto;
+    max-height: 250px;
+}
+
+
+/*.scroll-table th, .scroll-table td {
+    width: 100%
+}*/
+
+
+
+
 /*Стили для форм*/
 .field-labels {
     width: 15%

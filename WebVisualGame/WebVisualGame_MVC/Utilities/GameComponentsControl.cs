@@ -6,17 +6,18 @@ using System.Linq;
 using WebVisualGame_MVC.Data;
 using WebVisualGame_MVC.Data.GameComponents;
 using GameTextParsing;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebVisualGame_MVC.Utilities
 {
 
-	public class GameComponentsWorker
+	public class GameComponentsControl
 	{
 		private readonly DataContext dataContext;
 
 		private readonly GameTextParser parser;
 
-		public GameComponentsWorker(DataContext _dataContext)
+		public GameComponentsControl(DataContext _dataContext)
 		{
 			parser = new GameTextParser();
 			dataContext = _dataContext;
@@ -26,7 +27,6 @@ namespace WebVisualGame_MVC.Utilities
 
 		public void Save(string sourceCode, Game gameNote)
 		{
-			//var resultParse
 			if(parser.ParseGameText(sourceCode))
 			{
 				gameNote.PointDialogues = new List<PointDialog>();
@@ -85,33 +85,16 @@ namespace WebVisualGame_MVC.Utilities
 
 		public void Update(string sourceCode, Game gameNote)
 		{
-			//dataBase.Transitions.RemoveRange(dataBase.Transitions.Where(c => c.GameId == gameNote.Id));
-
-			//dataBase.PointDialogs.RemoveRange(dataBase.PointDialogs.Where(c => c.GameId == gameNote.Id));
-
-			//SaveGameComponents(sourceCode, gameNote);
-
-			//try
-			//{
-			//	dataBase.Update(gameNote);
-
-			//	dataBase.SaveChanges();
-			//}
-			//catch (Exception e)
-			//{
-			//	//...
-			//}
+			Delete(gameNote.Id);
+			Save(sourceCode, gameNote);
+			dataContext.Attach(gameNote).State = EntityState.Modified;
 		}
 
-		public void Delete(Game gameNote)
+		public void Delete(int gameId)
 		{
-		//	dataBase.Transitions.RemoveRange(dataBase.Transitions.Where(c => c.GameId == gameNote.Id));
+			dataContext.Transitions.RemoveRange(dataContext.Transitions.Where(c => c.GameId == gameId));
 
-		//	dataBase.PointDialogs.RemoveRange(dataBase.PointDialogs.Where(c => c.GameId == gameNote.Id));
-
-		//	//dataBase.Games.RemoveRange(dataBase.Games.FirstOrDefault(c => c.Id == gameId));
-
-		//	dataBase.SaveChanges();
+			dataContext.PointDialogs.RemoveRange(dataContext.PointDialogs.Where(c => c.GameId == gameId));
 		}
 	}
 }

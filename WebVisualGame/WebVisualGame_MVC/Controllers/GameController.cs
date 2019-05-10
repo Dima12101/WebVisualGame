@@ -186,7 +186,7 @@ namespace WebVisualGame_MVC.Controllers
 					}
 					else
 					{
-						game.PathIcon = "../images/game/default_icon.ico";
+						game.PathIcon = "../images/game/NotImage.jpg";
 					}
 
 					// путь к папке /files/gameCode/
@@ -203,21 +203,23 @@ namespace WebVisualGame_MVC.Controllers
 						code = await reader.ReadToEndAsync();
 					}
 
+					game.PathCode = ".." + pathCode;
+
 					// парсинг кода и сохранения в БД
-					var gameComponentsWorker = new GameComponentsWorker(dataContext);
-					gameComponentsWorker.Save(code, game);
-					if (gameComponentsWorker.Messages.Count() != 0)
+					var gameComponentsControl = new GameComponentsControl(dataContext);
+					gameComponentsControl.Save(code, game);
+
+					if (gameComponentsControl.Messages.Count() != 0)
 					{
-						foreach (var message in gameComponentsWorker.Messages)
+						foreach (var message in gameComponentsControl.Messages)
 						{
+							model.Messages.Add(model.Messages.Count.ToString() + ": " + message);
 							logger.LogInformation("ParseCodeGameMessage: " + message);
 						}
-						return View("Create");
+						return View("Create", model);
 					}
 					else
 					{
-						game.PathCode = ".." + pathCode;
-
 						dataContext.Games.Add(game);
 						dataContext.SaveChanges();
 						return Redirect("~/Home/Index");
@@ -250,7 +252,7 @@ namespace WebVisualGame_MVC.Controllers
 		#endregion
 
 		#region Play game
-		public static class WayControler
+		private static class WayControler
 		{
 			private static Dictionary<int, int> percents;
 			private static Dictionary<int, int> percentsLastUsed; // for remamber intevals
@@ -353,100 +355,119 @@ namespace WebVisualGame_MVC.Controllers
 		public IActionResult Play(string gameIdEncode)
 		{
 			logger.LogInformation("Visit /Game/Play page");
-			var gameIdDecoded = ProtectData.GetInstance().DecodeToString(gameIdEncode);
-			var gameId = Int32.Parse(gameIdDecoded);
-
-			if (HttpContext.User.Identity.IsAuthenticated)
+			try
 			{
-				int userID = Int32.Parse(HttpContext.User.Identity.Name);
-				var save = dataContext.SavedGames.FirstOrDefault(i => i.GameId == gameId &&
-					i.UserId == userID);
+				var gameIdDecoded = ProtectData.GetInstance().DecodeToString(gameIdEncode);
+				var gameId = Int32.Parse(gameIdDecoded);
 
-				if (save != null)
+				if (HttpContext.User.Identity.IsAuthenticated)
 				{
-					var splitedKeys = save.Keys.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-					var keys = new SortedSet<int>();
-					foreach (var key in splitedKeys) // filling keys
+					int userID = Int32.Parse(HttpContext.User.Identity.Name);
+					var save = dataContext.SavedGames.FirstOrDefault(i => i.GameId == gameId &&
+						i.UserId == userID);
+
+					if (save != null)
 					{
-						keys.Add(Int32.Parse(key));
+						var splitedKeys = save.Keys.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+						var keys = new SortedSet<int>();
+						foreach (var key in splitedKeys) // filling keys
+						{
+							keys.Add(Int32.Parse(key));
+						}
+
+						model = new PlayModel()
+						{
+							GameID = gameId,
+							Keys = save.Keys,
+							Point = dataContext.PointDialogs.FirstOrDefault(i => i.GameId == gameId &&
+								i.StateNumber == save.State),
+							Transitions = new List<Transition>()
+						};
+
+						UpdateTransition(keys);
+						return View(model);
 					}
-
-					model = new PlayModel()
+					else
 					{
-						GameID = gameId,
-						Keys = save.Keys,
-						Point = dataContext.PointDialogs.FirstOrDefault(i => i.GameId == gameId &&
-							i.StateNumber == save.State),
-						Transitions = new List<Transition>()
-					};
-
-					UpdateTransition(keys);
-					return View(model);
+						save = new SavedGame
+						{
+							UserId = userID,
+							GameId = gameId,
+							State = 1,
+							Keys = ""
+						};
+						dataContext.SavedGames.Add(save);
+						dataContext.SaveChanges();
+					}
 				}
-				else
+
+				model = new PlayModel()
 				{
-					save = new SavedGame
-					{
-						UserId = userID,
-						GameId = gameId,
-						State = 1,
-						Keys = ""
-					};
-					dataContext.SavedGames.Add(save);
-					dataContext.SaveChanges();
-				}
+					GameID = gameId,
+					Keys = "",
+					Point = dataContext.PointDialogs.FirstOrDefault(i => i.GameId == gameId &&
+						i.StateNumber == 1),
+					Transitions = new List<Transition>()
+				};
+
+				UpdateTransition(new SortedSet<int>());
+			}
+			catch (Exception ex)
+			{
+				logger.LogError(ex.Message);
+				throw ex;
 			}
 
-			model = new PlayModel()
-			{
-				GameID = gameId,
-				Keys = "",
-				Point = dataContext.PointDialogs.FirstOrDefault(i => i.GameId == gameId &&
-					i.StateNumber == 1),
-				Transitions = new List<Transition>()
-			};
-
-			UpdateTransition(new SortedSet<int>());
 			return View(model);
 		}
 
 		[HttpPost]
 		public IActionResult Answer(string keys_transitionEncode, string id_transitionEncode)
 		{
-			string _keys = ProtectData.GetInstance().DecodeToString(keys_transitionEncode);
-			var splitedKeys = _keys.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-			var keys = new SortedSet<int>();
-			foreach (var key in splitedKeys) // filling keys
+			try
 			{
-				keys.Add(Int32.Parse(key));
+				string _keys = ProtectData.GetInstance().DecodeToString(keys_transitionEncode);
+				var splitedKeys = _keys.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+				var keys = new SortedSet<int>();
+				foreach (var key in splitedKeys) // filling keys
+				{
+					keys.Add(Int32.Parse(key));
+				}
+
+				var id_transitionDecode = ProtectData.GetInstance().DecodeToString(id_transitionEncode);
+				var id_transition = Int32.Parse(id_transitionDecode);
+				var transition = dataContext.Transitions.FirstOrDefault(i => i.Id == id_transition);
+
+				string newKey = UpdateKeys(keys, transition);
+				model = new PlayModel()
+				{
+					GameID = transition.GameId,
+					Keys = newKey,
+					Point = dataContext.PointDialogs.FirstOrDefault(i => i.GameId == transition.GameId &&
+						i.StateNumber == transition.NextPoint),
+					Transitions = new List<Transition>()
+				};
+				UpdateTransition(keys);
+
+				// if autorization
+				if (HttpContext.User.Identity.IsAuthenticated)
+				{
+					int userID = Int32.Parse(HttpContext.User.Identity.Name);
+					var save = dataContext.SavedGames.FirstOrDefault(i => i.GameId == model.Point.GameId &&
+						i.UserId == userID);
+
+					save.Keys = model.Keys;
+					save.State = model.Point.StateNumber;
+					dataContext.Attach(save).State = EntityState.Modified;
+					dataContext.SaveChanges();
+				}
+			}
+			catch (Exception ex)
+			{
+				logger.LogError(ex.Message);
+				throw ex;
 			}
 
-			var id_transitionDecode = ProtectData.GetInstance().DecodeToString(id_transitionEncode);
-			var id_transition = Int32.Parse(id_transitionDecode);
-			var transition = dataContext.Transitions.FirstOrDefault(i => i.Id == id_transition);
-
-			string newKey = UpdateKeys(keys, transition);
-			model = new PlayModel()
-			{
-				GameID = transition.GameId,
-				Keys = newKey,
-				Point = dataContext.PointDialogs.FirstOrDefault(i => i.GameId == transition.GameId &&
-					i.StateNumber == transition.NextPoint),
-				Transitions = new List<Transition>()
-			};
-			UpdateTransition(keys);
-			// if autorization
-			if (HttpContext.User.Identity.IsAuthenticated)
-			{
-				int userID = Int32.Parse(HttpContext.User.Identity.Name);
-				var save = dataContext.SavedGames.FirstOrDefault(i => i.GameId == model.Point.GameId &&
-					i.UserId == userID);
-
-				save.Keys = model.Keys;
-				save.State = model.Point.StateNumber;
-				dataContext.Attach(save).State = EntityState.Modified;
-				dataContext.SaveChanges();
-			}
 			return View("Play", model);
 		}
 
@@ -502,8 +523,12 @@ namespace WebVisualGame_MVC.Controllers
 			var gameIdDecoded = ProtectData.GetInstance().DecodeToString(gameIdEncode);
 			var gameId = Int32.Parse(gameIdDecoded);
 
-			var gameDbWriter = new GameComponentsWorker(dataContext);
-			//gameDbWriter.Delete(gameId);
+			var gameComponentsControl = new GameComponentsControl(dataContext);
+			gameComponentsControl.Delete(gameId);
+
+			dataContext.Games.RemoveRange(dataContext.Games.FirstOrDefault(c => c.Id == gameId));
+
+			dataContext.SaveChanges();
 
 			return Redirect("~/Account/Profile");
 		}

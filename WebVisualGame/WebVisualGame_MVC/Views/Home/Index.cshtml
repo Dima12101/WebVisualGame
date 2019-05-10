@@ -7,95 +7,93 @@
     <link rel="stylesheet" href="~/css/templatedPack/main.css" />
 }
 
-<body id="top">
-    <section id="banner" data-video="/images/indexPage/banner">
-        <div class="inner">
-            <header>
-                <h1>TextGame Editor</h1>
-                <p>
-                    Наш сервис позволит вам быстро и легко создавать свои игры в жанре "Текстовые новеллы"
-                </p>
-            </header>
-            <a href="#main" class="more">Learn More</a>
-        </div>
-    </section>
+<section id="banner" data-video="/images/indexPage/banner">
+    <div class="inner">
+        <header>
+            <h1>TextGame Editor</h1>
+            <p>
+                Наш сервис позволит вам быстро и легко создавать свои игры в жанре "Текстовые новеллы"
+            </p>
+        </header>
+        <a href="#main" class="more">Learn More</a>
+    </div>
+</section>
 
-    <!-- Main -->
-    <div id="main">
-        <div class="inner">
-            <nav class="navbar">
-                @switch (Model.CurrentTypeSelect)
-                {
-                    case WebVisualGame_MVC.Models.PageModels.IndexModel.TypeSelect.Last:
-                        {
-                            <h3 style="float:left">Топ новых игр</h3>
-                            break;
-                        }
-                    case WebVisualGame_MVC.Models.PageModels.IndexModel.TypeSelect.Best:
-                        {
-                            <h3 style="float:left">Топ лучших игр</h3>
-                            break;
-                        }
-                }
-                <table class="SwitchButtons">
-                    <tr>
-                        <td>
-                            <form asp-controller="Home" asp-action="ChangeTypeSelect" method="post">
-                                <input hidden="hidden" name="typeSelect" value="@WebVisualGame_MVC.Models.PageModels.IndexModel.TypeSelect.Last" />
-                                <button type="submit">Новые</button>
-                            </form>
-                        </td>
-                        <td>
-                            <form asp-controller="Home" asp-action="ChangeTypeSelect" method="post">
-                                <input hidden="hidden" name="typeSelect" value="@WebVisualGame_MVC.Models.PageModels.IndexModel.TypeSelect.Best" />
-                                <button type="submit">Лучшие</button>
-                            </form>
-                        </td>
-                    </tr>
-                </table>
-            </nav>
-            <!-- Boxes -->
-            <div class="thumbnails">
-                @foreach (var game in Model.Games)
-                {
-                    <div class="box">
-                        <div class="image fit"><img style="height:200px" src="@game.PathIcon" alt="GameIcon" /></div>
-                        <div class="inner">
-                            <h3>@game.Title</h3>
-                            <p>Рейтинг: @game.Rating</p>
-                            <form asp-controller="Game" asp-action="Main" method="get">
-                                <button type="submit" class="button fit" name="gameIdEncode" value="@WebVisualGame_MVC.Utilities.ProtectData.GetInstance().Encode(game.Id)">Подробнее</button>
-                            </form>
-                        </div>
+<!-- Main -->
+<div id="main">
+    <div class="inner">
+        <nav class="navbar">
+            @switch (Model.CurrentTypeSelect)
+            {
+                case WebVisualGame_MVC.Models.PageModels.IndexModel.TypeSelect.Last:
+                    {
+                        <h3 style="float:left">Топ новых игр</h3>
+                        break;
+                    }
+                case WebVisualGame_MVC.Models.PageModels.IndexModel.TypeSelect.Best:
+                    {
+                        <h3 style="float:left">Топ лучших игр</h3>
+                        break;
+                    }
+            }
+            <table class="SwitchButtons">
+                <tr>
+                    <td>
+                        <form asp-controller="Home" asp-action="ChangeTypeSelect" method="post">
+                            <input hidden="hidden" name="typeSelect" value="@WebVisualGame_MVC.Models.PageModels.IndexModel.TypeSelect.Last" />
+                            <button type="submit">Новые</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form asp-controller="Home" asp-action="ChangeTypeSelect" method="post">
+                            <input hidden="hidden" name="typeSelect" value="@WebVisualGame_MVC.Models.PageModels.IndexModel.TypeSelect.Best" />
+                            <button type="submit">Лучшие</button>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </nav>
+        <!-- Boxes -->
+        <div class="thumbnails">
+            @foreach (var game in Model.Games)
+            {
+                <div class="box">
+                    <div class="image fit"><img style="height:200px" src="@game.PathIcon" alt="GameIcon" /></div>
+                    <div class="inner">
+                        <h3>@game.Title</h3>
+                        <p>Рейтинг: @game.Rating</p>
+                        <form asp-controller="Game" asp-action="Main" method="get">
+                            <button type="submit" class="button fit" name="gameIdEncode" value="@WebVisualGame_MVC.Utilities.ProtectData.GetInstance().Encode(game.Id)">Подробнее</button>
+                        </form>
                     </div>
-                }
-            </div>
+                </div>
+            }
         </div>
     </div>
-    @section Footer {
-        <!-- Footer -->
-        <footer id="footer">
-            <div class="inner">
-                <h2>Etiam veroeros lorem (Изменить!)</h2>
-                <p>Pellentesque eleifend malesuada efficitur. Curabitur volutpat dui mi, ac imperdiet dolor tincidunt nec. Ut erat lectus, dictum sit amet lectus a, aliquet rutrum mauris. Etiam nec lectus hendrerit, consectetur risus viverra, iaculis orci. Phasellus eu nibh ut mi luctus auctor. Donec sit amet dolor in diam feugiat venenatis. </p>
+</div>
 
-                <ul class="icons">
-                    <li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
-                    <li><a href="#" class="icon fa-facebook"><span class="label">Facebook</span></a></li>
-                    <li><a href="#" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
-                    <li><a href="#" class="icon fa-envelope"><span class="label">Email</span></a></li>
-                </ul>
-                <p class="copyright">&copy; Untitled. Design: <a href="https://templated.co">TEMPLATED</a>. Images: <a href="https://unsplash.com/">Unsplash</a>. Videos: <a href="http://coverr.co/">Coverr</a>.</p>
-            </div>
-        </footer>
-    }
-    @section Scripts {
-        <script src="~/js/templatedPack/jquery.scrolly.min.js"></script>
-        <script src="~/js/templatedPack/jquery.poptrox.min.js"></script>
-        <script src="~/js/templatedPack/skel.min.js"></script>
-        <script src="~/js/templatedPack/util.js"></script>
-        <script src="~/js/templatedPack/main.js"></script>
-    }
+@section Footer {
+    <!-- Footer -->
+    <footer id="footer">
+        <div class="inner">
+            <h2>Etiam veroeros lorem (Изменить!)</h2>
+            <p>Pellentesque eleifend malesuada efficitur. Curabitur volutpat dui mi, ac imperdiet dolor tincidunt nec. Ut erat lectus, dictum sit amet lectus a, aliquet rutrum mauris. Etiam nec lectus hendrerit, consectetur risus viverra, iaculis orci. Phasellus eu nibh ut mi luctus auctor. Donec sit amet dolor in diam feugiat venenatis. </p>
 
+            <ul class="icons">
+                <li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
+                <li><a href="#" class="icon fa-facebook"><span class="label">Facebook</span></a></li>
+                <li><a href="#" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
+                <li><a href="#" class="icon fa-envelope"><span class="label">Email</span></a></li>
+            </ul>
+            <p class="copyright">&copy; Untitled. Design: <a href="https://templated.co">TEMPLATED</a>. Images: <a href="https://unsplash.com/">Unsplash</a>. Videos: <a href="http://coverr.co/">Coverr</a>.</p>
+        </div>
+    </footer>
+}
 
-</body>
+@section Scripts {
+    <script src="~/js/templatedPack/jquery.scrolly.min.js"></script>
+    <script src="~/js/templatedPack/jquery.poptrox.min.js"></script>
+    <script src="~/js/templatedPack/skel.min.js"></script>
+    <script src="~/js/templatedPack/util.js"></script>
+    <script src="~/js/templatedPack/main.js"></script>
+}

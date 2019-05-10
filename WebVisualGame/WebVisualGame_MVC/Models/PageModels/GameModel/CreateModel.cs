@@ -9,6 +9,11 @@ namespace WebVisualGame_MVC.Models.PageModels.GameModel
 {
 	public class CreateModel
 	{
+		public CreateModel()
+		{
+			Messages = new List<string>();
+		}
+
 		[Required(ErrorMessage = "Введите название игры")]
 		public string Title { get; set; }
 
@@ -18,5 +23,8 @@ namespace WebVisualGame_MVC.Models.PageModels.GameModel
 
 		[Required(ErrorMessage = "Прикрепите код игры")]
 		public IFormFile Code { get; set; }
+
+
+		public List<string> Messages { get; set; }
 	}
 }

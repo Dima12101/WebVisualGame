@@ -4,7 +4,6 @@ if #q2:
 else:
 -"get 2" find #q2[start]
 if #q1:
--"have 1"[start] and
 -"lose 1" lose #q1[start]
 else if #q2:
 -"have 2, have not 1"[start] and

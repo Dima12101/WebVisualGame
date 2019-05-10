@@ -36,6 +36,16 @@
                 <button class="btn bg-primary" type="submit">Создать!</button>
             </div>
         </form>
+        @if (Model.Messages.Count != 0)
+        {
+            <h3>Список ошибок:</h3>
+            <div class="scroll">
+                @foreach (var message in Model.Messages)
+                {
+                    <p class="text-danger">@message</p>
+                }
+            </div>
+        }
     </div>
 </div>
 
