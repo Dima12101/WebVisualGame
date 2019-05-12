@@ -21,6 +21,7 @@ namespace GameTextParsing.GLan
         public static string Other = "other";
         public static string Percent = "%";
         public static string RandomSwitch = "random";
+        public static string Background = "Background";
     }
 
     public static class NTrm
@@ -56,6 +57,13 @@ namespace GameTextParsing.GLan
         public static string Probability = "Probability";
         public static string OtherCase = "OtherCase";
         public static string RandomOtherCase = "RandomOtherCase";
+
+        public static string GameBlock = "GameBlock";
+        public static string StandartGameBlock = "StandartGameBlock";
+        public static string AdvancedGameBlock = "AdvancedGameBlock";
+        public static string SettingBlock = "SettingBlock";
+        public static string Setting = "Setting";
+        public static string BackgroundAttribute = "Background";
     }
 
     public class Glan : Grammar
@@ -70,6 +78,8 @@ namespace GameTextParsing.GLan
             Terminal LongName = new StringLiteral("LongName", "\'");
             // numbers as '1', '2.15', '0.10.2.3' and etc
             Terminal DottedNumber = new RegexBasedTerminal("DottedNumber", "((\\d)+.)*(\\d)+");
+            Terminal BlockBracketLeft = ToTerm("<___");
+            Terminal BlockBracketRight = ToTerm("___>");
 
             Terminal Minus = ToTerm(Trm.Minus);
             Terminal Sharp = ToTerm(Trm.Sharp);
@@ -88,6 +98,7 @@ namespace GameTextParsing.GLan
             Terminal Else = ToTerm(Trm.Else);
             Terminal Then = ToTerm(Trm.Then);
             Terminal Other = ToTerm(Trm.Other);
+            Terminal Background = ToTerm(Trm.Background);
 
             #endregion
 
@@ -124,13 +135,29 @@ namespace GameTextParsing.GLan
             NonTerminal Probability = new NonTerminal(NTrm.Probability);
             NonTerminal OtherCase = new NonTerminal(NTrm.OtherCase);
             NonTerminal RandomOtherCase = new NonTerminal(NTrm.RandomOtherCase);
+            NonTerminal GameBlock = new NonTerminal(NTrm.GameBlock);
+            NonTerminal StandartGameBlock = new NonTerminal(NTrm.StandartGameBlock);
+            NonTerminal AdvancedGameBlock = new NonTerminal(NTrm.AdvancedGameBlock);
+            NonTerminal SettingBlock = new NonTerminal(NTrm.SettingBlock);
+            NonTerminal Setting = new NonTerminal(NTrm.Setting);
+            NonTerminal BackgroundAttribute = new NonTerminal(NTrm.BackgroundAttribute);
 
             #endregion
 
             #region rules
 
-            Game.Rule = MakePlusRule(Game, GamePoint);
+            //Game.Rule = MakePlusRule(Game, GamePoint);
 
+            Game.Rule = MakePlusRule(Game, GameBlock);
+            GameBlock.Rule = AdvancedGameBlock | GamePoint;
+
+            AdvancedGameBlock.Rule = BlockBracketLeft + SettingBlock + StandartGameBlock + BlockBracketRight;
+
+            SettingBlock.Rule = MakePlusRule(SettingBlock, Setting);
+            Setting.Rule = BackgroundAttribute;
+            BackgroundAttribute.Rule = Background + Colon + Name;
+
+            StandartGameBlock.Rule = MakePlusRule(StandartGameBlock, GamePoint);
             GamePoint.Rule = DialogPoint | SwitchPoint | RandomSwitchPoint;
 
             TextBlock.Rule = MakePlusRule(TextBlock, Comma, Text);
@@ -150,7 +177,11 @@ namespace GameTextParsing.GLan
 
             DialogPoint.Rule =
                 DialogPointMark + TextBlock + GotoBlock |
-                DialogPointMark + TextBlock + ActionBlock + GotoBlock;
+                DialogPointMark + TextBlock + ActionBlock + GotoBlock; /*
+                SettingBlock + DialogPointMark + TextBlock + GotoBlock |
+                SettingBlock + DialogPointMark + TextBlock + ActionBlock + GotoBlock*/
+            ;
+            /* ____________*/
 
             GotoBlock.Rule = NextPointMark | AnswerBlock;
 
@@ -223,9 +254,9 @@ namespace GameTextParsing.GLan
             RegisterOperators(3, Associativity.Neutral, Not);
 
             MarkPunctuation("(", ")", "[", "]", "-", "#", ":");
-            MarkPunctuation(Other, Switch, RandomSwitch, Else, If, Then, Minus);
+            MarkPunctuation(Other, Switch, RandomSwitch, Else, If, Then, Minus, BlockBracketLeft, BlockBracketRight, Background);
 
-            MarkTransient(GamePoint, AnswerPoint, GotoBlock, Key);
+            MarkTransient(AnswerPoint, GotoBlock, Key);
         }
     }
 }

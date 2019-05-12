@@ -199,13 +199,17 @@ namespace GameTextParsing
 
             var root = MyParseTree.Root;
 
-            var dpNodes = root.ChildNodes;
+            var gpNodes = ProcessGameBlocks(root.ChildNodes);
 
-            foreach (var p in dpNodes)
+            foreach (var gp_pair in gpNodes)
             {
+                var p = gp_pair.Item1.ChildNodes[0];
+                var style = gp_pair.Item2;
+
                 if (p.GetName().Equals(NTrm.DialogPoint))
                 {
                     var dp = ProcessDialogPoint(p);
+                    dp.Style = style;
                     Meta.DialogPoints.Add(dp.ID, dp);
                 }
                 else if (p.GetName().Equals(NTrm.SwitchPoint) || p.GetName().Equals(NTrm.RandomSwitchPoint))
@@ -238,6 +242,51 @@ namespace GameTextParsing
         }
 
         #region processing parse tree helper functions
+
+        private List<(ParseTreeNode, StyleAttribute)> ProcessGameBlocks(List<ParseTreeNode> gameBlocks)
+        {
+            List<(ParseTreeNode, StyleAttribute)> gamePoints = new List<(ParseTreeNode, StyleAttribute)>();
+            foreach (var block in gameBlocks)
+            {
+                var gamePoint = block.GetChild(NTrm.GamePoint);
+                if (gamePoint != null)
+                {
+                    gamePoints.Add((gamePoint, null));
+                    continue;
+                }
+                var advGameBlock = block.GetChild(NTrm.AdvancedGameBlock);
+                if (advGameBlock != null)
+                {
+                    var settingBlock = advGameBlock.GetChild(NTrm.SettingBlock);
+                    var standBlock = advGameBlock.GetChild(NTrm.StandartGameBlock);
+                    if (settingBlock != null && standBlock != null)
+                    {
+                        var style = ProcessSettingBlock(settingBlock);
+                        foreach (var bl in standBlock.ChildNodes)
+                        {
+                            gamePoints.Add((bl, style));
+                        }
+                    }
+                    else
+                    {
+                        throw new BusinessLogicError("advGameBlock must contain settingBlock and standartGameBlock");
+                    }
+                }
+                else
+                {
+                    throw new BusinessLogicError("game block must contain advGameBlock or gamePoint");
+                }
+            }
+
+            return gamePoints;
+        }
+
+        private StyleAttribute ProcessSettingBlock(ParseTreeNode settingBlock)
+        {
+            string name = settingBlock?.GetChild(NTrm.Setting)?.GetChild(NTrm.BackgroundAttribute)?.GetChild("Name")?.GetText();
+            StyleAttribute style = new StyleAttribute { BackgroundName = name };
+            return style;
+        }
 
         private List<GameAction> ProcessActionBlock(ParseTreeNode actBlockNode)
         {

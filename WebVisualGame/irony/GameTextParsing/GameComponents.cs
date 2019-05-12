@@ -26,6 +26,11 @@ namespace GameTextParsing
         }
     }
 
+    public class StyleAttribute
+    {
+        public string BackgroundName { get; set; }
+    }
+
     public class DialogPoint
     {
         public string Text { get; set; }
@@ -33,6 +38,7 @@ namespace GameTextParsing
         public string Identifier { get; set; }
         public List<GameAction> Actions { get; set; }
         public List<DialogLink> Links { get; set; }
+        public StyleAttribute Style { get; set; }
     }
 
     public enum SwitchType { Determinate, Probabilistic }
