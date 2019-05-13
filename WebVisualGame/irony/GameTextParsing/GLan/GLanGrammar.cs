@@ -151,7 +151,7 @@ namespace GameTextParsing.GLan
             Game.Rule = MakePlusRule(Game, GameBlock);
             GameBlock.Rule = AdvancedGameBlock | GamePoint;
 
-            AdvancedGameBlock.Rule = BlockBracketLeft + SettingBlock + StandartGameBlock + BlockBracketRight;
+            AdvancedGameBlock.Rule = SettingBlock + BlockBracketLeft + StandartGameBlock + BlockBracketRight;
 
             SettingBlock.Rule = MakePlusRule(SettingBlock, Setting);
             Setting.Rule = BackgroundAttribute;
@@ -177,11 +177,9 @@ namespace GameTextParsing.GLan
 
             DialogPoint.Rule =
                 DialogPointMark + TextBlock + GotoBlock |
-                DialogPointMark + TextBlock + ActionBlock + GotoBlock; /*
+                DialogPointMark + TextBlock + ActionBlock + GotoBlock |
                 SettingBlock + DialogPointMark + TextBlock + GotoBlock |
-                SettingBlock + DialogPointMark + TextBlock + ActionBlock + GotoBlock*/
-            ;
-            /* ____________*/
+                SettingBlock + DialogPointMark + TextBlock + ActionBlock + GotoBlock;
 
             GotoBlock.Rule = NextPointMark | AnswerBlock;
 

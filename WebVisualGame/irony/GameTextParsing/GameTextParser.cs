@@ -208,8 +208,8 @@ namespace GameTextParsing
 
                 if (p.GetName().Equals(NTrm.DialogPoint))
                 {
-                    var dp = ProcessDialogPoint(p);
-                    dp.Style = style;
+                    var dp = ProcessDialogPoint(p, style);
+
                     Meta.DialogPoints.Add(dp.ID, dp);
                 }
                 else if (p.GetName().Equals(NTrm.SwitchPoint) || p.GetName().Equals(NTrm.RandomSwitchPoint))
@@ -284,6 +284,7 @@ namespace GameTextParsing
         private StyleAttribute ProcessSettingBlock(ParseTreeNode settingBlock)
         {
             string name = settingBlock?.GetChild(NTrm.Setting)?.GetChild(NTrm.BackgroundAttribute)?.GetChild("Name")?.GetText();
+            if (name == null) return null;
             StyleAttribute style = new StyleAttribute { BackgroundName = name };
             return style;
         }
@@ -502,7 +503,7 @@ namespace GameTextParsing
         }
 
         // returns new dialog point id
-        private int ProcessDialogPointSequence(int pointIdentifier, List<string> textList)
+        private int ProcessDialogPointSequence(int pointIdentifier, List<string> textList, StyleAttribute blockStyle)
         {
             int currID = pointIdentifier;
 
@@ -514,7 +515,8 @@ namespace GameTextParsing
                 {
                     ID = currID,
                     Identifier = "",
-                    Text = textBlock[i]
+                    Text = textBlock[i],
+                    Style = blockStyle
                 };
 
                 currID = Meta.DialogPointIdDict.UniqueID();
@@ -536,7 +538,7 @@ namespace GameTextParsing
             return currID;
         }
 
-        private DialogPoint ProcessDialogPoint(ParseTreeNode dp)
+        private DialogPoint ProcessDialogPoint(ParseTreeNode dp, StyleAttribute blockStyle)
         {
             // point identifier in string format
             var pointIdentifier = dp.GetChild(NTrm.DialogPointMark).GetText();
@@ -553,11 +555,18 @@ namespace GameTextParsing
             // dialog point can contain multiple text
             var textList = dp.GetChild(NTrm.TextBlock).GetChildTokenList();
 
+            var dpStyle = ProcessSettingBlock(dp.GetChild(NTrm.SettingBlock));
+
             // converting multiple-text-dialog point to a single-text dialog point
-            pointID = ProcessDialogPointSequence(pointID, textList);
+            pointID = ProcessDialogPointSequence(pointID, textList, dpStyle);
 
             // parsing action block of the DP into GameAction[]
             var actionBlock = ProcessActionBlock(dp.GetChild(NTrm.ActionBlock));
+
+            if (dpStyle != null)
+            {
+                blockStyle = dpStyle;
+            }
 
             List<DialogLink> links = null;
 
@@ -591,7 +600,8 @@ namespace GameTextParsing
                 ID = pointID,
                 Identifier = pointIdentifier,
                 Links = links,
-                Text = textList[textList.Count - 1]
+                Text = textList[textList.Count - 1],
+                Style = blockStyle
             };
 
             return newDp;
