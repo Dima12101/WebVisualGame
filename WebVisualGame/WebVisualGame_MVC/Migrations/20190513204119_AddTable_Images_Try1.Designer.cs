@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebVisualGame_MVC.Data;
 
 namespace WebVisualGame_MVC.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20190513204119_AddTable_Images_Try1")]
+    partial class AddTable_Images_Try1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,8 +26,6 @@ namespace WebVisualGame_MVC.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("Date");
 
                     b.Property<string>("Description")
                         .HasMaxLength(300);
@@ -59,20 +59,9 @@ namespace WebVisualGame_MVC.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("GameId");
-
-                    b.Property<string>("Name")
-                        .IsRequired();
-
-                    b.Property<string>("Path")
-                        .IsRequired();
+                    b.Property<int>("TestId");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("GameId");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
 
                     b.ToTable("Images");
                 });
@@ -85,8 +74,6 @@ namespace WebVisualGame_MVC.Migrations
 
                     b.Property<int>("GameId");
 
-                    b.Property<int?>("ImageId");
-
                     b.Property<int>("StateNumber");
 
                     b.Property<string>("Text")
@@ -96,8 +83,6 @@ namespace WebVisualGame_MVC.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("GameId");
-
-                    b.HasIndex("ImageId");
 
                     b.ToTable("PointDialogs");
                 });
@@ -241,23 +226,12 @@ namespace WebVisualGame_MVC.Migrations
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("WebVisualGame_MVC.Data.GameComponents.Image", b =>
-                {
-                    b.HasOne("WebVisualGame_MVC.Data.Game", "Game")
-                        .WithMany()
-                        .HasForeignKey("GameId");
-                });
-
             modelBuilder.Entity("WebVisualGame_MVC.Data.GameComponents.PointDialog", b =>
                 {
                     b.HasOne("WebVisualGame_MVC.Data.Game")
                         .WithMany("PointDialogues")
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("WebVisualGame_MVC.Data.GameComponents.Image", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageId");
                 });
 
             modelBuilder.Entity("WebVisualGame_MVC.Data.GameComponents.Review", b =>

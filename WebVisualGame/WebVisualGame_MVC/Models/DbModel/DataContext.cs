@@ -13,6 +13,8 @@ namespace WebVisualGame_MVC.Data
 		public DbSet<GameComponents.SavedGame> SavedGames { get; set; }
 
 
+		public DbSet<GameComponents.Image> Images { get; set; }
+
 		public DbSet<GameComponents.PointDialog> PointDialogs { get; set; }
 
 		public DbSet<GameComponents.Transition> Transitions { get; set; }
@@ -26,6 +28,13 @@ namespace WebVisualGame_MVC.Data
 			: base(options)
 		{
 			Database.EnsureCreated();
+		}
+
+		protected override void OnModelCreating(ModelBuilder builder)
+		{
+			builder.Entity<GameComponents.Image>()
+				.HasIndex(u => u.Name)
+				.IsUnique();
 		}
 	}
 }

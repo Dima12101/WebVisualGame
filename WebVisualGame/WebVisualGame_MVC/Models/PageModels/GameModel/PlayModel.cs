@@ -10,6 +10,8 @@ namespace WebVisualGame_MVC.Models.PageModels.GameModel
 	{
 		public PointDialog Point { get; set; }
 
+		public string PathImage { get; set; }
+
 		public List<Transition> Transitions { get; set; }
 
 		public string Keys { get; set; }

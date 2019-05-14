@@ -38,13 +38,37 @@ namespace WebVisualGame_MVC.Utilities
 				{
 					if (gameData.DialogPoints != null)
 					{
+						var uniqueImages = new List<Image>();
 						foreach (var dialogPoint in gameData.DialogPoints)
 						{
+							Image dialogImage = null;
+							if (dialogPoint.Value.Style != null)
+							{
+								var uniqueName = $"{dialogPoint.Value.Style.BackgroundName}_key{gameNote.Id}";
+
+								var image = uniqueImages.SingleOrDefault(i => i.Name == uniqueName);
+
+								if (image != null)
+								{
+									dialogImage = image;
+								}
+								else
+								{
+									dialogImage = new Image
+									{
+										Name = uniqueName,
+										Path = "../images/game/NotImage.jpg",
+										Game = gameNote
+									};
+									uniqueImages.Add(dialogImage);
+								}
+							}
+							
 							var dialogPointNote = new PointDialog
 							{
-								Background_imageURL = "",
 								StateNumber = dialogPoint.Value.ID,
-								Text = dialogPoint.Value.Text
+								Text = dialogPoint.Value.Text,
+								Image = dialogImage
 							};
 							gameNote.PointDialogues.Add(dialogPointNote);
 
@@ -95,6 +119,8 @@ namespace WebVisualGame_MVC.Utilities
 			dataContext.Transitions.RemoveRange(dataContext.Transitions.Where(c => c.GameId == gameId));
 
 			dataContext.PointDialogs.RemoveRange(dataContext.PointDialogs.Where(c => c.GameId == gameId));
+
+			dataContext.Images.RemoveRange(dataContext.Images.Where(c => c.GameId == gameId));
 		}
 	}
 }

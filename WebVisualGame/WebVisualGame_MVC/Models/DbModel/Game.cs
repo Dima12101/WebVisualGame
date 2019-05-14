@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -31,7 +32,11 @@ namespace WebVisualGame_MVC.Data
 		[Required]
 		public string PathCode { get; set; }
 
+		[Required]
+		public DateTime Date { get; set; }
+
 		//ДЛя процесса игры
+
 		public IList<GameComponents.PointDialog> PointDialogues { get; set; }
 
 		public IList<GameComponents.Transition> Transitions { get; set; }

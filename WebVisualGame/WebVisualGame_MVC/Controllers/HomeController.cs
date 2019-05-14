@@ -13,6 +13,7 @@ using WebVisualGame_MVC.Models;
 using WebVisualGame_MVC.Data;
 using WebVisualGame_MVC.Models.PageModels;
 using WebVisualGame_MVC.Utilities;
+using System.IO;
 
 namespace WebVisualGame_MVC.Controllers
 {
@@ -75,6 +76,7 @@ namespace WebVisualGame_MVC.Controllers
 		[HttpGet]
 		public IActionResult Index()
 		{
+
 			logger.LogInformation("Visit index page");
 			if (HttpContext.User.Identity.IsAuthenticated)
 			{

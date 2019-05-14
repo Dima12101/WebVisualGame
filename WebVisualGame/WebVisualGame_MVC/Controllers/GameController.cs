@@ -163,20 +163,29 @@ namespace WebVisualGame_MVC.Controllers
 			if (ModelState.IsValid)
 			{
 				logger.LogInformation($"Began create '{model.Title}'");
-
+				var game = new Game();
 				try
-				{
-					var game = new Game();
+				{			
 					game.UserId = Int32.Parse(HttpContext.User.Identity.Name);
 					game.Title = model.Title;
 					game.Description = model.Description;
 					game.Rating = 0;
+					game.PathIcon = "";
+					game.PathCode = "";
+					game.Date = DateTime.Now;
 
+					//Для того, чтобы знать Id
+					dataContext.Games.Add(game);
+					dataContext.SaveChanges();
+
+					string nameDirectory = $"{game.Title}_key{game.Id}";
+
+					Directory.CreateDirectory($"./wwwroot/images/game/{nameDirectory}");
 					if (model.Icon != null)
 					{
 						// путь к папке /images/game/
 
-						string pathIcon = "/images/game/" + model.Icon.FileName.Split("\\").Last();
+						string pathIcon = $"/images/game/{nameDirectory}/" + model.Icon.FileName.Split("\\").Last();
 						// сохраняем файл в папку /images/game/ в каталоге wwwroot
 						using (var fileStream = new FileStream(appEnvironment.WebRootPath + pathIcon, FileMode.Create))
 						{
@@ -189,8 +198,9 @@ namespace WebVisualGame_MVC.Controllers
 						game.PathIcon = "../images/game/NotImage.jpg";
 					}
 
-					// путь к папке /files/gameCode/
-					string pathCode = "/files/gameCode/" + model.Code.FileName.Split("\\").Last();
+					Directory.CreateDirectory($"./wwwroot/files/gameCode/{nameDirectory}");
+					// путь к папке /files/gameCode/{game.Title}#{game.Id}/
+					string pathCode = $"/files/gameCode/{nameDirectory}/" + model.Code.FileName.Split("\\").Last();
 					// сохраняем файл в папку /files/gameCode/ в каталоге wwwroot
 					using (var fileStream = new FileStream(appEnvironment.WebRootPath + pathCode, FileMode.Create))
 					{
@@ -216,17 +226,54 @@ namespace WebVisualGame_MVC.Controllers
 							model.Messages.Add(model.Messages.Count.ToString() + ": " + message);
 							logger.LogInformation("ParseCodeGameMessage: " + message);
 						}
+
+						//Зачищаем папку и удаляем её
+						DirectoryInfo dirInfo = new DirectoryInfo($"./wwwroot/images/game/{game.Title}_key{game.Id}");
+						foreach (FileInfo file in dirInfo.GetFiles())
+						{
+							file.Delete();
+						}
+						Directory.Delete($"./wwwroot/images/game/{game.Title}_key{game.Id}");
+
+						dirInfo = new DirectoryInfo($"./wwwroot/files/gameCode/{game.Title}_key{game.Id}");
+						foreach (FileInfo file in dirInfo.GetFiles())
+						{
+							file.Delete();
+						}
+						Directory.Delete($"./wwwroot/files/gameCode/{game.Title}_key{game.Id}");
+
+						dataContext.Games.Remove(game);
+						dataContext.SaveChanges();
+
 						return View("Create", model);
 					}
 					else
 					{
-						dataContext.Games.Add(game);
+						dataContext.Attach(game).State = EntityState.Modified;
 						dataContext.SaveChanges();
 						return Redirect("~/Home/Index");
 					}
 				}
 				catch (Exception ex)
 				{
+					//Зачищаем папку и удаляем её
+					DirectoryInfo dirInfo = new DirectoryInfo($"./wwwroot/images/game/{game.Title}_key{game.Id}");
+					foreach (FileInfo file in dirInfo.GetFiles())
+					{
+						file.Delete();
+					}
+					Directory.Delete($"./wwwroot/images/game/{game.Title}_key{game.Id}");
+
+					dirInfo = new DirectoryInfo($"./wwwroot/files/gameCode/{game.Title}_key{game.Id}");
+					foreach (FileInfo file in dirInfo.GetFiles())
+					{
+						file.Delete();
+					}
+					Directory.Delete($"./wwwroot/files/gameCode/{game.Title}_key{game.Id}");
+
+					dataContext.Games.Remove(game);
+					dataContext.SaveChanges();
+
 					logger.LogError(ex.Message);
 					throw ex;
 				}
@@ -407,8 +454,15 @@ namespace WebVisualGame_MVC.Controllers
 					Keys = "",
 					Point = dataContext.PointDialogs.FirstOrDefault(i => i.GameId == gameId &&
 						i.StateNumber == 1),
-					Transitions = new List<Transition>()
+					Transitions = new List<Transition>(),
+					PathImage = "../images/game/NotImage.jpg"
 				};
+				if (model.Point.ImageId != null)
+				{
+					model.PathImage = dataContext.Images.SingleOrDefault(i => i.Id == model.Point.ImageId).Path;
+				}
+				
+				
 
 				UpdateTransition(new SortedSet<int>());
 			}
@@ -445,8 +499,13 @@ namespace WebVisualGame_MVC.Controllers
 					Keys = newKey,
 					Point = dataContext.PointDialogs.FirstOrDefault(i => i.GameId == transition.GameId &&
 						i.StateNumber == transition.NextPoint),
-					Transitions = new List<Transition>()
+					Transitions = new List<Transition>(),
+					PathImage = "../images/game/NotImage.jpg"
 				};
+				if (model.Point.ImageId != null)
+				{
+					model.PathImage = dataContext.Images.SingleOrDefault(i => i.Id == model.Point.ImageId).Path;
+				}
 				UpdateTransition(keys);
 
 				// if autorization
@@ -526,7 +585,23 @@ namespace WebVisualGame_MVC.Controllers
 			var gameComponentsControl = new GameComponentsControl(dataContext);
 			gameComponentsControl.Delete(gameId);
 
-			dataContext.Games.RemoveRange(dataContext.Games.FirstOrDefault(c => c.Id == gameId));
+			var game = dataContext.Games.Single(i => i.Id == gameId);
+			//Зачищаем папку и удаляем её
+			DirectoryInfo dirInfo = new DirectoryInfo($"./wwwroot/images/game/{game.Title}_key{game.Id}");
+			foreach (FileInfo file in dirInfo.GetFiles())
+			{
+				file.Delete();
+			}
+			Directory.Delete($"./wwwroot/images/game/{game.Title}_key{game.Id}");
+
+			dirInfo = new DirectoryInfo($"./wwwroot/files/gameCode/{game.Title}_key{game.Id}");
+			foreach (FileInfo file in dirInfo.GetFiles())
+			{
+				file.Delete();
+			}
+			Directory.Delete($"./wwwroot/files/gameCode/{game.Title}_key{game.Id}");
+
+			dataContext.Games.Remove(game);
 
 			dataContext.SaveChanges();
 

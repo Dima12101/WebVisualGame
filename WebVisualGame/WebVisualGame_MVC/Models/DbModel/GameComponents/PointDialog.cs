@@ -21,9 +21,8 @@ namespace WebVisualGame_MVC.Data.GameComponents
 		[Required]
 		public string Text { get; set; }
 
-		[Url]
-		[MaxLength(100)]
-		[Required]
-		public string Background_imageURL { get; set; }
+		[ForeignKey("Image")]
+		public int? ImageId { get; set; }
+		public Image Image { get; set; }
 	}
 }
