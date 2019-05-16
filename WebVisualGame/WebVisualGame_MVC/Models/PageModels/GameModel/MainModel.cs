@@ -19,6 +19,8 @@ namespace WebVisualGame_MVC.Models.PageModels.GameModel
 			public string Description { get; set; }
 
 			public double Rating { get; set; }
+
+			public DateTime Data { get; set; }
 		}
 		public GameInfo Game { get; set; }
 

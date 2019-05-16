@@ -1,0 +1,98 @@
+﻿@model WebVisualGame_MVC.Models.PageModels.GameModel.RedactModel
+@{
+    ViewData["Title"] = "Redact";
+}
+
+<div class="register-panel panel panel-success">
+    <div class="panel-heading text-center"><h4>Редактор</h4></div>
+    <div class="panel-body profile">
+        <form method="post" asp-controller="Game" asp-action="ChangeBaseInfo" enctype="multipart/form-data">
+            <table class="table table-bordered">
+                <tr>
+                    <td width="20%" valign="top">
+                        <img class="MyIcon" src="@Model.PathIcon" alt="Icon" />
+                        <hr />
+                        <input type="file" asp-for="baseInfo.Icon" />
+                    </td>
+                    <td class="column" valign="top">
+                        <div class="form-group">
+                            <label class="field-labels" asp-for="baseInfo.Title">Название:</label>
+                            <input type="text" asp-for="baseInfo.Title" />
+                            <span asp-validation-for="baseInfo.Title" class="text-danger" />
+                        </div>
+                        <div class="form-group">
+                            <label class="field-labels" asp-for="baseInfo.Description">
+                                <abbr class="text-danger" title="Необязательно">*</abbr>Описание:
+                            </label>
+                            <br />
+                            <textarea style="width:100%; resize:none" type="text" rows="10" cols="60" asp-for="baseInfo.Description"></textarea>
+                            <span asp-validation-for="baseInfo.Description" class="text-danger" />
+                        </div>
+                        <div class="text-center">
+                            <button class="btn bg-primary" type="submit" name="gameIdEncode" value="@WebVisualGame_MVC.Utilities.ProtectData.GetInstance().Encode(Model.GameId)">Сохранить</button>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <div>
+            <table class="table table-bordered">
+                <tr>
+                    <td width="50%" valign="top">
+                        <h3>Код игры</h3>
+                        <form method="post" asp-controller="Game" asp-action="ChangeCode" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label asp-for="codeInfo.CodeText">Изменить:</label>
+                                <br />
+                                <textarea style="width:100%; resize:none" type="text" rows="20" cols="70" asp-for="codeInfo.CodeText"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="codeInfo.CodeFile">Загрузить:</label>
+                                <input type="file" asp-for="codeInfo.CodeFile" />
+                            </div>
+                            <div class="text-center">
+                                <button class="btn bg-primary" type="submit" name="gameIdEncode" value="@WebVisualGame_MVC.Utilities.ProtectData.GetInstance().Encode(Model.GameId)">Сохранить</button>
+                            </div>
+                        </form>
+                        @if (Model.codeInfo.Messages.Count != 0)
+                        {
+                            <h3>Список ошибок:</h3>
+                            <div class="scroll">
+                                @foreach (var message in Model.codeInfo.Messages)
+                                {
+                                    <p class="text-danger">@message</p>
+                                }
+                            </div>
+                        }
+                    </td>
+                    <td class="column" valign="top">
+                        <h3>Binding изображений</h3>
+                        <div class="scroll-500">
+                            @using (Html.BeginForm("ChangeBindingImages", "Game", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                            {
+                                for (int i = 0; i < Model.bindImages.Count; i++)
+                                {
+                                    <hr />
+                                    <label>@Model.bindImages[i].Name:</label>
+                                    <img style="width:50px; height:50px; margin-bottom:5px" src="@Model.bindImages[i].Path" alt="bindImage" />
+                                    <div class="form-group">
+                                        @Html.HiddenFor(m => m.bindImages[i].Name)
+                                        @Html.EditorFor(m => m.bindImages[i].File)
+                                    </div>
+                                }
+                                <div class="text-center">
+                                    <button class="btn bg-primary" type="submit" name="gameIdEncode" value="@WebVisualGame_MVC.Utilities.ProtectData.GetInstance().Encode(Model.GameId)">Сохранить</button>
+                                </div>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+
+

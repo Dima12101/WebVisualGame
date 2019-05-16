@@ -39,6 +39,9 @@ namespace WebVisualGame_MVC.Data
 		[Required]
 		public int AccessLevel { get; set; }
 
+		[Required]
+		public DateTime Date { get; set; }
+
 		public IList<Game> Games { get; set; }
 
 

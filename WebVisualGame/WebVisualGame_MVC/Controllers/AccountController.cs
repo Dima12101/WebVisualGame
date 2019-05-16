@@ -76,7 +76,8 @@ namespace WebVisualGame_MVC.Controllers
 						Login = model.userInfo.Login,
 						Email = model.userInfo.Email,
 						Password = model.userInfo.Password,
-						PathAvatar = "../images/user/default_avatar.ico"
+						PathAvatar = "../images/user/default_avatar.ico",
+						Date = DateTime.Now
 					};
 
 					try
@@ -252,11 +253,15 @@ namespace WebVisualGame_MVC.Controllers
 				var userId = Int32.Parse(HttpContext.User.Identity.Name);
 				var user = dataContext.Users.Single(i => i.Id == userId);
 
-				var profileModel = new ProfileModel();
-				profileModel.UserName = user.FirstName + ' ' + user.LastName;
-				profileModel.PathUserAvatar = user.PathAvatar;
-				profileModel.AccessLevel = user.AccessLevel;
-
+				var profileModel = new ProfileModel()
+				{
+					UserName = user.FirstName + ' ' + user.LastName,
+					Email = user.Email,
+					PathUserAvatar = user.PathAvatar,
+					Data = user.Date,
+					AccessLevel = user.AccessLevel
+				};
+				
 				profileModel.UserGames = (from game in dataContext.Games.Where(i => i.UserId == userId)
 										  select new ProfileModel.UserGame
 										  {

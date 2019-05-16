@@ -1,0 +1,47 @@
+(hjhj)"hello"
+if #q2:
+-"lose 2" lose #q2[start12]
+else:
+-"get 2" find #q2[start2]
+if #q1:
+-"lose 1" lose #q1[start]
+else if #q2:
+-"have 2, have not 1"[start] and
+-"get 1" find #q1[start]
+else:
+-"have not 1, 2"[start] and
+-"get 1" find #q1[start]
+if #q1 and #q2:
+-"have 1, 2"[start]
+-"r"[r]
+-"s"[s]
+
+(r)random
+10%:[10]
+20%:[20]
+30%:[30]
+40%:[40]
+other: [0]
+
+(s)switch
+#q1:[1]
+#q2:[2]
+other: [3]
+
+(0)"0%"
+-"next"[start]
+(10)"10%"
+-"next"[start]
+(20)"20%"
+-"next"[start]
+(30)"30%"
+-"next"[start]
+(40)"40%"
+-"next"[start]
+
+(1)"have 1"
+-"next"[start]
+(2)"have 2, have not 1"
+-"next"[start]
+(3)"have not 1, 2"
+-"next"[start]

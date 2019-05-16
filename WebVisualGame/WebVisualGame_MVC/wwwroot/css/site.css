@@ -102,6 +102,18 @@ a {
     max-height: 250px;
 }
 
+.scroll-500 {
+    overflow: auto;
+    max-height: 500px;
+}
+
+.MyIcon {
+    width: 250px;
+    height: 250px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
 
 /*.scroll-table th, .scroll-table td {
     width: 100%

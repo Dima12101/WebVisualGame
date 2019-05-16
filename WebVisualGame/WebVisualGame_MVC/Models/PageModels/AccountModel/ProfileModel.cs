@@ -9,7 +9,11 @@ namespace WebVisualGame_MVC.Models.PageModels.AccountModel
 	{
 		public string UserName { get; set; }
 
+		public string Email { get; set; }
+
 		public string PathUserAvatar { get; set; }
+
+		public DateTime Data { get; set; }
 
 		public int AccessLevel { get; set; }
 
