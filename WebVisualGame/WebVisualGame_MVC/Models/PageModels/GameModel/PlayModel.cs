@@ -17,5 +17,8 @@ namespace WebVisualGame_MVC.Models.PageModels.GameModel
 		public string Keys { get; set; }
 
 		public int GameID { get; set; }
+
+		//Для дебага (временно)
+		public string LogState { get; set; }
 	}
 }

@@ -70,11 +70,14 @@ namespace WebVisualGame_MVC.Controllers
 		{
 			//Path: /images/game/{nameDir}
 			DirectoryInfo dirInfo = new DirectoryInfo(appEnvironment.WebRootPath + path);
-			foreach (FileInfo file in dirInfo.GetFiles())
+			if (dirInfo.Exists)
 			{
-				file.Delete();
+				foreach (FileInfo file in dirInfo.GetFiles())
+				{
+					file.Delete();
+				}
+				Directory.Delete(appEnvironment.WebRootPath + path);
 			}
-			Directory.Delete(appEnvironment.WebRootPath + path);
 		}
 		private void DeleteFile(string path)
 		{
@@ -480,6 +483,8 @@ namespace WebVisualGame_MVC.Controllers
 				}
 			}
 
+			dataContext.SavedGames.RemoveRange(dataContext.SavedGames.Where(c => c.GameId == gameId));
+
 			dataContext.Attach(game).State = EntityState.Modified;
 			dataContext.SaveChanges();
 
@@ -646,8 +651,20 @@ namespace WebVisualGame_MVC.Controllers
 							Keys = save.Keys,
 							Point = dataContext.PointDialogs.FirstOrDefault(i => i.GameId == gameId &&
 								i.StateNumber == save.State),
-							Transitions = new List<Transition>()
+							Transitions = new List<Transition>(),
+							PathImage = "../images/game/NotImage.jpg"
 						};
+						if (model.Point.ImageId != null)
+						{
+							model.PathImage = dataContext.Images.SingleOrDefault(i => i.Id == model.Point.ImageId).Path;
+						}
+
+						//Для дебага (временно)
+						var gameUserId = dataContext.Games.Single(i => i.Id == gameId).UserId;
+						if (userID == gameUserId)
+						{
+							model.LogState = $"(Для разработчика) You have: {model.Keys}";
+						}
 
 						UpdateTransition(keys);
 						return View(model);
@@ -679,8 +696,6 @@ namespace WebVisualGame_MVC.Controllers
 				{
 					model.PathImage = dataContext.Images.SingleOrDefault(i => i.Id == model.Point.ImageId).Path;
 				}
-				
-				
 
 				UpdateTransition(new SortedSet<int>());
 			}
@@ -737,6 +752,13 @@ namespace WebVisualGame_MVC.Controllers
 					save.State = model.Point.StateNumber;
 					dataContext.Attach(save).State = EntityState.Modified;
 					dataContext.SaveChanges();
+
+					//Для дебага (временно)
+					var gameUserId = dataContext.Games.Single(i => i.Id == model.GameID).UserId;
+					if (userID == gameUserId)
+					{
+						model.LogState = $"(Для разработчика) You have: {model.Keys}";
+					}
 				}
 			}
 			catch (Exception ex)
