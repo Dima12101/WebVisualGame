@@ -232,8 +232,13 @@ namespace GameTextParsing.GLan
 
             CaseBlock.Rule = MakePlusRule(CaseBlock, Case);
 
-            Case.Rule = BoolExpr + Colon + NextPointMark;
-            OtherCase.Rule = Other + Colon + NextPointMark;
+            Case.Rule = 
+                BoolExpr + Colon + NextPointMark |
+                BoolExpr + Colon + ActionBlock + NextPointMark;
+
+            OtherCase.Rule =
+                Other + Colon + NextPointMark |
+                Other + Colon + ActionBlock + NextPointMark;
 
             #endregion
 
@@ -246,8 +251,13 @@ namespace GameTextParsing.GLan
 
             RandomCaseBlock.Rule = MakePlusRule(RandomCaseBlock, RandomCase);
 
-            RandomCase.Rule = Probability + Colon + NextPointMark;
-            RandomOtherCase.Rule = Other + Colon + NextPointMark;
+            RandomCase.Rule = 
+                Probability + Colon + NextPointMark |
+                Probability + Colon + ActionBlock + NextPointMark;
+
+            RandomOtherCase.Rule = 
+                Other + Colon + NextPointMark |
+                Other + Colon + ActionBlock + NextPointMark;
             #endregion
 
             #endregion

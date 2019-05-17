@@ -46,7 +46,7 @@ namespace GameTextParsing
     public class SwitchLink
     {
         public string Condition { get; set; }
-        //public GameAction[] Actions { get; set; }
+        public List<GameAction> Actions { get; set; }
         public int NextID { get; set; }
         public string NextIdentifier { get; set; }
         public int Number { get; set; }

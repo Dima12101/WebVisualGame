@@ -64,7 +64,8 @@ namespace GameTextParsing
         {
             return
             CheckEntryPoints(meta, messages) &
-            CheckHangingTransitions(meta, messages);
+            CheckHangingTransitions(meta, messages) & 
+            CheckSwitchToSwitchTransitions(meta, messages);
         }
 
         private bool CheckEntryPoints(GameParseMetadata meta, MessageBuffer messages)
@@ -123,6 +124,28 @@ namespace GameTextParsing
             }
 
             return hasNotHangingTransitions;
+        }
+
+        private bool CheckSwitchToSwitchTransitions(GameParseMetadata meta, MessageBuffer messages)
+        {
+            bool someSwitchesGoToSwitches = false;
+            foreach (var pair_id_sp in meta.SwitchPoints)
+            {
+                var sp = pair_id_sp.Value;
+
+                foreach (var link in sp.Links)
+                {
+                    bool res = meta.SwitchPoints.ContainsKey(link.NextID);
+
+                    if (res)
+                    {
+                        messages.PutMsg($"Transition №{link.Number} in ({sp.Identifier}) goes to switch: [{link.NextIdentifier}]. It's forbidden!");
+                        someSwitchesGoToSwitches = true;
+                    }
+                }
+            }
+
+            return !someSwitchesGoToSwitches;
         }
     }
 
@@ -645,7 +668,7 @@ namespace GameTextParsing
                 Messages.PutMsg($"Identifier already exist (Line: {sp.Span.Location.Line}, Pos: {sp.Span.Location.Column})");
             }
 
-            //var actions = ProcessActionBlock(sp.GetChild(NTrm.ActionBlock));
+            var actions = ProcessActionBlock(sp.GetChild(NTrm.ActionBlock));
 
             var caseBlock =
                 (type == SwitchType.Determinate) ?
@@ -689,7 +712,7 @@ namespace GameTextParsing
 
                     links.Add(new SwitchLink
                     {
-                        //Actions = ProcessActionBlock(_case.GetChild(NTrm.ActionBlock)),
+                        Actions = ProcessActionBlock(_case.GetChild(NTrm.ActionBlock)),
                         NextID = Meta.DialogPointIdDict.GetId(nextIdentifier),
                         NextIdentifier = nextIdentifier,
                         Condition = totalCond,
@@ -708,7 +731,7 @@ namespace GameTextParsing
 
                 links.Add(new SwitchLink
                 {
-                    //Actions = ProcessActionBlock(otherCase.GetChild(NTrm.ActionBlock)),
+                    Actions = ProcessActionBlock(otherCase.GetChild(NTrm.ActionBlock)),
                     Condition = (type == SwitchType.Determinate) ? goNextCondition : $"{otherProbability}% ",
                     NextID = Meta.DialogPointIdDict.GetId(nextIdentifier),
                     NextIdentifier = nextIdentifier,
@@ -749,13 +772,26 @@ namespace GameTextParsing
                     int number = 1;
                     foreach (var switchLink in sp.Links)
                     {
+                        List<GameAction> newActionList = new List<GameAction>();
+
+                        if (link.Actions != null)
+                        {
+                            newActionList.AddRange(link.Actions);
+                        }
+
+                        if (switchLink.Actions != null)
+                        {
+                            newActionList.AddRange(switchLink.Actions);
+                        }
+                        
+
                         string amp = (link.Condition.Equals("")) ? "" : "&";
                         string condition = (sp.SType == SwitchType.Determinate) ?
                             $"{link.Condition}{switchLink.Condition}{amp} " :
                             $"{link.Condition}{link.Number}_{switchLink.Condition}{amp} ";
                         DialogLink newDialogLink = new DialogLink
                         {
-                            Actions = link.Actions,
+                            Actions = (newActionList.Count != 0) ? newActionList : null,
                             Condition = condition,
                             NextID = switchLink.NextID,
                             Number = number++,
@@ -779,6 +815,7 @@ namespace GameTextParsing
                 foreach (var link in dp.Links)
                 {
                     var contains = Meta.DialogPoints.TryGetValue(link.NextID, out DialogPoint nextDp);
+
                     if (!contains) throw new BusinessLogicError();
 
                     if (nextDp.Actions == null) continue;
