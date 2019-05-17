@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -37,6 +39,56 @@ namespace WebVisualGame_MVC.Controllers
 			logger = _logger;
 		}
 
+		private async Task<string> CreateFileCode_onServer(IFormFile Code, string pathCode)
+		{
+			//Path: /images/game/{nameDir}/{nameFile}
+
+			// сохраняем файл в папку /files/gameCode/ в каталоге wwwroot
+			using (var fileStream = new FileStream(appEnvironment.WebRootPath + pathCode, FileMode.Create))
+			{
+				await Code.CopyToAsync(fileStream);
+			}
+			string codeStr = "";
+			// считываем переданный файл в string
+			using (var reader = new StreamReader(Code.OpenReadStream(), detectEncodingFromByteOrderMarks: true))
+			{
+				codeStr = await reader.ReadToEndAsync();
+			}
+			return codeStr;
+		}
+		private async void CreateFileImage_onServer(IFormFile Image, string pathImage)
+		{
+			//Path: /images/game/{nameDir}/{nameFile}
+
+			// сохраняем файл в папку /files/gameCode/ в каталоге wwwroot
+			using (var fileStream = new FileStream(appEnvironment.WebRootPath + pathImage, FileMode.Create))
+			{
+				await Image.CopyToAsync(fileStream);
+			}
+		}
+		private void DeleteDirictory(string path)
+		{
+			//Path: /images/game/{nameDir}
+			DirectoryInfo dirInfo = new DirectoryInfo(appEnvironment.WebRootPath + path);
+			if (dirInfo.Exists)
+			{
+				foreach (FileInfo file in dirInfo.GetFiles())
+				{
+					file.Delete();
+				}
+				Directory.Delete(appEnvironment.WebRootPath + path);
+			}
+		}
+		private void DeleteFile(string path)
+		{
+			//Path: /images/game/{nameDir}/{nameFile}
+			var fileIcon = new FileInfo(appEnvironment.WebRootPath + path);
+			if (fileIcon != null)
+			{
+				fileIcon.Delete();
+			}
+		}
+
 		#region About game
 		private MainModel Get_mainModel(int gameId)
 		{
@@ -50,7 +102,8 @@ namespace WebVisualGame_MVC.Controllers
 					Id = gameId,
 					Title = game.Title,
 					Description = game.Description,
-					Rating = game.Rating
+					Rating = game.Rating,
+					Data = game.Date
 				};
 
 
@@ -158,7 +211,7 @@ namespace WebVisualGame_MVC.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> Create(CreateModel model)
+		public IActionResult Create(CreateModel model)
 		{
 			if (ModelState.IsValid)
 			{
@@ -180,40 +233,30 @@ namespace WebVisualGame_MVC.Controllers
 
 					string nameDirectory = $"{game.Title}_key{game.Id}";
 
-					Directory.CreateDirectory($"./wwwroot/images/game/{nameDirectory}");
+					Directory.CreateDirectory($"./wwwroot/images/game/{nameDirectory}"); //с точкой!
 					if (model.Icon != null)
 					{
-						// путь к папке /images/game/
+						string nameFileIcon = model.Icon.FileName.Split("\\").Last(); //В IE имя это путь
+						// путь к папке /images/game/{nameDirectory}/{nameFileIcon}
+						string pathIcon = $"/images/game/{nameDirectory}/{nameFileIcon}";
 
-						string pathIcon = $"/images/game/{nameDirectory}/" + model.Icon.FileName.Split("\\").Last();
-						// сохраняем файл в папку /images/game/ в каталоге wwwroot
-						using (var fileStream = new FileStream(appEnvironment.WebRootPath + pathIcon, FileMode.Create))
-						{
-							await model.Icon.CopyToAsync(fileStream);
-						}
-						game.PathIcon = ".." + pathIcon;
+						CreateFileImage_onServer(model.Icon, pathIcon);
+
+						game.PathIcon = ".." + pathIcon; //нужны 2 точки
 					}
 					else
 					{
-						game.PathIcon = "../images/game/NotImage.jpg";
+						game.PathIcon = "../images/game/NotImage.jpg"; //дефолт
 					}
 
 					Directory.CreateDirectory($"./wwwroot/files/gameCode/{nameDirectory}");
-					// путь к папке /files/gameCode/{game.Title}#{game.Id}/
-					string pathCode = $"/files/gameCode/{nameDirectory}/" + model.Code.FileName.Split("\\").Last();
-					// сохраняем файл в папку /files/gameCode/ в каталоге wwwroot
-					using (var fileStream = new FileStream(appEnvironment.WebRootPath + pathCode, FileMode.Create))
-					{
-						await model.Code.CopyToAsync(fileStream);
-					}
-					string code = "";
-					// считываем переданный файл в string
-					using (var reader = new StreamReader(model.Code.OpenReadStream(), detectEncodingFromByteOrderMarks: true))
-					{
-						code = await reader.ReadToEndAsync();
-					}
+					string nameFileCode = model.Code.FileName.Split("\\").Last(); //В IE имя это путь
+					// путь к папке /files/gameCode/{nameDirectory}/{nameFileCode}
+					string pathCode = $"/files/gameCode/{nameDirectory}/{nameFileCode}"; 
 
-					game.PathCode = ".." + pathCode;
+					string code = CreateFileCode_onServer(model.Code, pathCode).Result;
+
+					game.PathCode = ".." + pathCode; //нужны 2 точки
 
 					// парсинг кода и сохранения в БД
 					var gameComponentsControl = new GameComponentsControl(dataContext);
@@ -228,19 +271,11 @@ namespace WebVisualGame_MVC.Controllers
 						}
 
 						//Зачищаем папку и удаляем её
-						DirectoryInfo dirInfo = new DirectoryInfo($"./wwwroot/images/game/{game.Title}_key{game.Id}");
-						foreach (FileInfo file in dirInfo.GetFiles())
-						{
-							file.Delete();
-						}
-						Directory.Delete($"./wwwroot/images/game/{game.Title}_key{game.Id}");
+						var pathDirictory = $"/images/game/{game.Title}_key{game.Id}";
+						DeleteDirictory(pathDirictory);
 
-						dirInfo = new DirectoryInfo($"./wwwroot/files/gameCode/{game.Title}_key{game.Id}");
-						foreach (FileInfo file in dirInfo.GetFiles())
-						{
-							file.Delete();
-						}
-						Directory.Delete($"./wwwroot/files/gameCode/{game.Title}_key{game.Id}");
+						pathDirictory = $"/files/gameCode/{game.Title}_key{game.Id}";
+						DeleteDirictory(pathDirictory);
 
 						dataContext.Games.Remove(game);
 						dataContext.SaveChanges();
@@ -257,19 +292,11 @@ namespace WebVisualGame_MVC.Controllers
 				catch (Exception ex)
 				{
 					//Зачищаем папку и удаляем её
-					DirectoryInfo dirInfo = new DirectoryInfo($"./wwwroot/images/game/{game.Title}_key{game.Id}");
-					foreach (FileInfo file in dirInfo.GetFiles())
-					{
-						file.Delete();
-					}
-					Directory.Delete($"./wwwroot/images/game/{game.Title}_key{game.Id}");
+					var pathDirictory = $"/images/game/{game.Title}_key{game.Id}";
+					DeleteDirictory(pathDirictory);
 
-					dirInfo = new DirectoryInfo($"./wwwroot/files/gameCode/{game.Title}_key{game.Id}");
-					foreach (FileInfo file in dirInfo.GetFiles())
-					{
-						file.Delete();
-					}
-					Directory.Delete($"./wwwroot/files/gameCode/{game.Title}_key{game.Id}");
+					pathDirictory = $"/files/gameCode/{game.Title}_key{game.Id}";
+					DeleteDirictory(pathDirictory);
 
 					dataContext.Games.Remove(game);
 					dataContext.SaveChanges();
@@ -282,19 +309,215 @@ namespace WebVisualGame_MVC.Controllers
 		}
 		#endregion
 
-		#region Redaction game
-		[HttpGet]
-		public IActionResult Redaction(string gameIdEncode)
+		#region Redact game
+		private RedactModel Get_redactModel(int gameId)
 		{
-			logger.LogInformation("Visit /Game/Redaction page");
+			var game = dataContext.Games.Single(i => i.Id == gameId);
+
+			var model = new RedactModel();
+
+			model.GameId = gameId;
+
+			model.PathIcon = game.PathIcon;
+			model.baseInfo = new RedactModel.BaseInfo
+			{
+				Title = game.Title,
+				Description = game.Description
+			};
+
+			var pathCode = appEnvironment.WebRootPath + game.PathCode.Replace("..", "");
+			model.codeInfo = new RedactModel.CodeInfo
+			{
+				Messages = new List<string>(),
+				CodeText = System.IO.File.ReadAllText(pathCode, Encoding.Default),
+				CodeFile = null
+			};
+
+			var images = dataContext.Images.Where(i => i.GameId == gameId);
+			model.bindImages = new List<RedactModel.BindImage>();
+			foreach (var image in images)
+			{
+				model.bindImages.Add(new RedactModel.BindImage
+				{
+					Name = $"{image.Name.Replace($"_key{gameId}", "")}",
+					File = null,
+					Path = image.Path
+				});
+			}
+			return model;
+		}
+
+		[HttpGet]
+		public IActionResult Redact(string gameIdEncode)
+		{
+			logger.LogInformation("Visit /Game/Redact page");
 
 			var gameIdDecoded = ProtectData.GetInstance().DecodeToString(gameIdEncode);
 			var gameId = Int32.Parse(gameIdDecoded);
-
 			logger.LogInformation("GameId: " + gameIdDecoded);
-			Response.Cookies.Append("GameId", gameIdDecoded);
 
-			return View();
+			return View(Get_redactModel(gameId));
+		}
+
+		[HttpPost]
+		public IActionResult ChangeBaseInfo(RedactModel.BaseInfo baseInfo, string gameIdEncode)
+		{
+			logger.LogInformation("Redact baseInfo");
+			var gameIdDecoded = ProtectData.GetInstance().DecodeToString(gameIdEncode);
+			var gameId = Int32.Parse(gameIdDecoded);
+
+			var game = dataContext.Games.Single(i => i.Id == gameId);
+
+			//Из-за смены имени игры идёт смена директории
+			string OldNameDirectory = $"{game.Title}_key{game.Id}";
+			string NewNameDirectory = $"{baseInfo.Title}_key{game.Id}";
+			if(OldNameDirectory != NewNameDirectory)
+			{
+				//Перемещение папки с изображениями
+				Directory.Move($"{appEnvironment.WebRootPath}/images/game/{OldNameDirectory}", $"{appEnvironment.WebRootPath}/images/game/{NewNameDirectory}");
+				string nameFileImage = game.PathIcon.Split("/").Last();
+				game.PathIcon = $"../images/game/{NewNameDirectory}/{nameFileImage}";
+				var bindImages = dataContext.Images.Where(i => i.GameId == gameId);
+				foreach(var bindImage in bindImages)
+				{
+					bindImage.Path = $"../images/game/{NewNameDirectory}/{bindImage.Name}.jpg";
+					dataContext.Attach(bindImage).State = EntityState.Modified;
+				}
+
+				//Перемещение папки с кодом
+				Directory.Move($"{appEnvironment.WebRootPath}/files/gameCode/{OldNameDirectory}", $"{appEnvironment.WebRootPath}/files/gameCode/{NewNameDirectory}");
+				string nameFileCode = game.PathCode.Split("/").Last();
+				game.PathCode = $"../files/gameCode/{NewNameDirectory}/{nameFileCode}";
+			}
+
+			if (baseInfo.Icon != null)
+			{
+				//Удалям старую иконку
+				string nameOldIcon = game.PathIcon.Split("/").Last();
+				string pathOldIcon = $"/images/game/{NewNameDirectory}/{nameOldIcon}";
+				DeleteFile(pathOldIcon);
+
+				//Размещаем новую иконку
+				string nameNewIcon = baseInfo.Icon.FileName.Split("\\").Last();
+				string pathNewIcon = $"/images/game/{NewNameDirectory}/{nameNewIcon}";
+				CreateFileImage_onServer(baseInfo.Icon, pathNewIcon);
+
+				game.PathIcon = ".." + pathNewIcon;
+			}
+
+			game.Title = baseInfo.Title;
+			game.Description = baseInfo.Description;
+
+			dataContext.Attach(game).State = EntityState.Modified;
+			dataContext.SaveChanges();
+
+			return View("Redact", Get_redactModel(gameId));
+		}
+
+		[HttpPost]
+		public IActionResult ChangeCode(RedactModel.CodeInfo codeInfo, string gameIdEncode)
+		{
+			logger.LogInformation("Redact code");
+			var gameIdDecoded = ProtectData.GetInstance().DecodeToString(gameIdEncode);
+			var gameId = Int32.Parse(gameIdDecoded);
+
+			var game = dataContext.Games.Single(i => i.Id == gameId);
+
+			//Если был загружен файл, то применён будет он, иначе код из формы
+			if (codeInfo.CodeFile != null)
+			{
+				//Путь к имеющемуся коду
+				var OldPath_FileCode = game.PathCode.Replace("..", "");
+
+				//Путь к поступившему коду
+				var NewName_FileCode = codeInfo.CodeFile.FileName.Split("\\").Last();
+				var NewPath_FileCode = $"/files/gameCode/{game.Title}_key{game.Id}/{NewName_FileCode}"; 
+				var newCode = CreateFileCode_onServer(codeInfo.CodeFile, NewPath_FileCode).Result;
+
+				// парсинг кода и сохранения в БД
+				var gameComponentsControl = new GameComponentsControl(dataContext);
+				gameComponentsControl.Update(newCode, game);
+
+				if (gameComponentsControl.Messages.Count() != 0)
+				{
+					var model = Get_redactModel(gameId);
+					foreach (var message in gameComponentsControl.Messages)
+					{
+						model.codeInfo.Messages.Add(model.codeInfo.Messages.Count.ToString() + ": " + message);
+						logger.LogInformation("ParseCodeGameMessage: " + message);
+					}
+					DeleteFile(NewPath_FileCode);
+					View("Redact", model);
+				}
+				else
+				{
+					//Если новый файл был того же имени, то старый файл был перезаписан
+					if(OldPath_FileCode != NewPath_FileCode)
+					{
+						game.PathCode = ".." + NewPath_FileCode;
+						DeleteFile(OldPath_FileCode);
+					}
+				}
+			}
+			else
+			{
+				var newCode = codeInfo.CodeText;
+
+				// парсинг кода и сохранения в БД
+				var gameComponentsControl = new GameComponentsControl(dataContext);
+				gameComponentsControl.Update(newCode, game);
+
+				if (gameComponentsControl.Messages.Count() != 0)
+				{
+					var model = Get_redactModel(gameId);
+					foreach (var message in gameComponentsControl.Messages)
+					{
+						model.codeInfo.Messages.Add(model.codeInfo.Messages.Count.ToString() + ": " + message);
+						logger.LogInformation("ParseCodeGameMessage: " + message);
+					}
+					return View("Redact", model);
+				}
+				else
+				{
+					System.IO.File.WriteAllText(appEnvironment.WebRootPath + game.PathCode.Replace("..", ""), newCode);
+				}
+			}
+
+			dataContext.SavedGames.RemoveRange(dataContext.SavedGames.Where(c => c.GameId == gameId));
+
+			dataContext.Attach(game).State = EntityState.Modified;
+			dataContext.SaveChanges();
+
+			return View("Redact", Get_redactModel(gameId));
+		}
+
+		[HttpPost]
+		public IActionResult ChangeBindingImages(List<RedactModel.BindImage> bindImages, string gameIdEncode)
+		{
+			logger.LogInformation("Redact bindImages");
+			var gameIdDecoded = ProtectData.GetInstance().DecodeToString(gameIdEncode);
+			var gameId = Int32.Parse(gameIdDecoded);
+
+			var game = dataContext.Games.Single(i => i.Id == gameId);
+
+			foreach (var bindImage in bindImages)
+			{
+				if (bindImage.File != null)
+				{
+					var nameBindImage = $"{bindImage.Name}_key{gameId}";
+					var image = dataContext.Images.Single(im => im.GameId == gameId && im.Name == nameBindImage);
+
+					var pathBindImage = $"/images/game/{game.Title}_key{game.Id}/{bindImage.Name}_key{game.Id}.jpg";
+					DeleteFile(pathBindImage);
+					CreateFileImage_onServer(bindImage.File, pathBindImage);
+
+					image.Path = ".." + pathBindImage;
+					dataContext.Attach(image).State = EntityState.Modified;
+				}
+			}
+			dataContext.SaveChanges();
+
+			return View("Redact", Get_redactModel(gameId));
 		}
 		#endregion
 
@@ -428,8 +651,20 @@ namespace WebVisualGame_MVC.Controllers
 							Keys = save.Keys,
 							Point = dataContext.PointDialogs.FirstOrDefault(i => i.GameId == gameId &&
 								i.StateNumber == save.State),
-							Transitions = new List<Transition>()
+							Transitions = new List<Transition>(),
+							PathImage = "../images/game/NotImage.jpg"
 						};
+						if (model.Point.ImageId != null)
+						{
+							model.PathImage = dataContext.Images.SingleOrDefault(i => i.Id == model.Point.ImageId).Path;
+						}
+
+						//Для дебага (временно)
+						var gameUserId = dataContext.Games.Single(i => i.Id == gameId).UserId;
+						if (userID == gameUserId)
+						{
+							model.LogState = $"(Для разработчика) You have: {model.Keys}";
+						}
 
 						UpdateTransition(keys);
 						return View(model);
@@ -461,8 +696,6 @@ namespace WebVisualGame_MVC.Controllers
 				{
 					model.PathImage = dataContext.Images.SingleOrDefault(i => i.Id == model.Point.ImageId).Path;
 				}
-				
-				
 
 				UpdateTransition(new SortedSet<int>());
 			}
@@ -519,6 +752,13 @@ namespace WebVisualGame_MVC.Controllers
 					save.State = model.Point.StateNumber;
 					dataContext.Attach(save).State = EntityState.Modified;
 					dataContext.SaveChanges();
+
+					//Для дебага (временно)
+					var gameUserId = dataContext.Games.Single(i => i.Id == model.GameID).UserId;
+					if (userID == gameUserId)
+					{
+						model.LogState = $"(Для разработчика) You have: {model.Keys}";
+					}
 				}
 			}
 			catch (Exception ex)
@@ -586,20 +826,13 @@ namespace WebVisualGame_MVC.Controllers
 			gameComponentsControl.Delete(gameId);
 
 			var game = dataContext.Games.Single(i => i.Id == gameId);
-			//Зачищаем папку и удаляем её
-			DirectoryInfo dirInfo = new DirectoryInfo($"./wwwroot/images/game/{game.Title}_key{game.Id}");
-			foreach (FileInfo file in dirInfo.GetFiles())
-			{
-				file.Delete();
-			}
-			Directory.Delete($"./wwwroot/images/game/{game.Title}_key{game.Id}");
 
-			dirInfo = new DirectoryInfo($"./wwwroot/files/gameCode/{game.Title}_key{game.Id}");
-			foreach (FileInfo file in dirInfo.GetFiles())
-			{
-				file.Delete();
-			}
-			Directory.Delete($"./wwwroot/files/gameCode/{game.Title}_key{game.Id}");
+			//Зачищаем папку и удаляем её
+			var pathDirictory = $"/images/game/{game.Title}_key{game.Id}";
+			DeleteDirictory(pathDirictory);
+
+			pathDirictory = $"/files/gameCode/{game.Title}_key{game.Id}";
+			DeleteDirictory(pathDirictory);
 
 			dataContext.Games.Remove(game);
 

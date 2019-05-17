@@ -30,13 +30,19 @@
 <fieldset class="panel-body bg-warning">
     <h3>Информация об игре:</h3>
 
-    <h4>Описание: @Model.Game.Description</h4>
-    <h4>Оценка: @Model.Game.Rating</h4>
+    <label>Описание: </label>
+    <span>@Model.Game.Description</span>
+    <br />
+    <label>Оценка: </label>
+    <span>@Model.Game.Rating</span>
+    <br />
+    <label>Дата размещения: </label>
+    <span>@Model.Game.Data</span>
 
     @*<img style="width:100px; height:100px;" src="@Model.Game.UrlIcon" alt="GameIcon" />*@
 
     <form asp-controller="Game" asp-action="Play" method="get">
-        <button class="btn btn-default" type="submit" name="gameIdEncode" value="@WebVisualGame_MVC.Utilities.ProtectData.GetInstance().Encode(Model.Game.Id)" >Играть</button>
+        <button class="btn btn-default" type="submit" name="gameIdEncode" value="@WebVisualGame_MVC.Utilities.ProtectData.GetInstance().Encode(Model.Game.Id)">Играть</button>
     </form>
 </fieldset>
 @if (Context.User.Identity.IsAuthenticated)

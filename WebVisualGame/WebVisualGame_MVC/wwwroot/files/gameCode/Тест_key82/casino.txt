@@ -1,11 +1,14 @@
-﻿Background: Test
+﻿Background: startImage
 (start)"Пойдем играть в рулетку",
 "Вы можете поставить на красную, черную или на зеро"[game]
 
+Background: stavkaImage
+<___
 (game)"На что ставите?"
 -"Черная"[q45]
 -"Красная"[q45]
 -"Зеро"[q10]
+___>
 
 (q45)random
 45%: [winner]

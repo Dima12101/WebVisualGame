@@ -1,0 +1,123 @@
+(start)"вы проснулись рано утром, что вы хотите делать сегодня?"
+-"пойти играть в футбол" [footballsw]
+-"надо поработать." [worksw]
+-"пойти в додо-пиццу и отдуши покушать." [dodoSw]
+if #m2 or #m3 or #m4:-"конечно надо идти играть в казино."[casino]
+if #m3 or #m4:-"Пойти вылечиться в шикарной плоатной клинике."lose #h1, #h2, #h3, #h4[hospitalSw]
+
+(homeEvening)"Уже довольно поздно, во моетесь и ложитесь спать."[start]
+
+(footballsw)""
+if #h1:-"next" find #h2 lose #h1 [football]
+else if #h2:-"next" find #h3 lose #h2 [football]
+else if #h3:-"next" lose #h3 [deathHun]
+else:-"next" find #h1 [football]
+
+(football)"Вы играли весь день и очень устали."[homeEvening]
+
+(dodoSw)""
+if #m1:-"next" lose #h1, #h2, #h3, #m1 [dodo]
+else if #m2:-"next" find #m1 lose #h1, #h2, #h3, #m2 [dodo]
+else if #m3:-"next" find #m2 lose #h1, #h2, #h3, #m2 [dodo]
+else:-"next" find #h1 [dodoGone]
+
+(dodoGone)"у вас нет денег, поэтому охраники выгнали вас. Вы прогулялись по парку и посетили набережную."[homeEvening]
+
+(dodo)"Вы заказали большую сочную пиццу и принялись поедать её."
+-"Прогуляться по парку."[walk1]
+
+(walk1)"Вы сытый и довольный гуляете по живописному парку. после долгой прогулки вы идете домой."[homeEvening]
+
+(casino)"Вы пришли в казино,  заказали большой стейк и начинаете играть в рулетку."
+-"начнём игру." lose #h1, #h2, #h3, #h4[game]
+
+(game)"На что ставите? - спросил крупье."
+-"Черная"[q45]
+-"Красная"[q45]
+-"Зеро"[q10]
+
+(q45)random
+40%: [winnerSw]
+other: [loserSw]
+
+(q10)random
+10%: [winnerSwZero]
+other: [loserSw]
+
+(winnerSwZero)""
+-"next" find #m4 lose #m2, #m3 [winner]
+
+(winnerSw)""
+if #m2:-"next" find #m3 lose #m2 [winner]
+else if #m3:-"next" find #m4 lose #m3 [winner]
+else:-"next" [winner]
+
+(winner)"Вы выиграли!"
+-"Возващаемся домой." lose #em1, #em2, #em3[homeEvening]
+
+(loserSw)""
+if #m2:-"next" lose #m2 [loser]
+else if #m3:-"next" find #m1 lose #m3 [loser]
+else if #m4:-"next" find #m2 lose #m4 [loser]
+else:-"next" [loser]
+
+
+(loser)"Сегодня не Ваш день, вы проиграли"
+-"Возващаемся домой."[goHomeFromCasinoSw]
+
+(goHomeFromCasinoSw)""
+if #em1:-"next" find #em2 lose #em1 [homeEvening]
+else if #em2:-"next" find #em3 lose #em2 [homeEvening]
+else if #em3:-"next" lose #em3 [suicide]
+else:-"next" find #em1 [homeEvening]
+
+(hospitalSw)""
+if #m4:-"next" find #m1 lose #m4[payedHospital]
+else:-"next" lose #m3 [payedHospital]
+
+(payedHospital)"Вас распределили в шикраную палату, а после чего сытно накормили."
+-"пойти на обследование." lose #health, #em1, #em2, #em3 [q9]
+
+(q9)"Вас вылечили ото всех болячек и отпустили домой. Вы покидаете больницу и чувствуете себя харошо как никогда."[homeEvening]
+
+(worksw)""
+if #m1:-"next" find #m2 lose #m1 [work]
+else if #m2:-"next" find #m3 lose #m2 [work]
+else if #m3:-"next" find #m4 lose #m3 [work]
+else if #m4:-"next" lose #m4 [stiller]
+else:-"next" find #m1 [work]
+
+(work)"Вы хорошо поработали, строгий начальник похвалил вас."
+-"пойти отдохнуть дома"[goHomeSw]
+
+(goHomeSw)""
+if #h1:-"next" find #h2 lose #h1 [homeEvening]
+else if #h2:-"next" find #h3 lose #h2 [homeEvening]
+else if #h3:-"next" lose #h3 [deathHun]
+else:-"next" find #h1 [homeEvening]
+
+(stiller)"По пути на работу на вас напаили бандиты, они вас избили и обокрали"
+-"вернуться домой."[q111]
+-"пойти в больницу"[q111]
+
+(death)"вы умерли."
+-"новая игра" lose #h1, #h2, #m1, #m2, #m3, #m4, #health [start]
+
+(deathHun)"вы умерли от голода, надо больше внимания уделять своему организму."[death]
+
+(suicide)"Из-за частых проигрышей в казино ваше эмоциональное состояние упало нижу плинтуса. Жизнь ужасна, поэтому вы решили повеситься!"[death]
+
+(q111)"по пути вы потеряли сознание."[q112]
+
+(q112)"Вы очнулись в реанимации, врачи пытаются выличить вас, в глазах темнеет."
+-"потпытаться встать"[q113]
+if #heath:-"загрыть глаза"[q113]
+if not #heath:-"загрыть глаза" find #heath [q114]
+
+(q113)"увы...На этот раз удача не на вашей стороне, врачи не спасли вас..."[death]
+
+(q114)"Ура! Врачи вернули вас к жизни."[q115]
+
+(q115)"Вам говорят, что вы идете на поправку и скоро сможете вернуться домой."[q116]
+
+(q116)"Наконец-то. Дом милый дом"[homeEvening]

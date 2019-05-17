@@ -4,13 +4,6 @@
 }
 
 <style>
-    .image {
-        width: 250px;
-        height: 250px;
-        margin-left: 10px;
-        margin-right: 10px;
-    }
-
     .profile ul {
         list-style-type: none;
     }
@@ -42,16 +35,23 @@
 <div class="register-panel panel panel-success">
     <div class="panel-heading text-center"><h4>Профиль</h4></div>
     <div class="panel-body profile">
-        <table>
+        <table class="table table-bordered">
             <tr>
                 <td width="20%" valign="top">
-                    <img class="image" src="@Model.PathUserAvatar" alt="UserAvatar"/>
+                    <img class="MyIcon" src="@Model.PathUserAvatar" alt="UserAvatar" />
                 </td>
                 <td class="column" valign="top">
                     <h3>@Model.UserName</h3>
+                    <label>Email: </label>
+                    <span>@Model.Email</span>
+                    <br />
+                    <label>Дата регистрации: </label>
+                    <span>@Model.Data</span>
                     <br />
                     <form method="get" asp-controller="Account" asp-action="Redaction">
-                        <button class="btn btn-default" type="submit">Редактировать</button>
+                        <div class="text-center">
+                            <button class="btn btn-default" type="submit">Редактировать</button>
+                        </div>
                     </form>
                 </td>
             </tr>
@@ -85,7 +85,7 @@
                                                     </form>
                                                 </li>
                                                 <li>
-                                                    <form asp-controller="Game" asp-action="Redaction" method="get">
+                                                    <form asp-controller="Game" asp-action="Redact" method="get">
                                                         <button type="submit" name="gameIdEncode" value="@WebVisualGame_MVC.Utilities.ProtectData.GetInstance().Encode(game.Id)">Редактировать</button>
                                                     </form>
                                                 </li>
@@ -104,6 +104,7 @@
                 </table>
             </div>
         </div>
+    </div>
 </div>
 
 
