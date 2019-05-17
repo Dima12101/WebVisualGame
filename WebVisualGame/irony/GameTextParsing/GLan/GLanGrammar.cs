@@ -5,14 +5,14 @@ namespace GameTextParsing.GLan
     public static class Trm
     {
         public static string Minus = "-";
-        public static string Sharp = "#";
+        public static string KeyMark = "@";
         public static string Comma = ",";
         public static string Union = "and";
         public static string Colon = ":";
         public static string And = "and";
         public static string Or = "or";
-        public static string Find = "find";
-        public static string Lose = "lose";
+        public static string Find = "+";
+        public static string Lose = "-";
         public static string Switch = "switch";
         public static string Not = "not";
         public static string If = "if";
@@ -41,7 +41,9 @@ namespace GameTextParsing.GLan
         public static string PointIdentifier = "PointIdentifier";
         public static string GotoBlock = "GotoBlock";
         public static string ActionBlock = "ActionBlock";
-        public static string KeyList = "KeyList";
+        public static string ActionStatement = "ActionStatement";
+        public static string FindStatement = "FindStatement";
+        public static string LoseStatement = "LoseStatement";
         public static string Key = "Key";
         public static string ConditionBlock = "ConditionBlock";
         public static string Condition = "Condition";
@@ -82,7 +84,7 @@ namespace GameTextParsing.GLan
             Terminal BlockBracketRight = ToTerm("___>");
 
             Terminal Minus = ToTerm(Trm.Minus);
-            Terminal Sharp = ToTerm(Trm.Sharp);
+            Terminal Sharp = ToTerm(Trm.KeyMark);
             Terminal Percent = ToTerm(Trm.Percent);
             Terminal Comma = ToTerm(Trm.Comma);
             Terminal Union = ToTerm(Trm.And);
@@ -119,7 +121,6 @@ namespace GameTextParsing.GLan
             NonTerminal PointIdentifier = new NonTerminal(NTrm.PointIdentifier);
             NonTerminal GotoBlock = new NonTerminal(NTrm.GotoBlock);
             NonTerminal ActionBlock = new NonTerminal(NTrm.ActionBlock);
-            NonTerminal KeyList = new NonTerminal(NTrm.KeyList);
             NonTerminal Key = new NonTerminal(NTrm.Key);
             NonTerminal ConditionBlock = new NonTerminal(NTrm.ConditionBlock);
             NonTerminal BoolExpr = new NonTerminal(NTrm.Condition);
@@ -141,6 +142,9 @@ namespace GameTextParsing.GLan
             NonTerminal SettingBlock = new NonTerminal(NTrm.SettingBlock);
             NonTerminal Setting = new NonTerminal(NTrm.Setting);
             NonTerminal BackgroundAttribute = new NonTerminal(NTrm.BackgroundAttribute);
+            NonTerminal ActionStatement = new NonTerminal(NTrm.ActionStatement);
+            NonTerminal FindStatement = new NonTerminal(NTrm.FindStatement);
+            NonTerminal LoseStatement = new NonTerminal(NTrm.LoseStatement);
 
             #endregion
 
@@ -167,13 +171,16 @@ namespace GameTextParsing.GLan
             NextPointMark.Rule = "[" + PointIdentifier + "]";
 
             Key.Rule = Sharp + KeyIdentifier;
-            KeyList.Rule = MakePlusRule(KeyList, Comma, Key);
+
+            ActionStatement.Rule = FindStatement | LoseStatement;
+
+            FindStatement.Rule = Find + Key;
+
+            LoseStatement.Rule = Lose + Key;
 
             ActionBlock.Rule =
-                Find + KeyList |
-                Find + KeyList + Lose + KeyList |
-                Lose + KeyList |
-                Lose + KeyList + Find + KeyList;
+                MakePlusRule(ActionBlock, Comma, ActionStatement) |
+                "(" + MakePlusRule(ActionBlock, Comma, ActionStatement) + ")";
 
             DialogPoint.Rule =
                 DialogPointMark + TextBlock + GotoBlock |
@@ -251,8 +258,11 @@ namespace GameTextParsing.GLan
             RegisterOperators(2, And);
             RegisterOperators(3, Associativity.Neutral, Not);
 
-            MarkPunctuation("(", ")", "[", "]", "-", "#", ":");
-            MarkPunctuation(Other, Switch, RandomSwitch, Else, If, Then, Minus, BlockBracketLeft, BlockBracketRight, Background);
+            MarkPunctuation("(", ")", "[", "]");
+            MarkPunctuation(
+                Other, Switch, RandomSwitch, Else, If,
+                Then, Minus, BlockBracketLeft, BlockBracketRight,
+                Background, Sharp, Colon, Find, Lose);
 
             MarkTransient(AnswerPoint, GotoBlock, Key);
         }

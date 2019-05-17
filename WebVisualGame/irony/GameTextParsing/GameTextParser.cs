@@ -298,27 +298,31 @@ namespace GameTextParsing
 
             List<GameAction> actions = new List<GameAction>();
 
-            var actionBlock = actBlockNode.ChildNodes.ToArray();
+            var actionBlock = actBlockNode.ChildNodes;
 
-            for (int i = 0; i < actionBlock.Length / 2; i += 2)
+            foreach (var actionStatement in actionBlock)
             {
-                string actionType = actionBlock[i].GetText();
+                string actionTypeStr = actionStatement?.ChildNodes[0]?.GetName();
 
-                var keyList = actionBlock[i + 1].GetChildTokenList();
+                if (actionTypeStr == null)
+                    throw new BusinessLogicError("action statement must contain find-statement or lose-statement");
 
-                foreach (var key in keyList)
+                ActionType type = ActionType.Find;
+
+                if (actionTypeStr.Equals(NTrm.FindStatement)) type = ActionType.Find;
+                else if (actionTypeStr.Equals(NTrm.LoseStatement)) type = ActionType.Lose;
+                else throw new BusinessLogicError("Action statement must contain find-statement or lose-statement");
+
+                string key = actionStatement?.ChildNodes[0]?.ChildNodes[0]?.GetText();
+
+                if (key == null)
                 {
-                    int keyID = Meta.KeyIdDict.GetId(key);
-
-                    if (actionType.Equals(Trm.Find))
-                    {
-                        actions.Add(new GameAction { Action = ActionType.Find, Key = keyID });
-                    }
-                    else if (actionType.Equals(Trm.Lose))
-                    {
-                        actions.Add(new GameAction { Action = ActionType.Lose, Key = keyID });
-                    }
+                    throw new BusinessLogicError("action statement must contain key");
                 }
+
+                int keyID = Meta.KeyIdDict.GetId(key);
+
+                actions.Add(new GameAction { Action = type, Key = keyID });
             }
 
             return actions;
