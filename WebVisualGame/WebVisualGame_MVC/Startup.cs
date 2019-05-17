@@ -36,7 +36,7 @@ namespace WebVisualGame_MVC
 				options.MinimumSameSitePolicy = SameSiteMode.None;
 			});
 
-			string connection = Configuration.GetConnectionString("DefaultConnection");
+			string connection = Configuration.GetConnectionString("GodisConnection");
 			services.AddDbContext<DataContext>(options => options.UseSqlServer(connection));
 
 			services.AddDataProtection()
