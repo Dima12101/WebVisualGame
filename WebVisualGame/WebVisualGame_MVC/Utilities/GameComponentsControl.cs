@@ -27,7 +27,7 @@ namespace WebVisualGame_MVC.Utilities
 
 		public void Save(string sourceCode, Game gameNote)
 		{
-			if(parser.ParseGameText(sourceCode))
+			if(parser.ParseGameText(sourceCode) && parser.Messages.Count() == 0)
 			{
 				gameNote.PointDialogues = new List<PointDialog>();
 				gameNote.Transitions = new List<Transition>();

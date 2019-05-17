@@ -39,7 +39,17 @@ namespace WebVisualGame_MVC.Controllers
 			logger = _logger;
 		}
 
-		private async Task<string> CreateFileCode_onServer(IFormFile Code, string pathCode)
+		private async Task<string> ReadContentFile(IFormFile File)
+		{
+			string fileContent = "";
+			// считываем переданный файл в string
+			using (var reader = new StreamReader(File.OpenReadStream(), detectEncodingFromByteOrderMarks: true))
+			{
+				fileContent = await reader.ReadToEndAsync();
+			}
+			return fileContent;
+		}
+		private async void CreateFileCode_onServer(IFormFile Code, string pathCode)
 		{
 			//Path: /images/game/{nameDir}/{nameFile}
 
@@ -48,13 +58,7 @@ namespace WebVisualGame_MVC.Controllers
 			{
 				await Code.CopyToAsync(fileStream);
 			}
-			string codeStr = "";
-			// считываем переданный файл в string
-			using (var reader = new StreamReader(Code.OpenReadStream(), detectEncodingFromByteOrderMarks: true))
-			{
-				codeStr = await reader.ReadToEndAsync();
-			}
-			return codeStr;
+			
 		}
 		private async void CreateFileImage_onServer(IFormFile Image, string pathImage)
 		{
@@ -252,9 +256,10 @@ namespace WebVisualGame_MVC.Controllers
 					Directory.CreateDirectory($"./wwwroot/files/gameCode/{nameDirectory}");
 					string nameFileCode = model.Code.FileName.Split("\\").Last(); //В IE имя это путь
 					// путь к папке /files/gameCode/{nameDirectory}/{nameFileCode}
-					string pathCode = $"/files/gameCode/{nameDirectory}/{nameFileCode}"; 
+					string pathCode = $"/files/gameCode/{nameDirectory}/{nameFileCode}";
 
-					string code = CreateFileCode_onServer(model.Code, pathCode).Result;
+					CreateFileCode_onServer(model.Code, pathCode);
+					string code = ReadContentFile(model.Code).Result;
 
 					game.PathCode = ".." + pathCode; //нужны 2 точки
 
@@ -425,14 +430,8 @@ namespace WebVisualGame_MVC.Controllers
 
 			//Если был загружен файл, то применён будет он, иначе код из формы
 			if (codeInfo.CodeFile != null)
-			{
-				//Путь к имеющемуся коду
-				var OldPath_FileCode = game.PathCode.Replace("..", "");
-
-				//Путь к поступившему коду
-				var NewName_FileCode = codeInfo.CodeFile.FileName.Split("\\").Last();
-				var NewPath_FileCode = $"/files/gameCode/{game.Title}_key{game.Id}/{NewName_FileCode}"; 
-				var newCode = CreateFileCode_onServer(codeInfo.CodeFile, NewPath_FileCode).Result;
+			{		
+				var newCode = ReadContentFile(codeInfo.CodeFile).Result;
 
 				// парсинг кода и сохранения в БД
 				var gameComponentsControl = new GameComponentsControl(dataContext);
@@ -446,17 +445,19 @@ namespace WebVisualGame_MVC.Controllers
 						model.codeInfo.Messages.Add(model.codeInfo.Messages.Count.ToString() + ": " + message);
 						logger.LogInformation("ParseCodeGameMessage: " + message);
 					}
-					DeleteFile(NewPath_FileCode);
-					View("Redact", model);
+					return View("Redact", model);
 				}
 				else
 				{
-					//Если новый файл был того же имени, то старый файл был перезаписан
-					if(OldPath_FileCode != NewPath_FileCode)
-					{
-						game.PathCode = ".." + NewPath_FileCode;
-						DeleteFile(OldPath_FileCode);
-					}
+					//Путь к имеющемуся коду
+					var OldPath_FileCode = game.PathCode.Replace("..", "");
+
+					//Путь к поступившему коду
+					var NewName_FileCode = codeInfo.CodeFile.FileName.Split("\\").Last();
+					var NewPath_FileCode = $"/files/gameCode/{game.Title}_key{game.Id}/{NewName_FileCode}";
+
+					DeleteFile(OldPath_FileCode);
+					CreateFileCode_onServer(codeInfo.CodeFile, NewPath_FileCode);
 				}
 			}
 			else

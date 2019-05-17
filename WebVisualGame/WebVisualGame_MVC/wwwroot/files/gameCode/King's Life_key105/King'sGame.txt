@@ -1,38 +1,33 @@
 ﻿Background: good_morning
 (start)"Чем сегодня займемся, милорд?"
-    if not #key1 and #key3: -"Захватим соседнее королевство"		   [dont_want_war]
-    if not #key1 and not #key3:
-			    -"Захватим соседнее королевство"  find #party2 [go_to_war]
-    if not #key2: 	    -"Устроим охоту на вепря!" find #key2, #party1 [hunt]
-    if #party1 and #party2: -"Устроим оргию в библиотеке"	           [party]
-    if #key111: 	    -"Поищем невесту королю"			   [want_marry]
-    if #key10 and #key11 and #key13 and #key14 and #key15 and #key16:
-			    -"Ничем, оставь меня в одиночестве"		   [want_alone]
-
-(war)switch
-    #key3:   [dont_want_war]
-    other:  	         [go_to_war]
+    if not @key1 and @key3: 	    -"Захватим соседнее королевство"		  [dont_want_war]
+    if not @key1 and not @key3:	    -"Захватим соседнее королевство" +@party2 [go_to_war]
+    if not @key2: 	    -"Устроим охоту на вепря!" +@key2, +@party1 [hunt]
+    if @party1 and @party2: -"Устроим оргию в библиотеке"	          [party]
+    if @key111: 	    -"Поищем невесту королю"			  [want_marry]
+    if @key10 and @key11 and @key13 and @key14 and @key15 and @key16:
+			    -"Ничем, оставь меня в одиночестве"		  [want_alone]
 
 Background: good_night
 (sleep)"Пора спать. Вы отправляетесь в свои хоромы и крепко спите до следующего дня."[start]
 
 Background: bad_dream
-(bad_dream)"Вы просыпаетесь в холодном поту. Слава богу, это был кошмар!" find #key3 [start]
+(bad_dream)"Вы просыпаетесь в холодном поту. Слава богу, это был кошмар!"[start]
 
 Background: hunting
 (hunt)"Вы отправились на охоту и вернулись с огромной тушей лесного вепря под вечер.",
-      "Ваши слуги зажарили его для вас" lose #key1 find #key10 [sleep]
+      "Ваши слуги зажарили его для вас" -@key1, +@key10 [sleep]
 
 Background: war_adventure
 (go_to_war)
     "Вы быстро собрали войско и отправились к королевству неподалеку.",
     "К полудню вы подошли к границе владений другого короля. Вдалеке, за холмами вы видите крепость."
-	-"Взять крепость штурмом." find #key1 [winner]
+	-"Взять крепость штурмом." +@key1 [winner]
 	-"Дождаться ночи и тайком пробраться внутрь"[sabotage]
 
 Background: won_war
 (winner)"Вы захватили много золота, мехов и красивых женщин.",
-	"Вы бурно отпраздновали победу вечером." lose #key2 find #key11 [sleep]
+	"Вы бурно отпраздновали победу вечером." -@key2, +@key11 [sleep]
 
 Background: night_sabotage
 (sabotage)"Дождавшись ночи, вы во главе небольшого отряда, подбираетесь к крепости.",
@@ -41,26 +36,26 @@ Background: night_sabotage
 	-"Войти внутрь крепости"[into_castle]
 
 Background: go_back_with_nothing
-(go_back)"Вы возвращаетесь домой ни с чем." lose #key2 find #key13 [sleep]
+(go_back)"Вы возвращаетесь домой ни с чем." -@key2, +@key13 [sleep]
 
 Background: into_castle
 (into_castle)"Вы тихо пробираетесь в открытые ворота.",
     "Внезапно рядом с вами пролетает стрела. Это засада!",
     "Видимо, у вас в отряде были предатели.",
     "Вы бросаетесь в неравную схватку, зная, что вас ждет погибель..."
-    lose #key2 find #key3, #key14 [bad_dream]
+    -@key2, +@key3, +@key14 [bad_dream]
 
 Background: bad_dream_flashback
-(dont_want_war)"Вспоминая недавний ночной кошмар, вы больше не желаете воевать" find #key1 [start]
+(dont_want_war)"Вспоминая недавний ночной кошмар, вы больше не желаете воевать" +@key1 [start]
 
 Background: party
 (party)"Оргия в библиотеке - это достойное занятие! Вы здорово повеселились, и теперь готовы к новым победам."
-   lose #party2, #party1, #key3 find #key111, #key15 [sleep]
+   -@party2, -@party1, -@key3, +@key111, +@key15 [sleep]
 
 Background: finding_wife
 (want_marry)"Хорошая идея, вы уже устали устраивать оргии в библиотеке и решили найти себе жену.",
    "Ваши слуги приглашают красавиц со всего королевства, но вам никто не нравится."
-   lose #key111, #key1, #key2 find #key16 [sleep]
+   -@key111, -@key1, -@key2, +@key16 [sleep]
 
 Background: alone
 (want_alone)"Хорошо, милорд, - говорит ваш слуга и уходит.",
