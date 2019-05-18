@@ -1,3 +1,4 @@
+Background: start
 (start)"вы проснулись рано утром, что вы хотите делать сегодня?"
 -"пойти играть в футбол" [Footballsw]
 -"надо поработать." [Worksw]
@@ -5,119 +6,139 @@
 if @m2 or @m3 or @m4: -"конечно надо идти играть в казино."[Casino]
 if @m3 or @m4: -"Пойти вылечиться в шикарной платной клинике." -@h1, -@h2, -@h3, -@h4 [HospitalSw]
 
+Background: home2
 (HomeEvening)"Уже довольно поздно, во моетесь и ложитесь спать."[start]
 
-(Footballsw)""
-if @h1:-"next" +@h2, -@h1 [Football]
-else if @h2: -"next" +@h3, -@h2 [Football]
-else if @h3: -"next" -@h3 [DeathHun]
-else:-"next" +@h1 [Football]
+(Footballsw)switch
+@h1: +@h2, -@h1 [Football]
+@h2: +@h3, -@h2 [Football]
+@h3: -@h3 [DeathHun]
+other: +@h1 [Football]
 
+Background: football
 (Football)"Вы играли весь день и очень устали."[HomeEvening]
 
-(DodoSw)""
-if @m1:-"next" -@h1, -@h2, -@h3, -@m1 [Dodo]
-else if @m2: -"next" +@m1, -@h1, -@h2, -@h3, -@m2 [Dodo]
-else if @m3: -"next" +@m2, -@h1, -@h2, -@h3, -@m2 [Dodo]
-else:-"next" +@h1 [DodoGone]
+(DodoSw)switch
+@m1: -@h1, -@h2, -@h3, -@m1 [Dodo]
+@m2: +@m1, -@h1, -@h2, -@h3, -@m2 [Dodo]
+@m3: +@m2, -@h1, -@h2, -@h3, -@m3 [Dodo]
+other: [DodoGone]
 
+Background: dodo
+<___
 (DodoGone)"у вас нет денег, поэтому охранники выгнали вас. Вы прогулялись по парку и посетили набережную."[HomeEvening]
 
 (Dodo)"Вы заказали большую сочную пиццу и принялись поедать её."
 -"Прогуляться по парку."[Walk1]
+___>
 
+Background: walk
 (Walk1)"Вы сытый и довольный гуляете по живописному парку. после долгой прогулки вы идете домой."[HomeEvening]
 
+Background: casino
 (Casino)"Вы пришли в казино,  заказали большой стейк и начинаете играть в рулетку."
 -"начнём игру." -@h1, -@h2, -@h3, -@h4[Game]
 
+
+Background: roulet
+<___
 (Game)"На что ставите?, - спросил крупье."
--"Черная"[q45]
--"Красная"[q45]
--"Зеро"[q10]
+-"Черная"[Q45]
+-"Красная"[Q45]
+-"Зеро"[Q10]
 
-(q45)random
-45%: [WinnerSw]
-other: [LoserSw]
+(Q45)random
+40%: [WinnerS]
+other: [LoserS]
 
-(q10)random
-10%: [WinnerSwZero]
-other: [LoserSw]
+(Q10)random
+10%: +@m4, -@m2, -@m3 [WinnerS]
+other: [LoserS]
 
-(WinnerSwZero)""
--"next" +@m4, -@m2, -@m3 [Winner]
+(WinnerS)""
+-"next"[WinnerSw]
 
-(WinnerSw)""
-if @m2: -"next" +@m3, -@m2 [Winner]
-else if @m3: -"next" +@m4, -@m3 [Winner]
-else:-"next" [Winner]
+(LoserS)""
+-"next"[LoserSw]
+
+(WinnerSw)switch
+@m2: +@m3, -@m2 [Winner]
+@m3: +@m4, -@m3 [Winner]
+other: [Winner]
 
 (Winner)"Вы выиграли!"
--"Возвращаемся домой." -@em1, -@em2, -@em3, -@em4 [HomeEvening]
+-"Возвращаемся домой." -@em1, -@em2, -@em3 [HomeEvening]
 
-(LoserSw)""
-if @m2: -"next" -@m2 [Loser]
-else if @m3: -"next" +@m1, -@m3 [Loser]
-else if @m4: -"next" +@m2, -@m4 [Loser]
-else:-"next" [Loser]
+(LoserSw)switch
+@m2: -@m2 [Loser]
+@m3: +@m1, -@m3 [Loser]
+@m4: +@m2, -@m4 [Loser]
+other: [Loser]
 
 
 (Loser)"Сегодня не Ваш день, вы проиграли"
 -"Возвращаемся домой."[GoHomeFromCasinoSw]
 
-(GoHomeFromCasinoSw)""
-if @em1: -"next" +@em2, -@em1 [HomeEvening]
-else if @em2: -"next" +@em3, -@em2 [HomeEvening]
-else if @em3: -"next" +@em4, -@em3 [HomeEvening]
-else if @em4: -"next" -@em4 [Suicide]
-else:-"next" +@em1 [HomeEvening]
+(GoHomeFromCasinoSw)switch
+@em1: +@em2, -@em1 [HomeEvening]
+@em2: +@em3, -@em2 [HomeEvening]
+@em3: -@em3 [Suicide]
+other: +@em1 [HomeEvening]
+___>
 
-(HospitalSw)""
-if @m4: -"next" +@m1, -@m4 [PayedHospital]
-else:-"next" -@m3 [PayedHospital]
+(HospitalSw)switch
+@m4: +@m1, -@m4 [PayedHospital]
+other: -@m3 [PayedHospital]
 
-(PayedHospital)"Вас распределили в шикарную палату, а после чего сытно накормили."
--"пойти на обследование." -@health [q9]
+Background: hospital
+(PayedHospital)"Вас распределили в шикарную палату, а после чего сытно накормили.",
+"Вас вылечили ото всех болячек и отпустили домой. Вы покидаете больницу и чувствуете себя хорошо как никогда."  -@health [HomeEvening]
 
-(q9)"Вас вылечили ото всех болячек и отпустили домой. Вы покидаете больницу и чувствуете себя хорошо как никогда."[HomeEvening]
+(Worksw)switch
+@m1: +@m2, -@m1 [Work]
+@m2: -@m2, +@m3 [Work]
+@m3: -@m3 [Stiller]
+other: +@m1 [Work]
 
-(Worksw)""
-if @m1: -"next" +@m2, -@m1 [Work]
-else if @m2: -"next" -@m2, +@m3 [Work]
-else if @m3: -"next" -@m3 [Stiller]
-else: -"next" +@m1 [Work]
-
+Background: work
 (Work)"Вы хорошо поработали, строгий начальник похвалил вас."
 -"пойти отдохнуть дома"[GoHomeSw]
 
-(GoHomeSw)""
-if @h1: -"next" +@h2, -@h1 [Football]
-else if @h2: -"next" +@h3, -@h2 [Football]
-else if @h3: -"next" -@h3 [DeathHun]
-else:-"next" +@h1 [Football]
+(GoHomeSw)switch
+@h1: +@h2, -@h1 [HomeEvening]
+@h2: +@h3, -@h2 [HomeEvening]
+@h3: -@h3 [DeathHun]
+other: +@h1 [HomeEvening]
 
+Background: stilling
 (Stiller)"По пути на работу на вас напали бандиты, они вас избили и обокрали"
--"вернуться домой."[q111]
--"пойти в больницу"[q111]
+-"вернуться домой."[Q111]
+-"пойти в больницу"[Q111]
 
+Background: death
 (Death)"вы умерли."
 -"новая игра" -@h1, -@h2, -@m1, -@m2, -@m3, -@m4, -@health [start]
 
+Background: deathHun
 (DeathHun)"вы умерли от голода, надо больше внимания уделять своему организму."[Death]
 
+Background: suicide
 (Suicide)"Из-за частых проигрышей в казино ваше эмоциональное состояние упало нижу плинтуса. Жизнь ужасна, поэтому вы решили повеситься!"[Death]
 
-(q111)"по пути вы потеряли сознание."[q112]
+Background: med
+<___
+(Q111)"по пути вы потеряли сознание.",
+"Вы очнулись в реанимации, врачи пытаются вылечить вас, в глазах темнеет."
+-"попытаться встать"[Q113]
+-"закрыть глаза"[Close_eyes]
 
-(q112)"Вы очнулись в реанимации, врачи пытаются вылечить вас, в глазах темнеет."
--"попытаться встать"[q113]
-if @heath: -"закрыть глаза"[q113]
-if not @heath: -"закрыть глаза" +@heath [q114]
+(Close_eyes)switch
+@health: [Q113]
+other:   [Q114]
 
-(q113)"увы...На этот раз удача не на вашей стороне, врачи не спасли вас..."[Death]
+(Q113)"увы...На этот раз удача не на вашей стороне, врачи не спасли вас..."[Death]
 
-(q114)"Ура! Врачи вернули вас к жизни."[q115]
-
-(q115)"Вам говорят, что вы идете на поправку и скоро сможете вернуться домой."[q116]
-
-(q116)"Наконец-то. Дом милый дом"[HomeEvening]
+(Q114)"Ура! Врачи вернули вас к жизни.",
+"Вам говорят, что вы идете на поправку и скоро сможете вернуться домой.",
+"Наконец-то. Дом милый дом"[HomeEvening]
+___>

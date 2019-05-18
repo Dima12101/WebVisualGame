@@ -152,7 +152,7 @@ namespace WebVisualGame_MVC.Controllers
 
 		[Authorize]
 		[HttpPost]
-		public IActionResult SetReview(MainModel.SetReview model, string gameIdEncode)
+		public IActionResult SetReview(MainModel model, string gameIdEncode)
 		{
 			logger.LogInformation("Set review. ");
 			try
@@ -167,8 +167,8 @@ namespace WebVisualGame_MVC.Controllers
 				if (oldReview != null)
 				{
 					//Изменяем имеющийся
-					oldReview.Comment = model.Comment;
-					oldReview.Mark = model.Mark;
+					oldReview.Comment = model.Review.Comment;
+					oldReview.Mark = model.Review.Mark;
 					oldReview.Date = DateTime.Now;
 					dataContext.Attach(oldReview).State = EntityState.Modified;
 				}
@@ -177,8 +177,8 @@ namespace WebVisualGame_MVC.Controllers
 					//Добавляем новый
 					var newReview = new Review
 					{
-						Comment = model.Comment,
-						Mark = model.Mark,
+						Comment = model.Review.Comment,
+						Mark = model.Review.Mark,
 						UserId = userId,
 						GameId = gameId,
 						Date = DateTime.Now
