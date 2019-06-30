@@ -1,7 +1,7 @@
 Background: start
 (start)"вы проснулись рано утром, что вы хотите делать сегодня?"
 -"пойти играть в футбол" [Footballsw]
--"надо поработать." [Worksw]
+-"надо поработать." [stillrRand]
 -"пойти в додо-пиццу и от души покушать." [DodoSw]
 if @m2 or @m3 or @m4: -"конечно надо идти играть в казино."[Casino]
 if @m3 or @m4: -"Пойти вылечиться в шикарной платной клинике." -@h1, -@h2, -@h3, -@h4 [HospitalSw]
@@ -22,6 +22,7 @@ Background: football
 @m1: -@h1, -@h2, -@h3, -@m1 [Dodo]
 @m2: +@m1, -@h1, -@h2, -@h3, -@m2 [Dodo]
 @m3: +@m2, -@h1, -@h2, -@h3, -@m3 [Dodo]
+@m4: +@m3, -@h1, -@h2, -@h3, -@m4 [Dodo]
 other: [DodoGone]
 
 Background: dodo
@@ -94,10 +95,19 @@ Background: hospital
 (PayedHospital)"Вас распределили в шикарную палату, а после чего сытно накормили.",
 "Вас вылечили ото всех болячек и отпустили домой. Вы покидаете больницу и чувствуете себя хорошо как никогда."  -@health [HomeEvening]
 
+(stillrRand)random
+8%:  -@m1, -@m2,  -@m3, -@m4[Stiller]
+other: [WayWork]
+
+Background: bus
+(WayWork)"вы быстро доехали на автобусе и заходите в офис"
+-"начать работу"[Worksw]
+
 (Worksw)switch
 @m1: +@m2, -@m1 [Work]
 @m2: -@m2, +@m3 [Work]
-@m3: -@m3 [Stiller]
+@m3: -@m3, +@m4[Work]
+@m4: [Work]
 other: +@m1 [Work]
 
 Background: work
@@ -107,7 +117,8 @@ Background: work
 (GoHomeSw)switch
 @h1: +@h2, -@h1 [HomeEvening]
 @h2: +@h3, -@h2 [HomeEvening]
-@h3: -@h3 [DeathHun]
+@h3: +@h4, -@h3 [HomeEvening]
+@h4: -@h4 [DeathHun]
 other: +@h1 [HomeEvening]
 
 Background: stilling
@@ -138,7 +149,9 @@ other:   [Q114]
 
 (Q113)"увы...На этот раз удача не на вашей стороне, врачи не спасли вас..."[Death]
 
-(Q114)"Ура! Врачи вернули вас к жизни.",
-"Вам говорят, что вы идете на поправку и скоро сможете вернуться домой.",
+(Q114)"Ура! Врачи вернули вас к жизни."
+-"next" +@health [Q115]
+
+(Q115)"Вам говорят, что вы идете на поправку и скоро сможете вернуться домой.",
 "Наконец-то. Дом милый дом"[HomeEvening]
 ___>
